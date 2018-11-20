@@ -350,7 +350,14 @@ namespace tao
          {
             return std::string( begin_of_line( p ), end_of_line( p ) );
          }
+
+         void* internal_state = nullptr;
       };
+
+#ifdef __cpp_deduction_guides
+      template< typename... Ts >
+      memory_input( Ts&&... )->memory_input<>;
+#endif
 
    }  // namespace TAO_PEGTL_NAMESPACE
 

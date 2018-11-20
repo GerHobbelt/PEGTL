@@ -22,8 +22,9 @@ bool my_parse( const std::string& filename, my_state& state )
 }
 ```
 
-In the context of PEGTL input classes and positions, `source` is a string that identifies where the to-be-parsed data comes from.
-For example when parsing a file, the filename is the source.
+In the context of PEGTL input classes and positions there is usually an additional (i.e. beyond indicating or supplying the to-be-parsed data) string parameter `source` that identifies where the to-be-parsed data comes from.
+For example when parsing a file with one of the appropriate included input classes, the filename is automatically used as `source` so that it will appear in exceptions and error messages.
+In other cases the `source` parameter needs to be explicitly passed to the input's constructor.
 
 All classes and functions on this page are in namespace `tao::pegtl`.
 
@@ -43,6 +44,7 @@ All classes and functions on this page are in namespace `tao::pegtl`.
   * [Grammars and Buffering](#grammars-and-buffering)
   * [Custom Data Sources](#custom-data-sources)
 * [Error Reporting](#error-reporting)
+* [C++17 Deduction Guides](#c17-deduction-guides)
 
 ## Tracking Mode
 
@@ -70,8 +72,8 @@ When creating many instances of an input class, it can be changed to a non-ownin
 The classes `file_input<>`, `read_input<>` and, on supported platforms, `mmap_input<>`, can be used to parse the contents of a file.
 
 * `read_input<>` uses C "stdio" facilities to read the file.
-* `mmap_input<>` uses `mmap(2)` and is available on POSIX compliant systems.
-* `file_input<>` is a type alias for `mmap_input<>` when available, and `read_input<>` otherwise.
+* `mmap_input<>` uses `mmap(2)` on POSIX compliant systems or `MapViewOfFile()` on Windows.
+* `file_input<>` is derived from `mmap_input<>` when available, and `read_input<>` otherwise, inheriting the respective contructors.
 
 Most file input classes take a single argument, the filename, which can be supplied as `std::string` or `const char*`.
 They immediately make available the complete contents of the file; `read_input<>` reads the entire file upon construction.
@@ -90,7 +92,7 @@ struct read_input
 };
 
 template< tracking_mode P = tracking_mode::IMMEDIATE, typename Eol = eol::lf_crlf >
-struct mmap_input  // Only on POSIX compliant systems.
+struct mmap_input
 {
    explicit mmap_input( const char* filename );
    explicit mmap_input( const std::string& filename );
@@ -107,7 +109,9 @@ They should be used "as if" this was the actual signature.
 
 The class `memory_input<>` can be used to parse existing contiguous blocks of memory like the contents of a `std::string`.
 The input **neither copies the data nor takes ownership, it only keeps pointers**.
-The various constructors accept the to-be-parsed data and the source in different formats.
+The various constructors accept the to-be-parsed data in different formats.
+The `source` parameter is required for all constructors to disambiguate the different overloads.
+If you don't want to specify a source just use the empty string (`""`).
 
 The constructors that only takes a `const char* begin` for the data uses `std::strlen()` to determine the length.
 It will therefore *only* work correctly with data that is terminated with a 0-byte (and does not contain embedded 0-bytes, which are otherwise fine).
@@ -139,13 +143,52 @@ class memory_input
 };
 ```
 
+### Examples
+
+###### Example 1
+
+```c++
+memory_input<> in1( "this is the input to parse", "" );
+```
+
+Construct a `memory_input` with default tracking mode, default end-of-line mode (accepting Unix and MS-DOS line endings), and default source storage.
+As there are only two parameters, the 5th overload from above is choosen.
+The data to parse is given directly as a string literal which is not copied.
+As no pointer to the end or the size of the input is given, the length of the data to be parsed will be determined by calling `strlen` on the pointer passed as the first parameter.
+The source is the empty string.
+
+###### Example 2
+
+```c++
+struct packet
+{
+   // ...
+   const std::array< char >& buffer() const noexcept;
+   std::string identifier() const;
+   // ...
+};
+
+packet p = ...; // some UDP packet class
+
+memory_input< tracking_mode::LAZY, eol::crlf > in2( p.buffer().begin(), p.buffer().end(), p.identifier() );
+```
+
+Consider a UDP packet that was received and should be parsed.
+Construct a `memory_input` with lazy tracking mode, MS-DOS end-of-line mode (accepting only MS-DOS line endings), and default source storage.
+This example chooses the second overload from above.
+The data to parse is given as two `const char*` pointers (as the data is not null-terminated) and is, of course, not copied.
+Consider the source to be an identifier for the packet that was received, e.g. a string constructed from the timestamp, the source IP/port, the interface it was received on, a sequence number, or similar information.
+Note that this example shows why the source parameter is necessary to disambiguate the overloads.
+If the source would be optional (defaulted), the signature of this overload would also match the first example and therefore be ambiguous.
+
+### Additional Remarks
+
 Note that `noexcept(...)` is a conditional noexcept-specification, depending on whether the construction of the source stored in the class can throw given the perfectly-forwarded parameter `source`. Technically, it is implemented as `noexcept( std::is_nothrow_constructible< Source, T&& >::value )`.
 
 With the default `Source` type of `std::string`, the `source` parameter to the constructors is usually a `const char*` or (any reference to) a `std::string`, but anything that can be used to construct a `std::string` will work. When `Source` is set to `const char*` then only a `const char *` (or something that can implicitly be converted to one) will work.
 
 The implementation of the constructors is different than shown.
 They should be used "as if" this was the actual signature.
-
 
 ## String Input
 
@@ -164,6 +207,8 @@ class string_input
                  const std::size_t byte, const std::size_t line, const std::size_t byte_in_line ) noexcept(...);
 };
 ```
+
+### Additional Remarks
 
 Note that the implementation of the constructors is different than shown.
 They should be used "as if" this was the actual signature.
@@ -383,5 +428,9 @@ catch( const parse_error& e ) {
 
 All input classes based on `memory_input<>` support the above, while all classes based on `buffer_input<>` are unable to supply the same functionality as previous input might have been discarded already.
 Trying to call any of those methods on `buffer_input<>`-based instances will lead to a compile error.
+
+## C++17 Deduction Guides
+
+All input classes support C++17's [deduction guides](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction) when compiling with C++17 or newer, e.g. instead of `file_input<> in( "filename.txt" )` one can use `file_input in( "filename.txt" )`.
 
 Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey

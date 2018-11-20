@@ -408,6 +408,10 @@ can be matched by either `tao::pegtl::ascii::string< 0xe2, 0x82, 0xac >` or `tao
 
 * Equivalent to `sor< eof, eol >`.
 
+###### `forty_two< C... >`
+
+* Equivalent to `rep< 42, one< C... > >`.
+
 ###### `identifier_first`
 
 * Matches and consumes a single ASCII character permissible as first character of a C identifier.
@@ -494,7 +498,7 @@ can be matched by either `tao::pegtl::ascii::string< 0xe2, 0x82, 0xac >` or `tao
 ###### `space`
 
 * Matches and consumes a single space, line-feed, carriage-return, horizontal-tab, vertical-tab or form-feed.
-* Equivalent to `one< ' ', '\n', '\r', 't', '\v', '\f' >`.
+* Equivalent to `one< ' ', '\n', '\r', '\t', '\v', '\f' >`.
 
 ###### `string< C... >`
 
@@ -521,6 +525,12 @@ can be matched by either `tao::pegtl::ascii::string< 0xe2, 0x82, 0xac >` or `tao
 * The argument must be a string literal.
 * Works for strings up to 512 bytes of length (excluding trailing `'\0'`).
 * Strings may contain embedded `'\0'`.
+
+###### `three< C >`
+
+* Succeeds when the input contains at least three bytes, and:
+* These three input bytes are all `C`.
+* Consumes three bytes when it succeeds.
 
 ###### `two< C >`
 
@@ -567,7 +577,7 @@ The parameter N stands for the size of the encoding of the next Unicode code poi
 * for UTF-16 the rules are surrogate-pair-aware and N is either 2 or 4, and
 * for UTF-32 everything is simple and N is always 4.
 
-Following what appears to be "best" practice for UTF-16, it is *not* an error when a code unit in the range `0xd800` to `0xdfff` is encountered outside of a valid surrogate pair!
+It is an error when a code unit in the range `0xd800` to `0xdfff` is encountered outside of a valid UTF-16 surrogate pair (this changed in version 2.6.0).
 
 ###### `any`
 
@@ -1091,6 +1101,7 @@ The term *input value* indicates a correspondingly sized integer value read from
 * [`eolf`](#eolf) <sup>[(ascii rules)](#ascii-rules)</sup>
 * [`extender`](#extender) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`failure`](#failure) <sup>[(atomic rules)](#atomic-rules)</sup>
+* [`forty_two< C... >`](#forty_two-c-) <sup>[(ascii rules)](#ascii-rules)</sup>
 * [`full_composition_exclusion`](#full_composition_exclusion) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`general_category< V >`](#general_category-v-) <sup>[(icu rules)](#icu-rules-for-enumerated-properties)</sup>
 * [`grapheme_base`](#grapheme_base) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
@@ -1207,6 +1218,7 @@ The term *input value* indicates a correspondingly sized integer value read from
 * [`TAO_PEGTL_KEYWORD( "..." )`](#tao_pegtl_keyword--) <sup>[(ascii rules)](#ascii_rules)</sup>
 * [`TAO_PEGTL_STRING( "..." )`](#tao_pegtl_string--) <sup>[(ascii rules)](#ascii_rules)</sup>
 * [`terminal_punctuation`](#terminal_punctuation) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
+* [`three< C >`](#three-c-) <sup>[(ascii rules)](#ascii-rules)</sup>
 * [`trail_canonical_combining_class< V >`](#trail_canonical_combining_class-v-) <sup>[(icu rules)](#icu-rules-for-value-properties)</sup>
 * [`try_catch< R... >`](#try_catch-r-) <sup>[(convenience)](#convenience)</sup>
 * [`try_catch_type< E, R... >`](#try_catch_type-e-r-) <sup>[(convenience)](#convenience)</sup>

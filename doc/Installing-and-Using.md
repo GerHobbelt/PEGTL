@@ -4,16 +4,12 @@
 
 * [Requirements](#requirements)
 * [Installation Packages](#installation-packages)
-  * [Linux Packages](#linux-packages)
-  * [macOS Packages](#macos-packages)
-  * [Other](#other)
 * [CMake Installation](#cmake-installation)
 * [Manual Installation](#manual-installation)
 * [Embedding the PEGTL](#embedding-the-pegtl)
   * [Embedding in Binaries](#embedding-in-binaries)
   * [Embedding in Libraries](#embedding-in-libraries)
   * [Embedding in Library Interfaces](#embedding-in-library-interfaces)
-* [Limitations](#limitations)
 
 ## Requirements
 
@@ -39,21 +35,13 @@ the `-pedantic`, `-Wall`, `-Wextra` and `-Werror` compiler switches.
 
 ## Installation Packages
 
-### Linux Packages
+Installation packages are available from several package managers. Note that some of the listed packages are not updated regularly.
 
-* [Fedora/RHEL/CentOS]
-* [Debian]
-* [Ubuntu]
-* [Gentoo]
-
-Packages for other distributions might be available, too.
-
-### macOS Packages
-
-* [Homebrew]
+[![Packaging status](https://repology.org/badge/vertical-allrepos/pegtl.svg)](https://repology.org/metapackage/pegtl)
 
 ### Other
 
+* [Conan]
 * [Spack]
 
 ## CMake Installation
@@ -173,17 +161,9 @@ that start with `TAO_PEGTL_`.
 A practical example of how the result looks like can be found in our own
 header-only [JSON library](https://github.com/taocpp/json/).
 
-## Limitations
-
-When **not** compiling on Unix or macOS, then `mmap(2)`-based file reading is not available (but `std::fread(3)`-based reading is).
-
 Copyright (c) 2014-2018 Dr. Colin Hirsch and Daniel Frey
 
 [CMake]: https://cmake.org/
 [CMake documentation]: https://cmake.org/documentation/
-[Debian]: https://packages.debian.org/search?keywords=pegtl-dev
-[Fedora/RHEL/CentOS]: https://apps.fedoraproject.org/packages/PEGTL
-[Gentoo]: https://packages.gentoo.org/packages/dev-libs/pegtl
-[Homebrew]: http://brewformulas.org/Pegtl
+[Conan]: https://bintray.com/taocpp/public-conan/pegtl%3Ataocpp
 [Spack]: http://spack.readthedocs.io/en/latest/package_list.html#pegtl
-[Ubuntu]: http://packages.ubuntu.com/search?keywords=pegtl-dev

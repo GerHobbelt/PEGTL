@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <set>
 #include <sstream>
 #include <string>
@@ -33,35 +34,98 @@ namespace tao
    {
       namespace abnf
       {
+         using node_ptr = std::unique_ptr< parse_tree::node >;
+
          namespace
          {
             std::string prefix = "tao::pegtl::";  // NOLINT
 
-            // clang-format off
             std::set< std::string > keywords = {  // NOLINT
-               "alignas", "alignof", "and", "and_eq",
-               "asm", "auto", "bitand", "bitor",
-               "bool", "break", "case", "catch",
-               "char", "char16_t", "char32_t", "class",
-               "compl", "const", "constexpr", "const_cast",
-               "continue", "decltype", "default", "delete",
-               "do", "double", "dynamic_cast", "else",
-               "enum", "explicit", "export", "extern",
-               "false", "float", "for", "friend",
-               "goto", "if", "inline", "int",
-               "long", "mutable", "namespace", "new",
-               "noexcept", "not", "not_eq", "nullptr",
-               "operator", "or", "or_eq", "private",
-               "protected", "public", "register", "reinterpret_cast",
-               "return", "short", "signed", "sizeof",
-               "static", "static_assert", "static_cast", "struct",
-               "switch", "template", "this", "thread_local",
-               "throw", "true", "try", "typedef",
-               "typeid", "typename", "union", "unsigned",
-               "using", "virtual", "void", "volatile",
-               "wchar_t", "while", "xor", "xor_eq"
+               "alignas",
+               "alignof",
+               "and",
+               "and_eq",
+               "asm",
+               "auto",
+               "bitand",
+               "bitor",
+               "bool",
+               "break",
+               "case",
+               "catch",
+               "char",
+               "char16_t",
+               "char32_t",
+               "class",
+               "compl",
+               "const",
+               "constexpr",
+               "const_cast",
+               "continue",
+               "decltype",
+               "default",
+               "delete",
+               "do",
+               "double",
+               "dynamic_cast",
+               "else",
+               "enum",
+               "explicit",
+               "export",
+               "extern",
+               "false",
+               "float",
+               "for",
+               "friend",
+               "goto",
+               "if",
+               "inline",
+               "int",
+               "long",
+               "mutable",
+               "namespace",
+               "new",
+               "noexcept",
+               "not",
+               "not_eq",
+               "nullptr",
+               "operator",
+               "or",
+               "or_eq",
+               "private",
+               "protected",
+               "public",
+               "register",
+               "reinterpret_cast",
+               "return",
+               "short",
+               "signed",
+               "sizeof",
+               "static",
+               "static_assert",
+               "static_cast",
+               "struct",
+               "switch",
+               "template",
+               "this",
+               "thread_local",
+               "throw",
+               "true",
+               "try",
+               "typedef",
+               "typeid",
+               "typename",
+               "union",
+               "unsigned",
+               "using",
+               "virtual",
+               "void",
+               "volatile",
+               "wchar_t",
+               "while",
+               "xor",
+               "xor_eq"
             };
-            // clang-format on
 
             using rules_t = std::vector< std::string >;
             rules_t rules_defined;  // NOLINT
@@ -238,22 +302,45 @@ namespace tao
             template<> const std::string error_control< defined_as >::error_message = "expected '=' or '=/'";  // NOLINT
             template<> const std::string error_control< c_nl >::error_message = "unterminated rule";  // NOLINT
             template<> const std::string error_control< rule >::error_message = "expected rule";  // NOLINT
+            // clang-format on
 
          }  // namespace grammar
 
-         struct node
-            : tao::TAO_PEGTL_NAMESPACE::parse_tree::basic_node< node >
+         template< typename Rule >
+         struct selector
+            : parse_tree::selector<
+                 Rule,
+                 parse_tree::apply_store_content::to<
+                    grammar::rulename,
+                    grammar::prose_val,
+                    grammar::hex_val::value,
+                    grammar::dec_val::value,
+                    grammar::bin_val::value,
+                    grammar::hex_val::range,
+                    grammar::dec_val::range,
+                    grammar::bin_val::range,
+                    grammar::hex_val::type,
+                    grammar::dec_val::type,
+                    grammar::bin_val::type,
+                    grammar::repeat,
+                    grammar::defined_as_op >,
+                 parse_tree::apply_remove_content::to<
+                    grammar::option,
+                    grammar::and_predicate,
+                    grammar::not_predicate,
+                    grammar::rule >,
+                 parse_tree::apply_fold_one::to<
+                    grammar::alternation,
+                    grammar::group,
+                    grammar::repetition,
+                    grammar::concatenation > >
          {
-            template< typename... States >
-            void emplace_back( std::unique_ptr< node > child, States&&... st );
          };
 
-         template< typename Rule > struct selector : std::false_type {};
-         template<> struct selector< grammar::rulename > : std::true_type {};
-
-         template<> struct selector< grammar::quoted_string > : std::true_type
+         template<>
+         struct selector< grammar::quoted_string > : std::true_type
          {
-            static void transform( std::unique_ptr< node >& n )
+            static void transform( node_ptr& n )
             {
                shift( n->m_begin, 1 );
                shift( n->m_end, -1 );
@@ -274,9 +361,10 @@ namespace tao
             }
          };
 
-         template<> struct selector< grammar::case_sensitive_string > : std::true_type
+         template<>
+         struct selector< grammar::case_sensitive_string > : std::true_type
          {
-            static void transform( std::unique_ptr< node >& n )
+            static void transform( node_ptr& n )
             {
                n = std::move( n->children.back() );
                if( n->content().size() == 1 ) {
@@ -288,34 +376,20 @@ namespace tao
             }
          };
 
-         template<> struct selector< grammar::prose_val > : std::true_type {};
-         template<> struct selector< grammar::hex_val::value > : std::true_type {};
-         template<> struct selector< grammar::dec_val::value > : std::true_type {};
-         template<> struct selector< grammar::bin_val::value > : std::true_type {};
-         template<> struct selector< grammar::hex_val::range > : std::true_type {};
-         template<> struct selector< grammar::dec_val::range > : std::true_type {};
-         template<> struct selector< grammar::bin_val::range > : std::true_type {};
-         template<> struct selector< grammar::hex_val::type > : std::true_type {};
-         template<> struct selector< grammar::dec_val::type > : std::true_type {};
-         template<> struct selector< grammar::bin_val::type > : std::true_type {};
-         template<> struct selector< grammar::alternation > : parse_tree::fold_one {};
-         template<> struct selector< grammar::option > : std::true_type {};
-         template<> struct selector< grammar::group > : parse_tree::fold_one {};
-         template<> struct selector< grammar::repeat > : std::true_type {};
-         template<> struct selector< grammar::repetition > : parse_tree::fold_one {};
-         template<> struct selector< grammar::and_predicate > : std::true_type {};
-         template<> struct selector< grammar::not_predicate > : std::true_type {};
-         template<> struct selector< grammar::concatenation > : parse_tree::fold_one {};
-         template<> struct selector< grammar::defined_as_op > : std::true_type {};
-         template<> struct selector< grammar::rule > : std::true_type {};
-         // clang-format on
+         std::string to_string( const node_ptr& n );
+         std::string to_string( const std::vector< node_ptr >& v );
 
-         std::string to_string( const std::unique_ptr< node >& n );
-         std::string to_string( const std::vector< std::unique_ptr< node > >& v );
+         std::string to_string_unwrap_seq( const node_ptr& n )
+         {
+            if( n->is< grammar::group >() || n->is< grammar::concatenation >() ) {
+               return to_string( n->children );
+            }
+            return to_string( n );
+         }
 
          namespace
          {
-            std::string get_rulename( const std::unique_ptr< node >& n )
+            std::string get_rulename( const node_ptr& n )
             {
                assert( n->is< grammar::rulename >() );
                std::string v = n->content();
@@ -323,7 +397,7 @@ namespace tao
                return v;
             }
 
-            std::string get_rulename( const std::unique_ptr< node >& n, const bool print_forward_declarations )
+            std::string get_rulename( const node_ptr& n, const bool print_forward_declarations )
             {
                std::string v = get_rulename( n );
                const auto it = find_rule( rules, v );
@@ -331,7 +405,7 @@ namespace tao
                   return *it;
                }
                if( keywords.count( v ) != 0 || v.find( "__" ) != std::string::npos ) {
-                  throw std::runtime_error( to_string( n->begin() ) + ": '" + v + "' is a reserved rulename" );  // NOLINT
+                  throw parse_error( '\'' + n->content() + "' is a reserved rulename", n->begin() );  // NOLINT
                }
                if( print_forward_declarations && find_rule( rules_defined, v ) != rules_defined.rend() ) {
                   std::cout << "struct " << v << ";\n";
@@ -341,7 +415,7 @@ namespace tao
             }
 
             template< typename T >
-            std::string gen_val( const std::unique_ptr< node >& n )
+            std::string gen_val( const node_ptr& n )
             {
                if( n->children.size() == 2 ) {
                   if( n->children.back()->is< T >() ) {
@@ -354,87 +428,78 @@ namespace tao
                return prefix + "string< " + to_string( n->children ) + " >";
             }
 
+            struct ccmp
+            {
+               bool operator()( const std::string& lhs, const std::string& rhs ) const noexcept
+               {
+                  return TAO_PEGTL_STRCASECMP( lhs.c_str(), rhs.c_str() ) < 0;
+               }
+            };
+
+            std::map< std::string, parse_tree::node*, ccmp > previous_rules;  // NOLINT
+
          }  // namespace
 
-         template< typename... States >
-         void node::emplace_back( std::unique_ptr< node > child, States&&... st )
+         template<>
+         struct selector< grammar::rule > : std::true_type
          {
-            // inserting a rule is handled here since we need access to all previously inserted rules
-            if( child->is< grammar::rule >() ) {
-               const auto rname = get_rulename( child->children.front() );
-               assert( child->children.at( 1 )->is< grammar::defined_as_op >() );
-               const auto op = child->children.at( 1 )->content();
+            static void transform( node_ptr& n )
+            {
+               const auto rname = get_rulename( n->children.front() );
+               assert( n->children.at( 1 )->is< grammar::defined_as_op >() );
+               const auto op = n->children.at( 1 )->content();
                // when we insert a normal rule, we need to check for duplicates
                if( op == "=" ) {
-                  for( const auto& n : children ) {
-                     if( TAO_PEGTL_STRCASECMP( rname.c_str(), abnf::get_rulename( n->children.front() ).c_str() ) == 0 ) {
-                        throw std::runtime_error( to_string( child->begin() ) + ": rule '" + rname + "' is already defined" );  // NOLINT
-                     }
+                  if( !previous_rules.insert( { rname, n.get() } ).second ) {
+                     throw parse_error( "rule '" + rname + "' is already defined", n->begin() );  // NOLINT
                   }
                }
                // if it is an "incremental alternation", we need to consolidate the assigned alternations
                else if( op == "=/" ) {
-                  std::size_t i = 0;
-                  while( i < children.size() ) {
-                     if( TAO_PEGTL_STRCASECMP( rname.c_str(), abnf::get_rulename( children.at( i )->children.front() ).c_str() ) == 0 ) {
-                        auto& previous = children.at( i )->children.back();
+                  const auto p = previous_rules.find( rname );
+                  if( p == previous_rules.end() ) {
+                     throw parse_error( "incremental alternation '" + rname + "' without previous rule definition", n->begin() );  // NOLINT
+                  }
+                  auto& previous = p->second->children.back();
 
-                        // if the previous rule does not assign an alternation, create an intermediate alternation and move its assignee into it.
-                        if( !previous->is< abnf::grammar::alternation >() ) {
-                           std::unique_ptr< node > s( new node );
-                           s->id = &typeid( abnf::grammar::alternation );
-                           s->source = previous->source;
-                           s->m_begin = previous->m_begin;
-                           s->m_end = previous->m_end;
-                           s->children.emplace_back( std::move( previous ) );
-                           previous = std::move( s );
-                        }
+                  // if the previous rule does not assign an alternation, create an intermediate alternation and move its assignee into it.
+                  if( !previous->is< abnf::grammar::alternation >() ) {
+                     node_ptr s( new parse_tree::node );
+                     s->id = &typeid( abnf::grammar::alternation );
+                     s->source = previous->source;
+                     s->m_begin = previous->m_begin;
+                     s->m_end = previous->m_end;
+                     s->children.emplace_back( std::move( previous ) );
+                     previous = std::move( s );
+                  }
 
-                        // append all new options to the previous rule's assignee (which now always an alternation)
-                        previous->m_end = child->children.back()->m_end;
+                  // append all new options to the previous rule's assignee (which always is an alternation now)
+                  previous->m_end = n->children.back()->m_end;
 
-                        // if the new rule itself contains an alternation, append the individual entries...
-                        if( child->children.back()->is< abnf::grammar::alternation >() ) {
-                           for( auto& n : child->children.back()->children ) {
-                              previous->children.emplace_back( std::move( n ) );
-                           }
-                        }
-                        // ...otherwise add the node itself as another option.
-                        else {
-                           previous->children.emplace_back( std::move( child->children.back() ) );
-                        }
-
-                        // finally, move the previous rule to the current position...
-                        child = std::move( children.at( i ) );
-
-                        // ...and remove the previous rule from the list.
-                        children.erase( children.begin() + i );
-
-                        // all OK now
-                        break;
+                  // if the new rule itself contains an alternation, append the individual entries...
+                  if( n->children.back()->is< abnf::grammar::alternation >() ) {
+                     for( auto& e : n->children.back()->children ) {
+                        previous->children.emplace_back( std::move( e ) );
                      }
-                     ++i;
                   }
-                  if( i == children.size() ) {
-                     throw std::runtime_error( to_string( child->begin() ) + ": incremental alternation '" + rname + "' without previous rule definition" );  // NOLINT
+                  // ...otherwise add the node itself as another option.
+                  else {
+                     previous->children.emplace_back( std::move( n->children.back() ) );
                   }
+                  n.reset();
                }
                else {
-                  throw std::runtime_error( to_string( child->begin() ) + ": invalid operator '" + op + "', this should not happen!" );  // NOLINT
+                  throw parse_error( "invalid operator '" + op + "', this should not happen!", n->begin() );  // NOLINT
                }
             }
-
-            // perform the normal emplace_back operation by forwarding to the original method
-            tao::TAO_PEGTL_NAMESPACE::parse_tree::basic_node< node >::emplace_back( std::move( child ), st... );
-         }
+         };
 
          struct stringifier
          {
-            using function_t = std::string ( * )( const std::unique_ptr< node >& n );
+            using function_t = std::string ( * )( const node_ptr& n );
             function_t default_ = nullptr;
 
-            using map_t = std::map< const std::type_info*, function_t >;
-            map_t map_;
+            std::map< const std::type_info*, function_t > map_;
 
             template< typename T >
             void add( const function_t& f )
@@ -442,7 +507,7 @@ namespace tao
                map_.insert( { &typeid( T ), f } );
             }
 
-            std::string operator()( const std::unique_ptr< node >& n ) const
+            std::string operator()( const node_ptr& n ) const
             {
                const auto it = map_.find( n->id );
                if( it != map_.end() ) {
@@ -455,17 +520,17 @@ namespace tao
          stringifier make_stringifier()
          {
             stringifier nrv;
-            nrv.default_ = []( const std::unique_ptr< node >& n ) -> std::string {
-               throw std::runtime_error( to_string( n->begin() ) + ": missing to_string() for " + n->name() );  // NOLINT
+            nrv.default_ = []( const node_ptr& n ) -> std::string {
+               throw parse_error( "missing to_string() for " + n->name(), n->begin() );  // NOLINT
             };
 
-            nrv.add< grammar::rulename >( []( const std::unique_ptr< node >& n ) { return get_rulename( n, true ); } );
+            nrv.add< grammar::rulename >( []( const node_ptr& n ) { return get_rulename( n, true ); } );
 
-            nrv.add< grammar::rule >( []( const std::unique_ptr< node >& n ) {
+            nrv.add< grammar::rule >( []( const node_ptr& n ) {
                return "struct " + get_rulename( n->children.front(), false ) + " : " + to_string( n->children.back() ) + " {};";
             } );
 
-            nrv.add< string_tag >( []( const std::unique_ptr< node >& n ) {
+            nrv.add< string_tag >( []( const node_ptr& n ) {
                const std::string content = n->content();
                std::string s;
                for( const auto c : content ) {
@@ -474,7 +539,7 @@ namespace tao
                return prefix + "string< " + s + " >";
             } );
 
-            nrv.add< istring_tag >( []( const std::unique_ptr< node >& n ) {
+            nrv.add< istring_tag >( []( const node_ptr& n ) {
                const std::string content = n->content();
                std::string s;
                for( const auto c : content ) {
@@ -483,7 +548,7 @@ namespace tao
                return prefix + "istring< " + s + " >";
             } );
 
-            nrv.add< one_tag >( []( const std::unique_ptr< node >& n ) {
+            nrv.add< one_tag >( []( const node_ptr& n ) {
                const std::string content = n->content();
                std::string s;
                for( const auto c : content ) {
@@ -492,9 +557,9 @@ namespace tao
                return prefix + "one< " + s + " >";
             } );
 
-            nrv.add< grammar::hex_val::value >( []( const std::unique_ptr< node >& n ) { return "0x" + n->content(); } );
-            nrv.add< grammar::dec_val::value >( []( const std::unique_ptr< node >& n ) { return n->content(); } );
-            nrv.add< grammar::bin_val::value >( []( const std::unique_ptr< node >& n ) {
+            nrv.add< grammar::hex_val::value >( []( const node_ptr& n ) { return "0x" + n->content(); } );
+            nrv.add< grammar::dec_val::value >( []( const node_ptr& n ) { return n->content(); } );
+            nrv.add< grammar::bin_val::value >( []( const node_ptr& n ) {
                unsigned long long v = 0;
                const char* p = n->m_begin.data;
                // TODO: Detect overflow
@@ -507,47 +572,47 @@ namespace tao
                return o.str();
             } );
 
-            nrv.add< grammar::hex_val::type >( []( const std::unique_ptr< node >& n ) { return gen_val< grammar::hex_val::range >( n ); } );
-            nrv.add< grammar::dec_val::type >( []( const std::unique_ptr< node >& n ) { return gen_val< grammar::dec_val::range >( n ); } );
-            nrv.add< grammar::bin_val::type >( []( const std::unique_ptr< node >& n ) { return gen_val< grammar::bin_val::range >( n ); } );
+            nrv.add< grammar::hex_val::type >( []( const node_ptr& n ) { return gen_val< grammar::hex_val::range >( n ); } );
+            nrv.add< grammar::dec_val::type >( []( const node_ptr& n ) { return gen_val< grammar::dec_val::range >( n ); } );
+            nrv.add< grammar::bin_val::type >( []( const node_ptr& n ) { return gen_val< grammar::bin_val::range >( n ); } );
 
-            nrv.add< grammar::alternation >( []( const std::unique_ptr< node >& n ) { return prefix + "sor< " + to_string( n->children ) + " >"; } );
-            nrv.add< grammar::option >( []( const std::unique_ptr< node >& n ) { return prefix + "opt< " + to_string( n->children ) + " >"; } );
-            nrv.add< grammar::group >( []( const std::unique_ptr< node >& n ) { return prefix + "seq< " + to_string( n->children ) + " >"; } );
+            nrv.add< grammar::alternation >( []( const node_ptr& n ) { return prefix + "sor< " + to_string( n->children ) + " >"; } );
+            nrv.add< grammar::option >( []( const node_ptr& n ) { return prefix + "opt< " + to_string( n->children ) + " >"; } );
+            nrv.add< grammar::group >( []( const node_ptr& n ) { return prefix + "seq< " + to_string( n->children ) + " >"; } );
 
-            nrv.add< grammar::prose_val >( []( const std::unique_ptr< node >& n ) { return "/* " + n->content() + " */"; } );
+            nrv.add< grammar::prose_val >( []( const node_ptr& n ) { return "/* " + n->content() + " */"; } );
 
-            nrv.add< grammar::and_predicate >( []( const std::unique_ptr< node >& n ) {
+            nrv.add< grammar::and_predicate >( []( const node_ptr& n ) {
                assert( n->children.size() == 1 );
-               return prefix + "at< " + to_string( n->children.front() ) + " >";
+               return prefix + "at< " + to_string_unwrap_seq( n->children.front() ) + " >";
             } );
 
-            nrv.add< grammar::not_predicate >( []( const std::unique_ptr< node >& n ) {
+            nrv.add< grammar::not_predicate >( []( const node_ptr& n ) {
                assert( n->children.size() == 1 );
-               return prefix + "not_at< " + to_string( n->children.front() ) + " >";
+               return prefix + "not_at< " + to_string_unwrap_seq( n->children.front() ) + " >";
             } );
 
-            nrv.add< grammar::concatenation >( []( const std::unique_ptr< node >& n ) {
+            nrv.add< grammar::concatenation >( []( const node_ptr& n ) {
                assert( !n->children.empty() );
                return prefix + "seq< " + to_string( n->children ) + " >";
             } );
 
-            nrv.add< grammar::repetition >( []( const std::unique_ptr< node >& n ) -> std::string {
+            nrv.add< grammar::repetition >( []( const node_ptr& n ) -> std::string {
                assert( n->children.size() == 2 );
-               const auto content = to_string( n->children.back() );
+               const auto content = to_string_unwrap_seq( n->children.back() );
                const auto rep = n->children.front()->content();
                const auto star = rep.find( '*' );
                if( star == std::string::npos ) {
                   const auto v = remove_leading_zeroes( rep );
                   if( v.empty() ) {
-                     throw std::runtime_error( to_string( n->begin() ) + ": repetition of zero not allowed" );  // NOLINT
+                     throw parse_error( "repetition of zero not allowed", n->begin() );  // NOLINT
                   }
                   return prefix + "rep< " + v + ", " + content + " >";
                }
                const auto min = remove_leading_zeroes( rep.substr( 0, star ) );
                const auto max = remove_leading_zeroes( rep.substr( star + 1 ) );
                if( ( star != rep.size() - 1 ) && max.empty() ) {
-                  throw std::runtime_error( to_string( n->begin() ) + ": repetition maximum of zero not allowed" );  // NOLINT
+                  throw parse_error( "repetition maximum of zero not allowed", n->begin() );  // NOLINT
                }
                if( min.empty() && max.empty() ) {
                   return prefix + "star< " + content + " >";
@@ -575,7 +640,11 @@ namespace tao
                   s >> max_val;
                }
                if( min_val > max_val ) {
-                  throw std::runtime_error( to_string( n->begin() ) + ": repetition minimum which is greater than the repetition maximum not allowed" );  // NOLINT
+                  throw parse_error( "repetition minimum which is greater than the repetition maximum not allowed", n->begin() );  // NOLINT
+               }
+               if( ( min_val == 1 ) && ( max_val == 1 ) ) {
+                  // note: content can not be used here!
+                  return to_string( n->children.back() );
                }
                const auto min_element = ( min_val == 1 ) ? content : ( prefix + "rep< " + min + ", " + content + " >" );
                if( min_val == max_val ) {
@@ -590,13 +659,13 @@ namespace tao
             return nrv;
          }
 
-         std::string to_string( const std::unique_ptr< node >& n )
+         std::string to_string( const node_ptr& n )
          {
             static stringifier s = make_stringifier();
             return s( n );
          }
 
-         std::string to_string( const std::vector< std::unique_ptr< node > >& v )
+         std::string to_string( const std::vector< node_ptr >& v )
          {
             std::string result;
             for( const auto& c : v ) {
@@ -626,7 +695,7 @@ int main( int argc, char** argv )
 
    file_input<> in( argv[ 1 ] );
    try {
-      const auto root = parse_tree::parse< abnf::grammar::rulelist, abnf::node, abnf::selector, abnf::grammar::error_control >( in );
+      const auto root = parse_tree::parse< abnf::grammar::rulelist, abnf::selector, nothing, abnf::grammar::error_control >( in );
 
       for( const auto& rule : root->children ) {
          abnf::rules_defined.push_back( abnf::get_rulename( rule->children.front() ) );

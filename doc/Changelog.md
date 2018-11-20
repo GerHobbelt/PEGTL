@@ -1,5 +1,40 @@
 # Changelog
 
+## 2.7.1
+
+Released 2018-09-29
+
+* Added new ASCII convenience rule [`forty_two`](Rule-Reference.md#forty_two-c-).
+* Added experimental `if_then` rule.
+* Simplified how parse tree nodes can be selected.
+* Reduced the number of intermediate parse tree nodes.
+* Allowed an action class template to be used with the parse tree.
+
+## 2.7.0
+
+Released 2018-07-31
+
+* Added [`mmap_file<>`](Inputs-and-Parsing.md#file-input) support for Windows.
+* Added [deduction guides](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction) for the input classes when compiling with C++17.
+
+## 2.6.1
+
+Released 2018-07-22
+
+* Fixed endianness detection in test program.
+
+## 2.6.0
+
+Released 2018-06-22
+
+* Added [Conan](https://conan.io/) [packages](https://bintray.com/taocpp/public-conan/pegtl%3Ataocpp/).
+* Fixed the UTF-8 decoder to no longer accept UTF-16 surrogates.
+* Fixed the UTF-16 decoder to no longer accept UTF-16 unmatched surrogates.
+* Fixed the UTF-32 "decoder" to no longer accept UTF-16 surrogates.
+* Fixed `pegtl/contrib/unescape.hh` to no longer accept unmatched surrogates.
+* Optimised convenience rule [`two`](Rule-Reference.md#two-c-).
+* Added new convenience rule [`three`](Rule-Reference.md#three-c-).
+
 ## 2.5.2
 
 Released 2018-05-31

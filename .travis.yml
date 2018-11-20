@@ -2,10 +2,6 @@ language: generic
 os: linux
 dist: trusty
 
-branches:
-  only:
-    - master
-
 matrix:
   include:
     - compiler: gcc
@@ -69,6 +65,15 @@ matrix:
           packages: ['g++-8']
       env:
         - CXX=g++-8
+
+    - compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-8']
+      env:
+        - CXX=g++-8
+        - CXXSTD=-std=c++17
 
     - dist: precise
       compiler: clang
@@ -182,7 +187,7 @@ matrix:
         - CXX=clang++
 
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode9.4
       compiler: clang
       env:
         - CXX=clang++
@@ -429,6 +434,20 @@ matrix:
         - "sed -i 's#TAO_PEGTL_NAMESPACE#pegtl#g' $(find . -name '*.[hc]pp')"
         - make -kj3 clang-tidy
 
+    - language: python
+      python:
+        - "3.6"
+      sudo: required
+      install:
+        - pip install conan conan-package-tools
+      env:
+        - CONAN_GCC_VERSIONS=7
+        - CONAN_DOCKER_IMAGE=lasote/conangcc7
+      script:
+        - python .conan/build.py
+
 script:
   - $CXX --version
+  - make -j3 build/src/test/pegtl/tester
+  - build/src/test/pegtl/tester
   - make -kj3

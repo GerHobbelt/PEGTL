@@ -5,8 +5,6 @@
 * [Installing and Using](Installing-and-Using.md)
   * [Requirements](Installing-and-Using.md#requirements)
   * [Installation Packages](Installing-and-Using.md#installation-packages)
-    * [Linux Packages](Installing-and-Using.md#linux-packages)
-    * [macOS Packages](Installing-and-Using.md#macos-packages)
   * [CMake Installation](Installing-and-Using.md#cmake-installation)
   * [Manual Installation](Installing-and-Using.md#manual-installation)
   * [Embedding the PEGTL](Installing-and-Using.md#embedding-the-pegtl)
@@ -66,6 +64,7 @@
     * [Grammars and Buffering](Inputs-and-Parsing.md#grammars-and-buffering)
     * [Custom Data Sources](Inputs-and-Parsing.md#custom-data-sources)
   * [Error Reporting](Inputs-and-Parsing.md#error-reporting)
+  * [C++17 Deduction Guides](Inputs-and-Parsing.md#c17-deduction-guides)
 * [Control and Debug](Control-and-Debug.md)
   * [Normal Control](Control-and-Debug.md#normal-control)
   * [Control Functions](Control-and-Debug.md#control-functions)
@@ -122,6 +121,7 @@
 * [`eolf`](Rule-Reference.md#eolf) <sup>[(ascii rules)](Rule-Reference.md#ascii-rules)</sup>
 * [`extender`](Rule-Reference.md#extender) <sup>[(icu rules)](Rule-Reference.md#icu-rules-for-binary-properties)</sup>
 * [`failure`](Rule-Reference.md#failure) <sup>[(atomic rules)](Rule-Reference.md#atomic-rules)</sup>
+* [`forty_two< C... >`](Rule-Reference.md#forty_two-c-) <sup>[(ascii rules)](Rule-Reference.md#ascii-rules)</sup>
 * [`full_composition_exclusion`](Rule-Reference.md#full_composition_exclusion) <sup>[(icu rules)](Rule-Reference.md#icu-rules-for-binary-properties)</sup>
 * [`general_category< V >`](Rule-Reference.md#general_category-v-) <sup>[(icu rules)](Rule-Reference.md#icu-rules-for-enumerated-properties)</sup>
 * [`grapheme_base`](Rule-Reference.md#grapheme_base) <sup>[(icu rules)](Rule-Reference.md#icu-rules-for-binary-properties)</sup>
@@ -238,6 +238,7 @@
 * [`TAO_PEGTL_KEYWORD( "..." )`](Rule-Reference.md#tao_pegtl_keyword--) <sup>[(ascii rules)](Rule-Reference.md#ascii_rules)</sup>
 * [`TAO_PEGTL_STRING( "..." )`](Rule-Reference.md#tao_pegtl_string--) <sup>[(ascii rules)](Rule-Reference.md#ascii_rules)</sup>
 * [`terminal_punctuation`](Rule-Reference.md#terminal_punctuation) <sup>[(icu rules)](Rule-Reference.md#icu-rules-for-binary-properties)</sup>
+* [`three< C >`](Rule-Reference.md#three-c-) <sup>[(ascii rules)](Rule-Reference.md#ascii-rules)</sup>
 * [`trail_canonical_combining_class< V >`](Rule-Reference.md#trail_canonical_combining_class-v-) <sup>[(icu rules)](Rule-Reference.md#icu-rules-for-value-properties)</sup>
 * [`try_catch< R... >`](Rule-Reference.md#try_catch-r-) <sup>[(convenience)](Rule-Reference.md#convenience)</sup>
 * [`try_catch_type< E, R... >`](Rule-Reference.md#try_catch_type-e-r-) <sup>[(convenience)](Rule-Reference.md#convenience)</sup>
