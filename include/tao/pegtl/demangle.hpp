@@ -111,6 +111,11 @@ template< typename T >
       static_assert( end != std::string_view::npos );
       return tmp.substr( 0, end );
    }
+   else if constexpr (static_cast<bool>(__cpp_rtti))
+   {
+      return typeid( T ).name();
+   }
+   return "<INVALID_NAME>";
 }
 
 #else
