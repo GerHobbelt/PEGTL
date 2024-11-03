@@ -16,29 +16,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build_type: [Debug, Release]
-        include:
-          - compiler: g++-12
-            os: ubuntu-24.04
-          - compiler: g++-13
-            os: ubuntu-24.04
-          - compiler: g++-14
-            os: ubuntu-24.04
-          - compiler: clang++-16
-            os: ubuntu-24.04
-          - compiler: clang++-17
-            os: ubuntu-24.04
-          - compiler: clang++-18
-            os: ubuntu-24.04
-          - compiler: g++-11
-            os: ubuntu-22.04
-          - compiler: clang++-13
-            os: ubuntu-22.04
-          - compiler: clang++-14
-            os: ubuntu-22.04
-          - compiler: clang++-15
-            os: ubuntu-22.04
-    runs-on: ${{ matrix.os }}
+        platform:
+          - os: ubuntu-24.04
+            compiler: g++-12
+          - os: ubuntu-24.04
+            compiler: g++-13
+          - os: ubuntu-24.04
+            compiler: g++-14
+          - os: ubuntu-24.04
+            compiler: clang++-16
+          - os: ubuntu-24.04
+            compiler: clang++-17
+          - os: ubuntu-24.04
+            compiler: clang++-18
+          - os: ubuntu-22.04
+            compiler: g++-11
+          - os: ubuntu-22.04
+            compiler: clang++-13
+          - os: ubuntu-22.04
+            compiler: clang++-14
+          - os: ubuntu-22.04
+            compiler: clang++-15
+        build_type: [Release, Debug]
+    runs-on: ${{ matrix.platform.os }}
 
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
         run: |
           cmake -S $GITHUB_WORKSPACE -B build \
           -GNinja \
-          -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.platform.compiler }} \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build project
