@@ -11,27 +11,26 @@ on:
       - 'doc/**'
 
 jobs:
-  linux:
+  linux-ubuntu-24_04:
     strategy:
       fail-fast: false
       matrix:
         compiler:
-          - g++-9
-          - g++-10
-          - g++-11
           - g++-12
-          - clang++-12
-          - clang++-13
-          - clang++-14
+          - g++-13
+          - g++-14
+          - clang++-16
+          - clang++-17
+          - clang++-18
         build_type: [Debug, Release]
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       CXX: ${{ matrix.compiler }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - run: cmake -E make_directory build
 
@@ -44,29 +43,23 @@ jobs:
     - working-directory: build/
       run: ctest --output-on-failure
 
-  linux-old:
+  linux-ubuntu-22_04:
     strategy:
       fail-fast: false
       matrix:
         compiler:
-          - clang++-7
-          - clang++-8
-          - clang++-9
-          - clang++-10
-          - clang++-11
+          - clang++-13
+          - clang++-14
+          - clang++-15
         build_type: [Debug, Release]
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     env:
       CXX: ${{ matrix.compiler }}
 
     steps:
-    - uses: actions/checkout@v3
-
-    - run: sudo apt-get update -y
-
-    - run: sudo apt-get install -y ${{ matrix.compiler }}
+    - uses: actions/checkout@v4
 
     - run: cmake -E make_directory build
 
@@ -86,10 +79,10 @@ jobs:
         flags: ["-fno-rtti", "-fno-exceptions"]
         build_type: [Debug, Release]
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - run: cmake -E make_directory build
 
@@ -109,13 +102,13 @@ jobs:
         flags: ["-fno-rtti", "-fno-exceptions", "-fms-extensions"]
         build_type: [Debug, Release]
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       CXX: clang++
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - run: cmake -E make_directory build
 
