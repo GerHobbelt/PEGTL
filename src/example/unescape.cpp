@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include <tao/pegtl.hpp>
-#include <tao/pegtl/extra/unescape.hpp>
+#include <tao/pegtl/deprecated/unescape.hpp>
 
 using namespace TAO_PEGTL_NAMESPACE;
 

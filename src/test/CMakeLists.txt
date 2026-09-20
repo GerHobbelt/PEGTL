@@ -12,8 +12,10 @@ set(test_sources
   action_change_rule.cpp
   action_change_state.cpp
   action_change_states.cpp
+  action_check_consume.cpp
   action_control_action.cpp
   action_enable_disable.cpp
+  action_limit_consume.cpp
   action_match_lazy.cpp
   action_match_text.cpp
   apply_mode.cpp
@@ -65,6 +67,7 @@ set(test_sources
   deprecated_if_then.cpp
   deprecated_rep_one_min_max.cpp
   deprecated_rep_string.cpp
+  deprecated_unescape.cpp
   enable_control.cpp
   error_message_1.cpp
   error_message_2.cpp
@@ -74,7 +77,6 @@ set(test_sources
   example_json.cpp
   example_uri.cpp
   extra_charconv.cpp
-  extra_check_consume.cpp
   extra_check_depth.cpp
   extra_dispatch.cpp
   extra_input_with_depth.cpp
@@ -82,7 +84,6 @@ set(test_sources
   extra_integer_convert.cpp
   extra_integer_match.cpp
   extra_integer_maximum.cpp
-  extra_limit_consume.cpp
   extra_nested_exceptions.cpp
   extra_parse_tree.cpp
   extra_parse_tree_to_dot.cpp
@@ -90,7 +91,6 @@ set(test_sources
   extra_record.cpp
   extra_type_to_string.cpp
   extra_unescape.cpp
-  extra_unordered.cpp
   icu_utf16_base.cpp
   icu_utf32_base.cpp
   icu_utf8_base.cpp
@@ -119,7 +119,6 @@ set(test_sources
   internal_integer_size.cpp
   internal_lazy_inputs.cpp
   internal_lazy_scan_traits.cpp
-  internal_math_utility.cpp
   internal_mmap_input.cpp
   internal_peek_ascii.cpp
   internal_peek_data.cpp
@@ -151,6 +150,7 @@ set(test_sources
   internal_value_list_concat.cpp
   internal_vector_stack_guard.cpp
   internal_view_input.cpp
+  normal_apply_rule.cpp
   parse_error.cpp
   pegtl_string_t.cpp
   rewind_mode.cpp
@@ -161,7 +161,6 @@ set(test_sources
   rule_at.cpp
   rule_bof.cpp
   rule_bol.cpp
-  rule_combine.cpp
   rule_consume.cpp
   rule_control.cpp
   rule_disable.cpp
@@ -174,7 +173,6 @@ set(test_sources
   rule_if_must.cpp
   rule_if_must_else.cpp
   rule_if_then_else.cpp
-  rule_invert.cpp
   rule_list.cpp
   rule_list_must.cpp
   rule_list_tail.cpp
@@ -195,8 +193,8 @@ set(test_sources
   rule_rep_min.cpp
   rule_rep_min_max.cpp
   rule_rep_opt.cpp
-  rule_sep.cpp
-  rule_sep_pad.cpp
+  rule_separated.cpp
+  rule_separated_pad.cpp
   rule_seq.cpp
   rule_sor.cpp
   rule_star.cpp
@@ -208,6 +206,7 @@ set(test_sources
   rule_success.cpp
   rule_try_catch_raise_nested.cpp
   rule_try_catch_return_false.cpp
+  rule_unordered.cpp
   rule_until.cpp
   rule_utf8_string.cpp
   stream_alloc_buffer.cpp

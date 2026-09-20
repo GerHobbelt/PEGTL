@@ -185,6 +185,11 @@ namespace TAO_PEGTL_NAMESPACE
       : analyze_sor_traits< Rule, Rules... >
    {};
 
+   template< typename Name, typename Rule >
+   struct analyze_traits< Name, internal::source< Rule > >
+      : analyze_opt_traits<>
+   {};
+
    template< typename Name, typename... Rules >
    struct analyze_traits< Name, internal::star< Rules... > >
       : analyze_opt_traits< Rules..., Name >
@@ -218,6 +223,11 @@ namespace TAO_PEGTL_NAMESPACE
    template< typename Name, typename Rule >
    struct analyze_traits< Name, internal::tester< Rule > >
       : analyze_any_traits<>
+   {};
+
+   template< typename Name, bool Optional, typename... Rules >
+   struct analyze_traits< Name, internal::unordered< Optional, Rules... > >
+      : std::conditional_t< Optional, analyze_opt_traits< Rules... >, analyze_seq_traits< Rules... > >  // TODO: Correctly handle recursion through unordered.
    {};
 
    template< typename Name, typename Cond >

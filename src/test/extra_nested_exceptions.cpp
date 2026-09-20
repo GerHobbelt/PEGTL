@@ -2,19 +2,24 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
-#include <tao/pegtl/system.hpp>
-
-#if !defined( __cpp_exceptions ) || !defined( __cpp_rtti ) || defined( TAO_PEGTL_SYSTEM_WINDOWS )
+#if !defined( __cpp_exceptions ) || !defined( __cpp_rtti )
 #include <iostream>
 int main()
 {
-   // TODO: Find out why nested exceptions segfault on Windows.
-   std::cout << "Exception and/or RTTI support disabled and/or compiling on Windows, skipping test..." << std::endl;
+   std::cout << "Exception and/or RTTI support disabled, skipping test..." << std::endl;
+}
+#elif defined( __clang__ ) && defined( _WIN32 )
+#include <iostream>
+int main()
+{
+   std::cout << "Nested exceptions are broken with Clang on Windows, skipping test..." << std::endl;
 }
 #else
 
 #include "test.hpp"
 
+#include <exception>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -193,12 +198,60 @@ namespace TAO_PEGTL_NAMESPACE
       }
    }
 
+   void test8()
+   {
+      try {
+         try {
+            try {
+               throw_parse_error( "first", count_position( 1 ) );
+            }
+            catch( ... ) {
+               throw_parse_error_with_nested( "second", count_position( 2 ) );
+            }
+         }
+         catch( ... ) {
+            throw_parse_error_with_nested( "third", count_position( 3 ) );
+         }
+      }
+      catch( const parse_error_base& /*unused*/ ) {
+         const auto v1 = flatten();
+         TAO_PEGTL_TEST_ASSERT( v1.size() == 3 );
+         TAO_PEGTL_TEST_ASSERT( v1[ 0 ].message() == "first" );
+         TAO_PEGTL_TEST_ASSERT( v1[ 1 ].message() == "second" );
+         TAO_PEGTL_TEST_ASSERT( v1[ 2 ].message() == "third" );
+      }
+   }
+
+   void test9()
+   {
+      try {
+         try {
+            try {
+               throw_parse_error( "first", count_position( 1 ) );
+            }
+            catch( ... ) {
+               throw_parse_error_with_nested( "second", count_position( 2 ) );
+            }
+         }
+         catch( ... ) {
+            throw_parse_error_with_nested( "third", count_position( 3 ) );
+         }
+      }
+      catch( const parse_error_base& e ) {
+         const auto v1 = flatten( e );
+         TAO_PEGTL_TEST_ASSERT( v1.size() == 3 );
+         TAO_PEGTL_TEST_ASSERT( v1[ 0 ].message() == "first" );
+         TAO_PEGTL_TEST_ASSERT( v1[ 1 ].message() == "second" );
+         TAO_PEGTL_TEST_ASSERT( v1[ 2 ].message() == "third" );
+      }
+   }
+
    [[nodiscard]] inline bool operator==( const parse_error_base& l, const parse_error_base& r ) noexcept
    {
       return ( l.message() == r.message() ) && ( l.position_string() == r.position_string() );
    }
 
-   void test8()
+   void test0()
    {
       try {
          try {
@@ -234,6 +287,8 @@ namespace TAO_PEGTL_NAMESPACE
       test6();
       test7();
       test8();
+      test9();
+      test0();
    }
 
 }  // namespace TAO_PEGTL_NAMESPACE

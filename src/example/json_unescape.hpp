@@ -2,13 +2,13 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef TAO_PEGTL_SRC_EXAMPLE_PEGTL_JSON_UNESCAPE_HPP
-#define TAO_PEGTL_SRC_EXAMPLE_PEGTL_JSON_UNESCAPE_HPP
+#ifndef TAO_PEGTL_SRC_EXAMPLE_JSON_UNESCAPE_HPP
+#define TAO_PEGTL_SRC_EXAMPLE_JSON_UNESCAPE_HPP
 
 #include <string>
 
 #include <tao/pegtl/action/change_action_and_states.hpp>
-#include <tao/pegtl/extra/unescape.hpp>
+#include <tao/pegtl/deprecated/unescape.hpp>
 #include <tao/pegtl/example/json.hpp>
 
 namespace example
