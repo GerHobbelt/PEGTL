@@ -13,7 +13,7 @@ The reference documentation for the included example grammars and programs.
 
 ## Preamble
 
-This page lists all included example gramamrs and programs.
+This page lists all included example grammars and programs.
 The examples are not considered part of the public interface subject to semantic versioning.
 
 
@@ -46,7 +46,15 @@ HTTP 1.1 grammar according to [RFC 7230](https://tools.ietf.org/html/rfc7230).
 
 ###### [`integer.hpp`](../include/tao/pegtl/example/integer.hpp)
 
-Various rules for the textual representation of integer values; the old `include/tao/pegtl/contrib/integer.hpp` is now `include/tao/pegtl/deprecated/integer.hpp`.
+Placeholder header reserved for future integer examples; it currently does not define any rules.
+
+###### [`ipv4.hpp`](../include/tao/pegtl/example/ipv4.hpp)
+
+A grammar for [IPv4](https://en.wikipedia.org/wiki/IPv4) addresses; only supports four dot-separated octets, not the traditional notations with fewer dots.
+
+###### [`ipv6.hpp`](../include/tao/pegtl/example/ipv6.hpp)
+
+A grammar for [IPv6](https://en.wikipedia.org/wiki/IPv6) addresses including IPv4-mapped IPv6 addresses.
 
 ###### [`iri.hpp`](../include/tao/pegtl/example/iri.hpp)
 
@@ -111,7 +119,7 @@ tao::pegtl::abnf::rulename@4:23(115) 'rule'
 
 A small example that provokes the [grammar analysis](Debug-Facilities.md#grammar-analysis) to find problems.
 
-###### [`behaviour.cpp`](../src/example/behaviour.cpp)
+###### [`behavior.cpp`](../src/example/behavior.cpp)
 
 Generates the tables for the [rule comparisons](Rules-and-Grammars.md#rule-comparisons) on the [rule and grammars](Rules-and-Grammars.md) page.
 
@@ -125,7 +133,7 @@ A calculator with all binary operators from the C language that shows
 In addition to the binary operators, round brackets can be used to change the evaluation order. The implementation uses `long` integers as data type for all calculations.
 
 ```sh
-$ build/src/example/calculator "2 + 3 * -7"  "(2 + 3) * 7"
+$ build/bin/example/calculator "2 + 3 * -7"  "(2 + 3) * 7"
 -19
 35
 ```
@@ -246,12 +254,16 @@ The example shows how to choose which rules will produce a parse tree node, whic
 The output is in [DOT](https://en.wikipedia.org/wiki/DOT_(graph_description_language)) format and can be converted into a graph.
 
 ```sh
-$ build/src/example/parse_tree "(2*a + 3*b) / (4*n)" | dot -Tsvg -o parse_tree.svg
+$ build/bin/example/parse_tree "(2*a + 3*b) / (4*n)" | dot -Tsvg -o parse_tree.svg
 ```
 
 The above will generate an SVG file with a graphical representation of the parse tree.
 
 ![Parse Tree](Parse-Tree.svg)
+
+###### [`parse_tree_user_state.cpp`](../src/example/parse_tree_user_state.cpp)
+
+Minimal example showing that user states are forwarded through parse tree parsing to actions.
 
 ###### [`proto3_analyze.cpp`](../src/example/proto3_analyze.cpp)
 
@@ -314,7 +326,7 @@ Show how to parse a sequence of tokens, rather than the usual sequence of `char`
 
 ###### [`unescape.cpp`](../src/example/unescape.cpp)
 
-Uses the building blocks from `<tao/pegtl/contrib/unescape.hpp>` to show how to actually unescape a string literal with various typical escape sequences.
+Uses the building blocks from `<tao/pegtl/extra/unescape.hpp>` to show how to actually unescape a string literal with various typical escape sequences.
 Parses its command line arguments.
 
 ```
@@ -339,7 +351,7 @@ Parses its command line arguments.
 
 ###### [`uri_trace.cpp`](../src/example/uri_trace.cpp)
 
-Shows how to use `complete_trace` from `include/tao/pegtl/debug.trace.hpp` to parse a [URI](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier) with a complete trace.
+Shows how to use `complete_trace` from `include/tao/pegtl/debug/trace.hpp` to parse a [URI](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier) with a complete trace.
 Parses its command line arguments.
 
 
@@ -349,7 +361,7 @@ Parses its command line arguments.
 * [`abnf2pegtl.cpp`](#abnf2pegtlcpp) <sup>[(program)](#programs)</sup>
 * [`abnf_record.cpp`](#abnf_recordcpp) <sup>[(program)](#programs)</sup>
 * [`analyze.cpp`](#analyzecpp) <sup>[(program)](#programs)</sup>
-* [`behaviour.cpp`](#behaviourcpp) <sup>[(program)](#programs)</sup>
+* [`behavior.cpp`](#behaviorcpp) <sup>[(program)](#programs)</sup>
 * [`calculator.cpp`](#calculatorcpp) <sup>[(program)](#programs)</sup>
 * [`chomsky_hierarchy.cpp`](#chomsky_hierarchycpp) <sup>[(program)](#programs)</sup>
 * [`csv_1.cpp`](#csv_1cpp) <sup>[(program)](#programs)</sup>
@@ -363,6 +375,8 @@ Parses its command line arguments.
 * [`http.hpp`](#httphpp) <sup>[(grammar)](#grammars)</sup>
 * [`indent_aware.cpp`](#indent_awarecpp) <sup>[(program)](#programs)</sup>
 * [`integer.hpp`](#integerhpp) <sup>[(grammar)](#grammars)</sup>
+* [`ipv4.hpp`](#ipv4hpp) <sup>[(grammar)](#grammars)</sup>
+* [`ipv6.hpp`](#ipv6hpp) <sup>[(grammar)](#grammars)</sup>
 * [`iri.hpp`](#irihpp) <sup>[(grammar)](#grammars)</sup>
 * [`iri_struct.cpp`](#iri_structcpp) <sup>[(program)](#programs)</sup>
 * [`json.hpp`](#jsonhpp) <sup>[(grammar)](#grammars)</sup>
@@ -384,6 +398,7 @@ Parses its command line arguments.
 * [`lua53_parse.cpp`](#lua53_parsecpp) <sup>[(program)](#programs)</sup>
 * [`modulus_match.cpp`](#modulus_matchcpp) <sup>[(program)](#programs)</sup>
 * [`parse_tree.cpp`](#parse_treecpp) <sup>[(program)](#programs)</sup>
+* [`parse_tree_user_state.cpp`](#parse_tree_user_statecpp) <sup>[(program)](#programs)</sup>
 * [`proto3.hpp`](#proto3hpp) <sup>[(grammar)](#grammars)</sup>
 * [`proto3_analyze.cpp`](#proto3_analyzecpp) <sup>[(program)](#programs)</sup>
 * [`proto3_parse.cpp`](#proto3_parsecpp) <sup>[(program)](#programs)</sup>

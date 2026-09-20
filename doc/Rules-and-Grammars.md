@@ -42,7 +42,7 @@ The top-level rule is *also* sometimes called a grammar.
 
 Some grammars have more than one top-level rule; in theory any rule can be used as top-level rule -- the rule that drives a parsing run -- which can be useful to individually test the rules of a grammar.
 
-The rules provided with the PEGTL are either classes with fixed parsing behavior or paremeterizable class templates.
+The rules provided with the PEGTL are either classes with fixed parsing behavior or parameterizable class templates.
 Rules that take other rules as parameters are also called (parsing) combinator rules, or *combinators*.
 These rules correspond to non-terminals in [formal grammars](https://en.wikipedia.org/Formal_grammar).
 Rules without template parameters, or only with template parameters that are not also rules, are also called *atomic* rules.
@@ -301,7 +301,7 @@ struct rule_with_complex_match
 };
 ```
 
-The apply mode can be `action` or `nothing` and determines whether action application is enabled or disabled.
+The apply mode can be `apply_mode::enabled` or `apply_mode::disabled` and determines whether action application is enabled or disabled.
 Usually only the control class needs to adapt its behavior to the current apply mode.
 During a parsing run the apply mode can be changed e.g. with the [`enable`](Rule-Reference.md#enable-r-) and [`disable`](Rule-Reference.md#disable-r-) rules.
 
@@ -314,11 +314,11 @@ The rewind guard explained below automatically adapts to the rewind mode and mak
 
 The Action and Control are required for calling sub-rules as shown in the [example below](#complex-example).
 
-The States are also used for calling sub-rules, though it is not unheard of for parsing rules themselves make use of them.
+The States are also used for calling sub-rules, though it is not unheard of for parsing rules themselves to make use of them.
 The two major reasons for rules to use states are (a) when a rule also does the job of an action, and (b) when a rule requires some dynamic information to determine when to match.
 
-For an example of (a) consider the rule `maximum_rule_with_action` in `include/tao/pegtl/contrib/integer.hpp`.
-For an example of (b) consider the grammar in `src/pegtl/dynamic_match.cpp`.
+For an example of (a) consider the rule `from_chars_combo` in `include/tao/pegtl/extra/charconv.hpp`.
+For an example of (b) consider the grammar in `src/example/dynamic_match.cpp`.
 
 ### Rewind Guard
 
@@ -464,11 +464,11 @@ In general, neither case requires a rule to directly throw an exception itself.
 Any I/O error encountered by the reader of a [stream input](Stream-Parsing.md) will already throw an exception.
 
 Failure to match *should* result in a local error as it *should* be the author of a grammar to decide if and where to switch to global errors with the [must-family of rules](Rule-Reference.md#exceptional).
-If, however, a parsing rule must, for some reason, throw an exception itself then it *should* use the `raise` Control function which throws an exception of the appropriate type, namely `tao::pegtl::parse_error< ParseInput::error_t >` assuming `ParseInput` is the type of the input.
+If, however, a parsing rule must, for some reason, throw an exception itself then it *should* use the `raise` Control function which throws an exception of the appropriate type, namely `tao::pegtl::parse_error< ParseInput::error_position_t >` assuming `ParseInput` is the type of the input.
 
 ### Complete Example
 
-The following excerpt from `src/pegtl/dynamic_match.cpp` shows a complex custom rule that uses a state argument.
+The following excerpt from `src/example/dynamic_match.cpp` shows a complex custom rule that uses a state argument.
 
 The grammar parses a *long string literal*, a string literal that can contain any character sequence with neither the necessity nor the possibility of escape sequences, as is common in many scripting languages.
 The implementation here adopts the convention that a long string literal begins with `[foo[` and ends with `]foo]` where `foo` is any non-empty string that does not contain a `[`.
@@ -644,7 +644,7 @@ struct R = seq< A, sor< B, C > > {};  // R = A(B/C)
 Not backtracking over `A` has the additional advantage of not triggering any action attached to `A` twice.
 
 In practice, opportunities to remove superfluous backtracking might not be as obvious as with such a simple rule.
-For a more complex example please read the comments ate the beginning of the Lua 5.3 grammar in `src/pegtl/lua53.hpp`.
+For a more complex example please read the comments at the beginning of the Lua 5.3 grammar in `include/tao/pegtl/example/lua53.hpp`.
 It shows how to eliminate both left-recursion and superfluous backtracking with multiple rules and recursions.
 
 ### Whitespace
@@ -652,13 +652,13 @@ It shows how to eliminate both left-recursion and superfluous backtracking with 
 Grammars should be designed to minimize redundant multiple parsing of the same whitespace, comments or other padding.
 
 One good way to achieve this is to choose a strategy for whitespace handling and then consistently stick to it.
-For example the JSON grammar in `include/tao/pegtl/contrib/json.hpp` consistently has every rule for a "token" consume any following whitespace via the `ws` rule, too.
+For example the JSON grammar in `include/tao/pegtl/example/json.hpp` consistently has every rule for a "token" consume any following whitespace via the `ws` rule, too.
 That way every rule can assume to start matching some "real" input since any whitespace would have already been consumed by the previous one.
 
 ### Combinations
 
 The `at<>`-rule never consumes input, and therefore always uses an input-marker to rewind the input back to where it started, regardless of the match-result.
-In the context of optimising our [JSON library](https://github.com/taocpp/json), we noticed that the combination `at< one< ... > >` could be combined into an optimized `at_one< ... >` rule:
+In the context of optimizing our [JSON library](https://github.com/taocpp/json), we noticed that the combination `at< one< ... > >` could be combined into an optimized `at_one< ... >` rule:
 Instead of `one< ... >` advancing the input, and `at< one< ... > >` rewinding, the combined rule would omit both the advancing and the rewinding.
 
 Put to the test, the optimized `at_one< '"' >` rule did not show any performance advantage over `at< one< '"' > >`, at least with `-O3`.

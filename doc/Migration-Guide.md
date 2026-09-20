@@ -14,7 +14,7 @@ Please check the full list of added, renamed and changed rules, actions, control
 The old input hierarchy was replaced.
 The most important decision when migrating is whether client code needs line and column numbers in error positions.
 In PEGTL 3.x the common inputs reported a `position` with `source`, `byte`, `line` and `column`.
-In PEGTL 4.x the plain inputs usually report a count-only position, or a pointer-only position for `base_input`; use the `text_` inputs when the old line-and-column behaviour is required.
+In PEGTL 4.x the plain inputs usually report a count-only position, or a pointer-only position for `base_input`; use the `text_` inputs when the old line-and-column behavior is required.
 
 | PEGTL 3.x | PEGTL 4.x with line/column | PEGTL 4.x count-only |
 | --- | --- | --- |
@@ -31,7 +31,7 @@ Line tracking is now selected by the input class and the end-of-line rule:
 
 * plain inputs such as `view_input` and `file_input` do not store line and column numbers;
 * `text_` inputs store line and column numbers;
-* `ascii::scan::...` and `utf8::scan::...` end-of-line rules preserve the old eager scan behaviour, where line numbers are updated even when a rule other than `eol` consumes a newline;
+* `ascii::scan::...` and `utf8::scan::...` end-of-line rules preserve the old eager scan behavior, where line numbers are updated even when a rule other than `eol` consumes a newline;
 * normal end-of-line rules such as `ascii::lf` update line numbers only when the grammar matches `eol` or `eolf`;
 * `ascii::lazy::...` and `utf8::lazy::...` calculate line and column numbers on demand.
 
@@ -94,8 +94,10 @@ Nested parsing no longer appends positions to a single parse error.
 Include `<tao/pegtl/extra/nested_exceptions.hpp>` and use `visit_nested()`, `flatten_base()`, `flatten_type()` or `flatten_what()` to inspect such chains.
 The helper header requires exceptions and [RTTI](https://en.wikipedia.org/wiki/Run-time_type_information).
 
-`parse_error.hpp`, `parse_error_base.hpp` and `parse_nested.hpp` are only available when exceptions are enabled.
+`parse_error.hpp` and `parse_error_base.hpp` require exceptions.
 When compiling without exceptions, code must not include or use these facilities.
+The umbrella header `<tao/pegtl.hpp>` also includes `parse_nested.hpp` only when exceptions are enabled.
+Code that still uses `parse_nested()` without exceptions can include `<tao/pegtl/parse_nested.hpp>` directly; in that mode it performs the nested parse without catching and wrapping exceptions.
 
 ### Parse Modes
 
@@ -128,6 +130,8 @@ Update includes accordingly; for example:
 | `<tao/pegtl/contrib/integer.hpp>` | `<tao/pegtl/deprecated/integer.hpp>` or `<tao/pegtl/extra/charconv.hpp>` |
 | `<tao/pegtl/utf8.hpp>` | `<tao/pegtl/unicode/utf8.hpp>` |
 | `<tao/pegtl/change_state.hpp>` | `<tao/pegtl/action/change_state.hpp>` |
+| `<tao/pegtl/change_action.hpp>` | `<tao/pegtl/action/change_action.hpp>` |
+| `<tao/pegtl/change_action_and_state.hpp>` | `<tao/pegtl/action/change_action_and_state.hpp>` |
 | `<tao/pegtl/must_if.hpp>` | `<tao/pegtl/control/must_if.hpp>` |
 | `<tao/pegtl/discard_input.hpp>` | `<tao/pegtl/stream/discard_input.hpp>` |
 | `<tao/pegtl/discard_input_on_success.hpp>` | `<tao/pegtl/stream/discard_input_on.hpp>` |
@@ -136,11 +140,21 @@ Update includes accordingly; for example:
 The old `contrib/peg.hpp` and `contrib/predicates.hpp` headers were removed without direct replacements.
 Also note that `<tao/pegtl.hpp>` includes fewer auxiliary headers than before; include action, control, debug, extra, binary, unicode and stream headers explicitly when client code uses them.
 
+The string-literal macros `TAO_PEGTL_STRING`, `TAO_PEGTL_ISTRING`, `TAO_PEGTL_KEYWORD` and `TAO_PEGTL_RAISE_MESSAGE` are now in `<tao/pegtl/pegtl_string.hpp>`.
+The umbrella header `<tao/pegtl.hpp>` still includes this header.
+
+The depth and consumption action helpers were renamed: use `check_depth` instead of the old `limit_depth`, `check_consume` instead of `check_bytes`, and `limit_consume` instead of `limit_bytes`.
+Their headers are in `include/tao/pegtl/action/`.
+
 The `try_catch` and `try_catch_type` rules were renamed to `try_catch_return_false` and `try_catch_type_return_false`, respectively.
 Use `try_catch_raise_nested` and its variants when a caught exception should be rethrown as a nested parse error.
 
 Use the new core rule `separated` instead of the previous contrib rule `separated_seq`.
 Use `consume< N >` for the old `bytes< N >` use case, and the type-specific `many` rules when matching a fixed number of objects of a particular input data type.
+
+The existing terminal rules that take a value pack now require at least one value for `one`, `not_one`, `ione`, `ranges` and their PEGTL 3.x type-specific variants.
+For empty positive matches such as `one<>`, `ione<>` or `ranges<>` that intentionally failed, use `failure` instead.
+For empty negative matches such as `not_one<>` that intentionally matched any input object, use the corresponding `any` rule instead.
 
 The old stream-oriented `discard` and `require` rules are now in the stream parsing headers.
 
@@ -194,7 +208,7 @@ For flexibility and future compatibility it is recommended to "template over" th
 
 The `pegtl` part of the namespace can be controlled with the `TAOCPP_PEGTL_NAMESPACE` macro which is set in `include/tao/pegtl/config.hpp` if not defined previously.
 
-Most of the other changes for version 2.0.0 extend or optimise the PEGTL without breaking compatibility.
+Most of the other changes for version 2.0.0 extend or optimize the PEGTL without breaking compatibility.
 Applications integrated more tightly with the PEGTL might require additional changes.
 
 Please contact the authors at `taocpp(at)icemx.net` for any further questions when updating the PEGTL.

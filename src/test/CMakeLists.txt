@@ -21,9 +21,10 @@ set(test_sources
   action_match_text.cpp
   action_match_typed_state.cpp
   apply_mode.cpp
-  ascii_atomics.cpp
+  ascii_any.cpp
   ascii_chars.cpp
   ascii_classes.cpp
+  ascii_ellipsis.cpp
   ascii_eol.cpp
   ascii_eolf.cpp
   ascii_identifier.cpp
@@ -33,8 +34,10 @@ set(test_sources
   ascii_not_ione.cpp
   ascii_not_one.cpp
   ascii_not_range.cpp
+  ascii_not_ranges.cpp
   ascii_one.cpp
   ascii_range.cpp
+  ascii_ranges.cpp
   ascii_shebang.cpp
   ascii_string.cpp
   ascii_three.cpp
@@ -79,9 +82,17 @@ set(test_sources
   error_message_1.cpp
   error_message_2.cpp
   error_message_3.cpp
+  example_escaped.cpp
+  example_fp.cpp
   example_http.cpp
+  example_ipv4.cpp
+  example_ipv6.cpp
   example_iri.cpp
   example_json.cpp
+  example_json_pointer.cpp
+  example_lua53.cpp
+  example_proto3.cpp
+  example_semver2.cpp
   example_uri.cpp
   extra_charconv.cpp
   extra_dispatch.cpp
@@ -103,7 +114,11 @@ set(test_sources
   input_read_input.cpp
   input_with_depth.cpp
   input_with_offset.cpp
-  input_with_source_public.cpp
+  input_with_source.cpp
+  int16_general.cpp
+  int32_general.cpp
+  int64_general.cpp
+  int8_general.cpp
   internal_any.cpp
   internal_argv_input.cpp
   internal_ascii_utility.cpp
@@ -153,10 +168,12 @@ set(test_sources
   internal_value_list_concat.cpp
   internal_vector_stack_guard.cpp
   internal_view_input.cpp
+  member_general.cpp
   normal_apply_rule.cpp
   parse_error.cpp
   pegtl_string_t.cpp
   rewind_mode.cpp
+  rewind_mode_required.cpp
   rule_action.cpp
   rule_apply.cpp
   rule_apply0.cpp
@@ -176,6 +193,7 @@ set(test_sources
   rule_if_must.cpp
   rule_if_must_else.cpp
   rule_if_then_else.cpp
+  rule_invert.cpp
   rule_list.cpp
   rule_list_must.cpp
   rule_list_tail.cpp
@@ -196,9 +214,11 @@ set(test_sources
   rule_rep_min.cpp
   rule_rep_min_max.cpp
   rule_rep_opt.cpp
+  rule_restart.cpp
   rule_separated.cpp
   rule_separated_pad.cpp
   rule_seq.cpp
+  rule_source.cpp
   rule_sor.cpp
   rule_star.cpp
   rule_star_must.cpp
@@ -212,7 +232,6 @@ set(test_sources
   rule_unordered.cpp
   rule_until.cpp
   rule_utf8_string.cpp
-  signed_general.cpp
   stream_analyze_traits.cpp
   stream_alloc_buffer.cpp
   stream_array_buffer.cpp

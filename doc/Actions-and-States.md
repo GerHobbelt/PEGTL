@@ -300,7 +300,7 @@ Here `unescaped` is the state that is required by the `append_all` and `unescape
 std::string unescape( const std::string& escaped )
 {
    std::string unescaped;
-   tao::pegtl::memory_input in( result, __FUNCTION__ );
+   tao::pegtl::text_view_input in( __FUNCTION__, escaped );
    tao::pegtl::parse< text, my_action >( in, unescaped );
    return unescaped;
 }
@@ -308,7 +308,7 @@ std::string unescape( const std::string& escaped )
 
 At the end of the parsing run, the complete unescaped string can be found in the aptly named variable `unescaped`.
 
-A more complete example of how to unescape strings can be found in `src/pegtl/unescape.cpp`.
+A more complete example of how to unescape strings can be found in `src/example/unescape.cpp`.
 
 
 ## Specializing
@@ -372,7 +372,7 @@ tao::pegtl::parse< tao::pegtl::action< my_action, my_grammar > >( ... );
 ```
 
 User-defined parsing rules can use `action<>`, `enable<>` and `disable<>` just like any other combinator rules.
-For example to disable actions in LISP-style comments the following rule could be used as per `src/pegtl/s_expression.cpp`.
+For example to disable actions in LISP-style comments the following rule could be used as per `src/example/s_expression.cpp`.
 
 ```c++
 struct comment
@@ -422,7 +422,7 @@ Embedding a state change into the grammar with [`state<>`](Rule-Reference.md#sta
 
 The actions [`tao::pegtl::change_state<>`](Action-Reference.md#change_state-s-) and [`tao::pegtl::change_states<>`](Action-Reference.md#change_states-s-) can be used to change from the current to a new set of states while parsing the rules they are attached to.
 
-The differences are summarised in this table; note that `change_state` is more similar to the legacy `change_state` control class that was included with the 2.z versions of the PEGTL.
+The differences are summarized in this table; note that `change_state` is more similar to the legacy `change_state` control class that was included with the 2.z versions of the PEGTL.
 
 | Feature | `change_state` | `change_states` |
 | --- | --- | --- |
@@ -580,7 +580,7 @@ If during a parsing run there are actions attached to `A` and `C`, and the input
 
 #### Rewriting
 
-In practice the structure of the rule might be more complicated than the pure AAC-problem which will make it harder to recognise the pattern.
+In practice the structure of the rule might be more complicated than the pure AAC-problem which will make it harder to recognize the pattern.
 One solution is to rewrite `R` as `R' = seq< A, sor< B, C > >` where of course any action for `A` will be called at most once for every successful match of `R'`.
 
 #### Manual Undo

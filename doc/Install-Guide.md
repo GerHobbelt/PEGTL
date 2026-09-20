@@ -78,9 +78,10 @@ Grammars and other classes that indirectly rely on exception support or are intr
  * `tao/pegtl/parse_error.hpp`
  * `tao/pegtl/parse_error_base.hpp`
  * `tao/pegtl/control/must_if.hpp`
- * `tao/pegtl/contrib/http.hpp`.
- * `tao/pegtl/contrib/integer.hpp`.
- * `tao/pegtl/contrib/uri.hpp`.
+ * `tao/pegtl/example/http.hpp`.
+ * `tao/pegtl/example/uri.hpp`.
+ * `tao/pegtl/deprecated/integer.hpp`.
+ * `tao/pegtl/extra/charconv.hpp`.
 
 Facilities that use `std::perror()` and `std::terminate()` instead of `throw` when exceptions are disabled:
 
@@ -210,15 +211,15 @@ co-exist.
 If PEGTL was first included with `find_package` then subsequent calls to
 `add_subdirectory(path/to/PEGTL)` will skip over the body of the
 `CMakeLists.txt` and use the installed package if the version matches.
-If the version does not match a fatal error will be signalled.
+If the version does not match a fatal error will be signaled.
 
 If PEGTL was first included with `add_subdirectory` then a dummy
 `pegtl-config.cmake` is created and `pegtl_DIR` is set. Subsequent calls to
 `find_package(pegtl)` will then use the already added package if the version
-matches. If the version does not match a fatal error will be signalled.
+matches. If the version does not match a fatal error will be signaled.
 
 Since CMake targets are global, there exists no way for a CMake project to use
-two different versions of PEGTL simultaneously and signalling a fatal error
+two different versions of PEGTL simultaneously and signaling a fatal error
 becomes the only practical way of handling the inclusion of multiple different
 PEGTL versions.
 
@@ -255,7 +256,7 @@ and builds and runs all unit tests.
 The `Makefile` is as simple as possible, but should manage to build the examples
 and unit tests on Linux with GCC and on macOS with Clang (as supplied by Apple).
 When running into problems using other combinations, please consult the `Makefile`
-for customising the build process.
+for customizing the build process.
 
 
 ## Embedding the PEGTL
@@ -289,7 +290,7 @@ default, is set to `tao::pegtl`. To change the namespace, simply define
 #define TAO_PEGTL_NAMESPACE mylib::pegtl
 
 #include <tao/pegtl.hpp>
-#include <tao/contrib/json.hpp>
+#include <tao/pegtl/example/json.hpp>
 
 int main( int argc, char* argv[] )
 {

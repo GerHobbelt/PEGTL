@@ -32,8 +32,7 @@ All noteworthy changes since the first public release.
   * Added `parse_error_base` as non-templated base class of `parse_error`.
   * Changed to **nested exceptions** for nested [parsing errors](Errors-and-Exceptions.md).
   * Added [control function](Control-and-Normal.md) to throw nested exceptions.
-  * Changed `parse_nested()` to require exceptions to be enabled.
-  * Changed `parse_nested()` to throw a nested exception instead of adding a position to the current one.
+  * Changed `parse_nested()` to throw a nested exception instead of adding a position to the current one when exceptions are enabled.
   * Changed `pegtl.hpp` to only include `parse_error.hpp`, `parse_error_base.hpp` and `parse_nested.hpp` when exceptions are enabled.
   * Added functions to visit and flatten [nested exceptions](Extra-Reference.md#nested_exceptionshpp).
 * Inputs
@@ -50,14 +49,15 @@ All noteworthy changes since the first public release.
   * Everything related to stream parsing is now in `include/tao/pegtl/stream/`.
   * Nothing related to stream parsing is included with `<tao/pegtl.hpp>`.
   * Moved `action_input` from `internal` to the main PEGTL namespace.
-  * Removed `action_t` type alias from all input classes in favour of using `action_input`.
+  * Removed `action_t` type alias from all input classes in favor of using `action_input`.
   * Removed the `tracking_mode` as `enum` and input template parameter.
   * Never use unaligned memory access (unless compiler generated).
 * Rule Changes
-  * The rules `ione`, `ranges`, `one` and `not_one` now require at least one template parameter.
+  * All variants of the rules `ione`, `one`, `not_one` and `ranges` now require at least one template parameter.
+  * The new rules `not_ione` and `not_ranges` have the same non-empty pack requirement.
   * Added Unicode rules that adapt to the input's data size.
   * Added special end-of-line rules in multiple places.
-  * Added new atomic rule [`function`](Rule-Reference.md#function-f-).
+  * Added new atomic rule [`function`](Rule-Reference.md#function-f-p--void-).
   * Added new atomic rule [`restart`](Rule-Reference.md#restart).
   * Added new ASCII rule [`bdigit`](Rule-Reference.md#bdigit).
   * Added new ASCII rule [`cntrl`](Rule-Reference.md#cntrl).
@@ -98,7 +98,7 @@ All noteworthy changes since the first public release.
   * Added dedicated end-of-line rules for lazy end-of-line mode.
   * Added new atomic rule [`consume`](Rule-Reference.md#consume-num-).
   * Added new atomic rule [`everything`](Rule-Reference.md#everything).
-  * Added new rule `source`.
+  * Added new rule [`source`](Rule-Reference.md#source-r-).
   * Added new generic rule [`invert`](Rule-Reference.md#invert-r-).
   * Added new convenience rule [`partial`](Rule-Reference.md#partial-r-).
   * Added new convenience rule [`separated`](Rule-Reference.md#separated-s-r-) (replaces `separated_seq` from contrib).
@@ -108,7 +108,7 @@ All noteworthy changes since the first public release.
   * Added new convenience rule [`star_strict`](Rule-Reference.md#star_strict-r-).
   * Added new convenience rule [`unordered`](Rule-Reference.md#unordered-r-).
   * Added new convenience rule [`unordered_partial`](Rule-Reference.md#unordered_partial-r-).
-  * Added rule [`try_catch_any_return_false`](Rule-Reference.md#try_catch_any_return_false-e-r-).
+  * Added rule [`try_catch_any_return_false`](Rule-Reference.md#try_catch_any_return_false-r-).
   * Renamed rule `try_catch` to [`try_catch_return_false`](Rule-Reference.md#try_catch_return_false-r-).
   * Added rule [`try_catch_std_return_false`](Rule-Reference.md#try_catch_std_return_false-r-).
   * Renamed rule `try_catch_type` to [`try_catch_type_return_false`](Rule-Reference.md#try_catch_type_return_false-e-r-).
@@ -148,7 +148,7 @@ All noteworthy changes since the first public release.
   * Renamed "check_bytes" functionality to "check_consume".
   * Renamed "limit_bytes" functionality to "limit_consume".
   * Moved depth counter to adapter class [`input_with_depth`](Input-Reference.md#input-with-depth).
-  * Changed default top-level `rewind_mode` to ~~`dontcare`~~ `optional`.
+  * Changed default top-level `rewind_mode` to `optional`.
   * Merged `rewind_mode` values `dontcare` and `active` into new value `optional`.
   * Renamed `end_of_line()` input member function to `end_of_line_or_file()`.
   * Renamed variadic template `to_string` functionality to `type_to_string`.
@@ -382,7 +382,7 @@ Released 2018-06-22
 Released 2018-05-31
 
 * Fixed [`opt`](Rule-Reference.md#opt-r-) and [`until`](Rule-Reference.md#until-r-s-) to work as documented in some rare edge cases.
-* Used [`opt_must`](Rule-Reference.md#opt_must-r-s-) and [`star_must`](Rule-Reference.md#star_must-r-s-) to optimise some included grammars.
+* Used [`opt_must`](Rule-Reference.md#opt_must-r-s-) and [`star_must`](Rule-Reference.md#star_must-r-s-) to optimize some included grammars.
 
 ## Version 2.5.1
 
@@ -660,7 +660,7 @@ Semantic versioning was introduced with version 1.0.0.
 * A large under-the-hood reorganisation has the benefit of preventing actions from being invoked on rules that are implementation details of other rules, e.g. the `pad< Rule, Padding >` rule contains `star< Padding >` in its implementation, so a specialisation of the action-class-template for `star< Padding >` would be called within `pad<>`, even though the `star< Pad >` was not explicitly written by the user; in PEGTL 1.y these unintended action invocations no longer occur.
 * Partial support for Unicode has been added in the form of some basic rules like `one<>` and `range<>` also being supplied in a UTF-8 (and experimental UTF-16 and UTF-32) aware version(s) that can correctly process arbitrary code points from `0` to `0x10ffff`.
 * The supplied input classes work together with the supplied exception throwing to support better error locations when performing nested file parsing, i.e. a `parse_error` contains a vector of parse positions.
-* Added a function to analyse a grammar for the presence of infinite loops, i.e. cycles in the rules that do not (necessarily) consume any input like left recursion.
+* Added a function to analyze a grammar for the presence of infinite loops, i.e. cycles in the rules that do not (necessarily) consume any input like left recursion.
 * As actions are applied to a grammar in a non-invasive way, several common grammars were added to the PEGTL as documented in ~~Contrib~~ Extras and Examples.
 * The `list<>`-rule was replaced by a set of new list rules with different padding semantics.
 * The `at_one<>` and other rules `foo` that are merely shortcuts for `at< foo >` were removed.
@@ -806,7 +806,7 @@ The last of these changes effectively requires custom action classes to derive e
 * Removed run-time limits on rule applications and nesting (simplicity).
 * Disentangled a couple of header files (maintainability).
 * Renamed class `iterator_input` to forward_input (consistency).
-* Added class `string_input` to initialise forward_input from a string (convenience).
+* Added class `string_input` to initialize forward_input from a string (convenience).
 * Removed template argument Rule to action functor's `matched()` method (simplicity).
 
 ## Version 0.13
