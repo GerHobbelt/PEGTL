@@ -1,17 +1,17 @@
-// Copyright (c) 2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2023-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_INTERNAL_STAR_STRICT_HPP
 #define TAO_PEGTL_INTERNAL_STAR_STRICT_HPP
 
-#include "enable_control.hpp"
-#include "seq.hpp"
-
 #include "../apply_mode.hpp"
 #include "../config.hpp"
 #include "../rewind_mode.hpp"
 #include "../type_list.hpp"
+
+#include "enable_control.hpp"
+#include "seq.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
@@ -31,11 +31,10 @@ namespace TAO_PEGTL_NAMESPACE::internal
                 typename... States >
       [[nodiscard]] static bool match( ParseInput& in, States&&... st )
       {
-         auto m = in.template auto_rewind< M >();
-         using m_t = decltype( m );
+         auto m = Control< star_strict >::template guard< A, M, Action, Control >( in, st... );
 
          while( Control< Rule >::template match< A, rewind_mode::required, Action, Control >( in, st... ) ) {
-            if( Control< seq< Rules... > >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) ) {
+            if( Control< seq< Rules... > >::template match< A, rewind_mode::optional, Action, Control >( in, st... ) ) {
                continue;
             }
             return m( false );

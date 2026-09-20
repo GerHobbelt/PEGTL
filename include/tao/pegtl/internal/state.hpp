@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -7,26 +7,21 @@
 
 #include <type_traits>
 
-#include "dependent_false.hpp"
-#include "enable_control.hpp"
-#include "seq.hpp"
-#include "success.hpp"
-
 #include "../apply_mode.hpp"
 #include "../config.hpp"
 #include "../rewind_mode.hpp"
 #include "../type_list.hpp"
+
+#include "dependent_false.hpp"
+#include "enable_control.hpp"
+#include "seq.hpp"
+#include "success.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
    template< typename NewState, typename... Rules >
    struct state
       : state< NewState, seq< Rules... > >
-   {};
-
-   template< typename NewState >
-   struct state< NewState >
-      : success
    {};
 
    template< typename NewState, typename Rule >
@@ -62,10 +57,15 @@ namespace TAO_PEGTL_NAMESPACE::internal
             return false;
          }
          else {
-            static_assert( internal::dependent_false< NewState >, "unable to instantiate new state" );
+            static_assert( internal::dependent_false< NewState >, "Unable to instantiate new state!" );
          }
       }
    };
+
+   template< typename NewState >
+   struct state< NewState >
+      : success
+   {};
 
    template< typename NewState, typename... Rules >
    inline constexpr bool enable_control< state< NewState, Rules... > > = false;

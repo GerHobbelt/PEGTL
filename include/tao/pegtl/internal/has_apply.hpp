@@ -1,10 +1,11 @@
-// Copyright (c) 2017-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_INTERNAL_HAS_APPLY_HPP
 #define TAO_PEGTL_INTERNAL_HAS_APPLY_HPP
 
+#include <type_traits>
 #include <utility>
 
 #include "../config.hpp"
@@ -19,4 +20,5 @@ namespace TAO_PEGTL_NAMESPACE::internal
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 
+// FCOV_EXCL_FILE
 #endif

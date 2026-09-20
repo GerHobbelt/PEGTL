@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -7,10 +7,17 @@
 
 #include <cstddef>
 
-#include "config.hpp"
-#include "parse_error.hpp"
-#include "position.hpp"
+#if defined( __cpp_exceptions )
+#include <exception>
 
+#include "parse_error_base.hpp"
+#endif
+
+#include "config.hpp"
+
+#include "internal/rule_aliases.hpp"
+#include "internal/combine_traits.hpp"
+#include "internal/invert_traits.hpp"
 #include "internal/rules.hpp"
 
 namespace TAO_PEGTL_NAMESPACE
@@ -22,22 +29,26 @@ namespace TAO_PEGTL_NAMESPACE
    template< typename... Rules > struct at : internal::at< Rules... > {};
    struct bof : internal::bof {};
    struct bol : internal::bol {};
-   template< unsigned Num > struct bytes : internal::bytes< Num > {};
+   template< typename Left, typename Right > struct combine : internal::combine_traits< typename Left::rule_t, typename Right::rule_t >::rule_t {};
+   template< std::size_t Count > struct consume : internal::consume< Count > {};
    template< template< typename... > class Control, typename... Rules > struct control : internal::control< Control, Rules... > {};
    template< typename... Rules > struct disable : internal::disable< Rules... > {};
-   struct discard : internal::discard {};
    template< typename... Rules > struct enable : internal::enable< Rules... > {};
    struct eof : internal::eof {};
+   struct eol : internal::eol {};
    struct eolf : internal::eolf {};
-   struct everything : internal::everything< std::size_t > {};
+   struct everything : internal::everything {};
    struct failure : internal::failure {};
+   template< auto Function, typename Peek = void > struct function : internal::function< Peek, decltype( Function ), Function > {};
    template< typename Rule, typename... Actions > struct if_apply : internal::if_apply< Rule, Actions... > {};
    template< typename Cond, typename Then, typename Else > struct if_then_else : internal::if_then_else< Cond, Then, Else > {};
+   template< typename Rule > struct invert : internal::invert_traits< typename Rule::rule_t >::rule_t {};
    template< typename Rule, typename Sep, typename Pad = void > struct list : internal::list< Rule, internal::pad< Sep, Pad > > {};
    template< typename Rule, typename Sep > struct list< Rule, Sep, void > : internal::list< Rule, Sep > {};
    template< typename Rule, typename Sep, typename Pad = void > struct list_tail : internal::list_tail_pad< Rule, Sep, Pad > {};
    template< typename Rule, typename Sep > struct list_tail< Rule, Sep, void > : internal::list_tail< Rule, Sep > {};
    template< typename M, typename S > struct minus : internal::minus< M, S > {};
+   template< typename Rule, typename Peek > struct nested : internal::nested< Peek, Rule > {};
    template< typename... Rules > struct not_at : internal::not_at< Rules... > {};
    template< typename... Rules > struct opt : internal::opt< Rules... > {};
    template< typename Rule, typename Pad1, typename Pad2 = Pad1 > struct pad : internal::pad< Rule, Pad1, Pad2 > {};
@@ -45,12 +56,14 @@ namespace TAO_PEGTL_NAMESPACE
    template< typename Rule, typename... Rules > struct partial : internal::partial< Rule, Rules... > {};
    template< typename Rule, typename... Rules > struct plus : internal::plus< Rule, Rules... > {};
    template< typename Head, typename... Rules > struct rematch : internal::rematch< Head, Rules... > {};
-   template< unsigned Num, typename... Rules > struct rep : internal::rep< Num, Rules... > {};
-   template< unsigned Max, typename... Rules > struct rep_max : internal::rep_min_max< 0, Max, Rules... > {};
-   template< unsigned Min, typename Rule, typename... Rules > struct rep_min : internal::rep_min< Min, Rule, Rules... > {};
-   template< unsigned Min, unsigned Max, typename... Rules > struct rep_min_max : internal::rep_min_max< Min, Max, Rules... > {};
-   template< unsigned Max, typename... Rules > struct rep_opt : internal::rep_opt< Max, Rules... > {};
-   template< unsigned Amount > struct require : internal::require< Amount > {};
+   template< std::size_t Num, typename... Rules > struct rep : internal::rep< Num, Rules... > {};
+   template< std::size_t Max, typename... Rules > struct rep_max : internal::rep_min_max< 0, Max, Rules... > {};
+   template< std::size_t Min, typename Rule, typename... Rules > struct rep_min : internal::rep_min< Min, Rule, Rules... > {};
+   template< std::size_t Min, std::size_t Max, typename... Rules > struct rep_min_max : internal::rep_min_max< Min, Max, Rules... > {};
+   template< std::size_t Max, typename... Rules > struct rep_opt : internal::rep_opt< Max, Rules... > {};
+   struct restart : internal::restart {};
+   template< typename Sep, typename... Rules > struct sep : internal::sep< type_list<>, Sep, Rules... > {};
+   template< typename Sep, typename Pad, typename... Rules > struct sep_pad : internal::sep_pad< type_list<>, Sep, Pad, Rules... > {};
    template< typename... Rules > struct seq : internal::seq< Rules... > {};
    template< typename... Rules > struct sor : internal::sor< Rules... > {};
    template< typename Rule, typename... Rules > struct star : internal::star< Rule, Rules... > {};
@@ -86,4 +99,5 @@ namespace TAO_PEGTL_NAMESPACE
 
 }  // namespace TAO_PEGTL_NAMESPACE
 
+// FCOV_EXCL_FILE
 #endif

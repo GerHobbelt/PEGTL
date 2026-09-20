@@ -1,17 +1,18 @@
-// Copyright (c) 2017-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_INTERNAL_APPLY_HPP
 #define TAO_PEGTL_INTERNAL_APPLY_HPP
 
-#include "apply_single.hpp"
-#include "enable_control.hpp"
-
+#include "../action_input.hpp"
 #include "../apply_mode.hpp"
 #include "../config.hpp"
 #include "../rewind_mode.hpp"
 #include "../type_list.hpp"
+
+#include "apply_impl.hpp"
+#include "enable_control.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
@@ -31,10 +32,9 @@ namespace TAO_PEGTL_NAMESPACE::internal
                 typename... States >
       [[nodiscard]] static bool match( [[maybe_unused]] ParseInput& in, [[maybe_unused]] States&&... st )
       {
-         if constexpr( ( A == apply_mode::action ) && ( sizeof...( Actions ) > 0 ) ) {
-            using action_t = typename ParseInput::action_t;
-            const action_t i2( in.inputerator(), in );  // No data -- range is from begin to begin.
-            return ( apply_single< Actions >::match( i2, st... ) && ... );
+         if constexpr( ( A == apply_mode::enabled ) && ( sizeof...( Actions ) > 0 ) ) {
+            const TAO_PEGTL_NAMESPACE::action_input< ParseInput > i2( in.rewind_position(), in );  // No data -- range is from begin to begin.
+            return ( apply_impl< Actions >::apply( i2, st... ) && ... );
          }
          else {
 #if defined( _MSC_VER )

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2016-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -6,14 +6,13 @@
 #define TAO_PEGTL_INTERNAL_ACTION_INPUT_HPP
 
 #include <cstddef>
-#include <cstdint>
-#include <string>
-#include <string_view>
-
-#include "inputerator.hpp"
 
 #include "../config.hpp"
-#include "../position.hpp"
+#if defined( __cpp_exceptions )
+#include "../parse_error.hpp"
+#endif
+
+#include "input_with_funcs.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
@@ -21,50 +20,40 @@ namespace TAO_PEGTL_NAMESPACE::internal
    class action_input
    {
    public:
+      using data_t = typename ParseInput::data_t;
       using input_t = ParseInput;
-      using inputerator_t = typename ParseInput::inputerator_t;
+      using error_position_t = typename ParseInput::error_position_t;
+      using rewind_position_t = typename ParseInput::rewind_position_t;
+#if defined( __cpp_exceptions )
+      using parse_error_t = parse_error< error_position_t >;
+#endif
 
-      action_input( const inputerator_t& in_begin, const ParseInput& in_input ) noexcept
-         : m_begin( in_begin ),
-           m_input( in_input )
+      action_input( const rewind_position_t& begin, const ParseInput& input ) noexcept
+         : m_saved( begin ),
+           m_input( input )
       {}
 
-      action_input( const action_input& ) = delete;
       action_input( action_input&& ) = delete;
+      action_input( const action_input& ) = delete;
 
       ~action_input() = default;
 
-      action_input& operator=( const action_input& ) = delete;
-      action_input& operator=( action_input&& ) = delete;
+      void operator=( action_input&& ) = delete;
+      void operator=( const action_input& ) = delete;
 
-      [[nodiscard]] const inputerator_t& inputerator() const noexcept
+      [[nodiscard]] const data_t* begin() const noexcept
       {
-         return m_begin;
+         return m_input.previous( m_saved );
       }
 
-      [[nodiscard]] const ParseInput& input() const noexcept
+      [[nodiscard]] const data_t* current( const std::size_t offset = 0 ) const noexcept
       {
-         return m_input;
+         return m_input.previous( m_saved ) + offset;
       }
 
-      [[nodiscard]] const char* current() const noexcept
+      [[nodiscard]] const data_t* end() const noexcept
       {
-         return begin();
-      }
-
-      [[nodiscard]] const char* begin() const noexcept
-      {
-         if constexpr( std::is_same_v< inputerator_t, const char* > ) {
-            return inputerator();
-         }
-         else {
-            return inputerator().data;
-         }
-      }
-
-      [[nodiscard]] const char* end() const noexcept
-      {
-         return input().current();
+         return m_input.current();
       }
 
       [[nodiscard]] bool empty() const noexcept
@@ -77,38 +66,33 @@ namespace TAO_PEGTL_NAMESPACE::internal
          return std::size_t( end() - begin() );
       }
 
-      [[nodiscard]] std::string string() const
+      [[nodiscard]] const ParseInput& input() const noexcept
       {
-         return std::string( begin(), size() );
+         return m_input;
       }
 
-      [[nodiscard]] std::string_view string_view() const noexcept
+      [[nodiscard]] decltype( auto ) current_position() const
       {
-         return std::string_view( begin(), size() );
+         return m_input.previous_position( m_saved );  // NOTE: O(n) with lazy inputs!
       }
 
-      [[nodiscard]] char peek_char( const std::size_t offset = 0 ) const noexcept
+      [[nodiscard]] const rewind_position_t& rewind_position() const noexcept
       {
-         return begin()[ offset ];
+         return m_saved;
       }
 
-      [[nodiscard]] std::uint8_t peek_uint8( const std::size_t offset = 0 ) const noexcept
+      [[nodiscard]] decltype( auto ) direct_source() const noexcept
       {
-         return static_cast< std::uint8_t >( peek_char( offset ) );
+         return m_input.direct_source();  // Not all inputs have this.
       }
 
-      [[nodiscard]] TAO_PEGTL_NAMESPACE::position position() const
+      [[nodiscard]] decltype( auto ) direct_position() const noexcept
       {
-         return input().position( inputerator() );  // NOTE: Not efficient with lazy inputs.
-      }
-
-      [[nodiscard]] TAO_PEGTL_NAMESPACE::position current_position() const
-      {
-         return input().position( inputerator() );  // NOTE: Not efficient with lazy inputs.
+         return m_input.direct_position();  // Not all inputs have this.
       }
 
    protected:
-      const inputerator_t m_begin;
+      const rewind_position_t m_saved;
       const ParseInput& m_input;
    };
 

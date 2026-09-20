@@ -1,24 +1,24 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_INTERNAL_PLUS_HPP
 #define TAO_PEGTL_INTERNAL_PLUS_HPP
 
-#include "enable_control.hpp"
-#include "seq.hpp"
-
 #include "../apply_mode.hpp"
 #include "../config.hpp"
 #include "../rewind_mode.hpp"
 #include "../type_list.hpp"
+
+#include "enable_control.hpp"
+#include "seq.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
    // While plus<> could easily be implemented with
    // seq< Rule, Rules ..., star< Rule, Rules ... > > we
    // provide an explicit implementation to optimise away
-   // the otherwise created input mark.
+   // the otherwise redundantly created rewind guard.
 
    template< typename Rule, typename... Rules >
    struct plus

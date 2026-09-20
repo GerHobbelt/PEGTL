@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2015-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -6,11 +6,6 @@
 #define TAO_PEGTL_INTERNAL_PEGTL_STRING_HPP
 
 #include <cstddef>
-#include <type_traits>
-
-#include "../ascii.hpp"
-#include "../config.hpp"
-#include "../rules.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
@@ -80,16 +75,5 @@ namespace TAO_PEGTL_NAMESPACE::internal
          TAO_PEGTL_INTERNAL_EXPAND(       \
             ::TAO_PEGTL_NAMESPACE::internal::string_max_length< TAO_PEGTL_INTERNAL_STRING_512( S, x, ), sizeof( x ) - 1 >::type ) ) )
 
-#define TAO_PEGTL_STRING( x ) \
-   TAO_PEGTL_INTERNAL_STRING( ::TAO_PEGTL_NAMESPACE::ascii::string, x )
-
-#define TAO_PEGTL_ISTRING( x ) \
-   TAO_PEGTL_INTERNAL_STRING( ::TAO_PEGTL_NAMESPACE::ascii::istring, x )
-
-#define TAO_PEGTL_KEYWORD( x ) \
-   TAO_PEGTL_INTERNAL_STRING( ::TAO_PEGTL_NAMESPACE::ascii::keyword, x )
-
-#define TAO_PEGTL_RAISE_MESSAGE( x ) \
-   TAO_PEGTL_INTERNAL_STRING( ::TAO_PEGTL_NAMESPACE::raise_message, x )
-
+// FCOV_EXCL_FILE
 #endif

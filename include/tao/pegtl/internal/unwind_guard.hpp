@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -26,11 +26,11 @@ namespace TAO_PEGTL_NAMESPACE::internal
          }
       }
 
+      unwind_guard( unwind_guard&& ) = delete;
       unwind_guard( const unwind_guard& ) = delete;
-      unwind_guard( unwind_guard&& ) noexcept = delete;
 
-      unwind_guard& operator=( const unwind_guard& ) = delete;
-      unwind_guard& operator=( unwind_guard&& ) noexcept = delete;
+      void operator=( unwind_guard&& ) = delete;
+      void operator=( const unwind_guard& ) = delete;
 
       std::optional< Unwind > unwind;
    };

@@ -12,6 +12,7 @@ More precisely, the control class has static member functions to
 3. customise how an action's `apply()` or `apply0()` is called,
 4. customise how a rule's `match()` is called.
 
+
 ## Contents
 
 * [Normal Control](#normal-control)
@@ -19,10 +20,15 @@ More precisely, the control class has static member functions to
 * [Exception Throwing](#exception-throwing)
 * [Advanced Control](#advanced-control)
 * [Changing Control](#changing-control)
+* [Control Traces](#control-traces)
+  * [Rule Success](#rule-success)
+  * [Rule Local Failure](#rule-local-failure)
+  * [Action Apply](#action-apply)
+
 
 ## Normal Control
 
-The `normal` control class template included with the PEGTL is used by default and shows which hook functions there are.
+The `normal` Control class template included with the PEGTL is used by default and shows which Control functions there are.
 
 ```c++
 template< typename Rule >
@@ -50,7 +56,7 @@ struct normal
              typename... States >
    static void raise_nested( const Ambient&, States&&... );
 
-template< template< typename... > class Action,
+   template< template< typename... > class Action,
              typename Iterator,
              typename ParseInput,
              typename... States >
@@ -75,7 +81,7 @@ template< template< typename... > class Action,
 
 The static member functions `start()`, `success()` and `failure()` can be used to debug a grammar by using them to provide insight into what exactly is going on during a parsing run, or to construct a parse tree, etc.
 
-There is one more, *optional* hook function: `unwind()`.
+There is one more, *optional* function, `unwind()`.
 It is called when a rule throws an exception, e.g. on global error.
 It's signature is identical to `start()`/`success()`/`failure()`.
 It is not included in the default control template `normal`, as the existence of an `unwind()` method requires an additional `try`/`catch` block.
@@ -90,6 +96,7 @@ Note that these functions should only exist or be visible when an appropriate `a
 This can be achieved via SFINAE, e.g. with a trailing return type as shown above.
 
 The static member function `match()` by default checks if there exists a suitable `match()` in the action class template for the current rule. If so, it is called, otherwise it calls the main `tao::pegtl::match()` function.
+
 
 ## Control Functions
 
@@ -117,17 +124,19 @@ Note that the default `C< R >::apply()` is SFINAE-enabled if `A< R >::apply()` e
 In case of actions that return `bool`, i.e. actions where `apply()` or `apply0()` return `bool`, `C< R >::success()` is only called when both the rule *and* the action succeed.
 If either produce a (local) failure then `C< R >::failure()` is called.
 
-In all cases where an action is called, the success or failure hooks are invoked after the action returns.
+In all cases where an action is called, the success or failure functions are invoked after the action returns.
 
 The included `<tao/pegtl/contrib/trace.hpp>` gives a practical example that shows how the control class can be used to debug grammars.
 
+
 ## Exception Throwing
 
-The control hooks for exceptions, the`raise()` and `raise_nested()` static member functions, **must** both throw an exception.
+The control functions for exceptions, the`raise()` and `raise_nested()` static member functions, **must** both throw an exception.
 For most parts of the PEGTL the exception class is irrelevant and any user-defined data type can be thrown by a user-defined control.
 
 The [`try_catch_raise_nested`](Rule-Reference.md#try_catch_raise_nested-r-) and [`try_catch_return_false`](Rule-Reference.md#try_catch_return_false-r-) rules only catches exceptions of type `tao::pegtl::parse_error_base` (or derived)!
 When other exception types need to be caught then other members of the `try_catch_*` family of rules need to be used.
+
 
 ## Advanced Control
 
@@ -136,6 +145,7 @@ The control's `match()` is the first, outer-most function in the call-chain that
 For advanced use cases, it is possible to create a custom control class with a custom `match()` that can change "everything" before calling the rule's `match()`.
 
 Similarly, the control's `apply()` and `apply0()` can customise action invocation; in particular `apply()` can change how the matched portion of the input is passed to the action.
+
 
 ## Changing Control
 
@@ -148,10 +158,154 @@ Just like the action class template, a custom control class template can be used
 The latter requires the use of a [custom action](Actions-and-States.md).
 Deriving the specialisation of the custom action for `my_rule` from `tao::pegtl::change_control< my_control >` will switch the current control to `my_control` before attempting to match `my_rule`.
 
+
+## Control Traces
+
+To keep the following traces readable most template parameters and function arguments have been omitted.
+Please consult the appropriate header files if *all* details need to be known.
+
+A note regarding unwind in the full internal traces.
+All Control functions are mandatory and, if not needed, must be implemented as dummy function with the exception of `unwind()`.
+When a Control does not need an unwind function it should not implement it because this case is detected by the PEGTL and the mechanism to call `unwind()` in case of an exception is omitted.
+This is the "if needed" part of "set up unwind guard if needed", a small optimization that is not necessary for other not needed Control functions because those empty functions are inlined to nothing.
+
+### Rule Success
+
+Parse `R` success, default Action and Control.
+
+| Function | Event |
+| -------- | ----- |
+| `tao::pegtl::parse< R >()` | Enter |
+| `tao::pegtl::normal< R >::match()` | Enter |
+| `tao::pegtl::match< R >()` | Enter |
+| `tao::pegtl::normal< R >::guard()` | Full call |
+| `tao::pegtl::normal< R >::start()` | Full call |
+| `R::match()` | Full call returns `true`  |
+| `tao::pegtl::normal< R >::success()` | Full call |
+| `tao::pegtl::match< R >()` | Return `true` |
+| `tao::pegtl::normal< R >::match()` | Return `true` |
+| `tao::pegtl::parse< R >()` | Return `true` |
+
+<details>
+<summary>Full Internal Trace</summary>
+
+| Function | Event |
+| -------- | ----- |
+| `tao::pegtl::parse< R >()` | Enter |
+| `tao::pegtl::normal< R >::match()` | Enter |
+| `tao::pegtl::match< R >()` | Enter |
+| `tao::pegtl::normal< R >::guard()` | Full call returns rewind guard or dummy |
+| `tao::petl::internal::rewind_guard::rewind_guard()` | Remember position if not dummy |
+| `tao::pegtl::normal< R >::start()` | Full call |
+| `tao::pegtl::internal::match_control_unwind< R >()` | Enter and set up unwind guard if needed |
+| `tao::pegtl::internal::match_no_control< R >()` | Enter and detect simple or complex match |
+| `R::match()` | Full call returns `true`  |
+| `tao::pegtl::internal::match_no_control< R >()` | Return `true` |
+| `tao::pegtl::internal::match_control_unwind< R >()` | Return `true` |
+| `tao::pegtl::normal< R >::success()` | Full call |
+| `tao::petl::internal::rewind_guard::~rewind_guard()` | Do nothing or dummy does nothing |
+| `tao::pegtl::match< R >()` | Return `true` |
+| `tao::pegtl::normal< R >::match()` | Return `true` |
+| `tao::pegtl::parse< R >()` | Return `true` |
+
+Whether a rewind guard or a dummy is created depends on the current `rewind_mode`.
+</details>
+
+### Rule Local Failure
+
+Parse `R` local failure, default Action and Control.
+
+| Function | Event |
+| -------- | ----- |
+| `tao::pegtl::parse< R >()` | Enter |
+| `tao::pegtl::normal< R >::match()` | Enter |
+| `tao::pegtl::match< R >()` | Enter |
+| `tao::pegtl::normal< R >::guard()` | Full call |
+| `tao::pegtl::normal< R >::start()` | Full call |
+| `R::match()` | Full call returns `false`  |
+| `tao::pegtl::normal< R >::failure()` | Full call |
+| `tao::pegtl::match< R >()` | Return `false` |
+| `tao::pegtl::normal< R >::match()` | Return `false` |
+| `tao::pegtl::parse< R >()` | Return `false` |
+
+<details>
+<summary>Full Internal Trace</summary>
+
+| Function | Event |
+| -------- | ----- |
+| `tao::pegtl::parse< R >()` | Enter |
+| `tao::pegtl::normal< R >::match()` | Enter |
+| `tao::pegtl::match< R >()` | Enter |
+| `tao::pegtl::normal< R >::guard()` | Full call returns rewind guard or dummy |
+| `tao::petl::internal::rewind_guard::rewind_guard()` | Remember position if not dummy |
+| `tao::pegtl::normal< R >::start()` | Full call |
+| `tao::pegtl::internal::match_control_unwind< R >()` | Enter and set up unwind guard if needed |
+| `tao::pegtl::internal::match_no_control< R >()` | Enter and detect simple or complex match |
+| `R::match()` | Full call returns `false`  |
+| `tao::pegtl::internal::match_no_control< R >()` | Return `false` |
+| `tao::pegtl::internal::match_control_unwind< R >()` | Return `false` |
+| `tao::pegtl::normal< R >::failure()` | Full call |
+| `tao::petl::internal::rewind_guard::~rewind_guard()` | Rewind input if not dummy |
+| `tao::pegtl::match< R >()` | Return `false` |
+| `tao::pegtl::normal< R >::match()` | Return `false` |
+| `tao::pegtl::parse< R >()` | Return `false` |
+
+Whether a rewind guard or a dummy is created depends on the current `rewind_mode`.
+</details>
+
+### Action Apply
+
+Parse `R` success, Action `A` has `void apply()` for `R`, default Control.
+
+| Function | Event |
+| -------- | ----- |
+| `tao::pegtl::parse< R, A >()` | Enter |
+| `tao::pegtl::normal< R >::match()` | Enter |
+| `tao::pegtl::match< R >()` | Enter |
+| `tao::pegtl::normal< R >::guard()` | Full call |
+| `tao::pegtl::normal< R >::start()` | Full call |
+| `R::match()` | Full call returns `true`  |
+| `tao::pegtl::normal< R >::apply()` | Enter |
+| `A< R >::apply()` | Full call |
+| `tao::pegtl::normal< R >::apply()` | Return |
+| `tao::pegtl::normal< R >::success()` | Full call |
+| `tao::pegtl::match< R >()` | Return `true` |
+| `tao::pegtl::normal< R >::match()` | Return `true` |
+| `tao::pegtl::parse< R >()` | Return `true` |
+
+<details>
+<summary>Full Internal Trace</summary>
+
+| Function | Event |
+| -------- | ----- |
+| `tao::pegtl::parse< R, A >()` | Enter |
+| `tao::pegtl::normal< R >::match()` | Enter |
+| `tao::pegtl::match< R >()` | Enter |
+| `tao::pegtl::normal< R >::guard()` | Full call returns rewind guard |
+| `tao::petl::internal::rewind_guard::rewind_guard()` | Remember position |
+| `tao::pegtl::normal< R >::start()` | Full call |
+| `tao::pegtl::internal::match_control_unwind< R >()` | Enter and set up unwind guard if needed |
+| `tao::pegtl::internal::match_no_control< R >()` | Enter and detect simple or complex match |
+| `R::match()` | Full call returns `true`  |
+| `tao::pegtl::internal::match_no_control< R >()` | Return `true` |
+| `tao::pegtl::internal::match_control_unwind< R >()` | Return `true` |
+| `tao::pegtl::normal< R >::apply()` | Enter |
+| `A< R >::apply()` | Full call |
+| `tao::pegtl::normal< R >::apply()` | Return |
+| `tao::pegtl::normal< R >::success()` | Full call |
+| `tao::petl::internal::rewind_guard::~rewind_guard()` | Do nothing or dummy does nothing |
+| `tao::pegtl::match< R >()` | Return `true` |
+| `tao::pegtl::normal< R >::match()` | Return `true` |
+| `tao::pegtl::parse< R >()` | Return `true` |
+
+A rewind guard is created independent of the current `rewind_mode` because the input position at the beginning of the match is needed for the Action invocation.
+</details>
+
+
 ---
 
-This document is part of the [PEGTL](https://github.com/taocpp/PEGTL).
+This page is part of the [PEGTL](https://github.com/taocpp/PEGTL) and its [documentation](README.md).
 
-Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey<br>
 Distributed under the Boost Software License, Version 1.0<br>
 See accompanying file [LICENSE_1_0.txt](../LICENSE_1_0.txt) or copy at https://www.boost.org/LICENSE_1_0.txt

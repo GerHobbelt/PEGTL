@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -15,25 +15,24 @@
 #include <utility>
 #include <vector>
 
-#include "remove_first_state.hpp"
-#include "shuffle_states.hpp"
-
 #include "../apply_mode.hpp"
 #include "../config.hpp"
 #include "../demangle.hpp"
-#include "../memory_input.hpp"
 #include "../normal.hpp"
 #include "../nothing.hpp"
 #include "../parse.hpp"
 #include "../rewind_mode.hpp"
+#include "../type_list.hpp"
+
+#include "../control/remove_first_state.hpp"
+#include "../control/rotate_states_right.hpp"
 
 #include "../internal/enable_control.hpp"
 #include "../internal/has_unwind.hpp"
-#include "../internal/inputerator.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::parse_tree
 {
-   template< typename T, typename Source = std::string_view >
+   template< typename T, typename Position >
    struct basic_node
    {
       using node_t = T;
@@ -41,24 +40,20 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
       children_t children;
 
       std::string_view type;
-      Source source;
+      std::string_view data;
 
-      TAO_PEGTL_NAMESPACE::internal::inputerator m_begin;
-      TAO_PEGTL_NAMESPACE::internal::inputerator m_end;
+      Position begin;
+      Position end;
 
-      // each node will be default constructed
-      basic_node() = default;
+      basic_node() noexcept = default;
 
-      // no copy/move is necessary
-      // (nodes are always owned/handled by a std::unique_ptr)
-      basic_node( const basic_node& ) = delete;
       basic_node( basic_node&& ) = delete;
+      basic_node( const basic_node& ) = delete;
 
       ~basic_node() = default;
 
-      // no assignment either
-      basic_node& operator=( const basic_node& ) = delete;
-      basic_node& operator=( basic_node&& ) = delete;
+      void operator=( basic_node&& ) = delete;
+      void operator=( const basic_node& ) = delete;
 
       [[nodiscard]] bool is_root() const noexcept
       {
@@ -78,44 +73,15 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
          type = demangle< U >();
       }
 
-      [[nodiscard]] position begin() const
-      {
-         return position( m_begin, source );
-      }
-
-      [[nodiscard]] position end() const
-      {
-         return position( m_end, source );
-      }
-
-      [[nodiscard]] bool has_content() const noexcept
-      {
-         return m_end.data != nullptr;
-      }
-
-      [[nodiscard]] std::string_view string_view() const noexcept
-      {
-         assert( has_content() );
-         return { m_begin.data, static_cast< std::size_t >( m_end.data - m_begin.data ) };
-      }
-
       [[nodiscard]] std::string string() const
       {
-         assert( has_content() );
-         return { m_begin.data, m_end.data };
-      }
-
-      template< tracking_mode P = tracking_mode::eager, typename Eol = eol::lf_crlf >
-      [[nodiscard]] memory_input< P, Eol > as_memory_input() const
-      {
-         assert( has_content() );
-         return { m_begin.data, m_end.data, source, m_begin.byte, m_begin.line, m_begin.column };
+         return std::string( data );
       }
 
       template< typename... States >
       void remove_content( States&&... /*unused*/ ) noexcept
       {
-         m_end = TAO_PEGTL_NAMESPACE::internal::inputerator();
+         data = std::string_view();
       }
 
       // all non-root nodes are initialized by calling this method
@@ -123,15 +89,16 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
       void start( const ParseInput& in, States&&... /*unused*/ )
       {
          set_type< Rule >();
-         source = in.source();
-         m_begin = TAO_PEGTL_NAMESPACE::internal::inputerator( in.inputerator() );
+         begin = in.current_position();
       }
 
       // if parsing of the rule succeeded, this method is called
       template< typename Rule, typename ParseInput, typename... States >
       void success( const ParseInput& in, States&&... /*unused*/ ) noexcept
       {
-         m_end = TAO_PEGTL_NAMESPACE::internal::inputerator( in.inputerator() );
+         end = in.current_position();
+         const char* b = in.previous( begin );
+         data = std::string_view( b, in.current() - b );
       }
 
       // if parsing of the rule failed, this method is called
@@ -150,10 +117,6 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
          children.emplace_back( std::move( child ) );
       }
    };
-
-   struct node
-      : basic_node< node >
-   {};
 
    namespace internal
    {
@@ -225,7 +188,7 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
          struct state_handler;
 
          template< typename Rule >
-         using type = rotate_states_right< state_handler< Rule, is_selected_node< Rule, Selector >, is_leaf< 8, typename Rule::subs_t, Selector > > >;
+         using type = rotate_states_right_b< 1, state_handler< Rule, is_selected_node< Rule, Selector >, is_leaf< 8, typename Rule::subs_t, Selector > > >;
       };
 
       template< typename, typename, typename... >
@@ -244,13 +207,13 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
       template< typename Node, template< typename... > class Selector, template< typename... > class Control >
       template< typename Rule >
       struct make_control< Node, Selector, Control >::state_handler< Rule, false, true >
-         : remove_first_state< Control< Rule > >
+         : remove_first_state_r< Control, Rule >
       {};
 
       template< typename Node, template< typename... > class Selector, template< typename... > class Control >
       template< typename Rule >
       struct make_control< Node, Selector, Control >::state_handler< Rule, false, false >
-         : remove_first_state< Control< Rule > >
+         : remove_first_state_r< Control, Rule >
       {
          static constexpr bool enable = true;
 
@@ -286,7 +249,7 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
       template< typename Node, template< typename... > class Selector, template< typename... > class Control >
       template< typename Rule, bool B >
       struct make_control< Node, Selector, Control >::state_handler< Rule, true, B >
-         : remove_first_state< Control< Rule > >
+         : remove_first_state_r< Control, Rule >
       {
          template< typename ParseInput, typename... States >
          static void start( const ParseInput& in, state< Node >& state, States&&... st )
@@ -442,14 +405,20 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
       return std::move( state.back() );
    }
 
+   template< typename ParseInput >
+   struct node_t
+      : basic_node< node_t< ParseInput >, typename ParseInput::error_position_t >
+   {};
+
    template< typename Rule,
              template< typename... > class Selector = internal::store_all,
              template< typename... > class Action = nothing,
              template< typename... > class Control = normal,
              typename ParseInput,
              typename... States >
-   [[nodiscard]] std::unique_ptr< node > parse( ParseInput&& in, States&&... st )
+   [[nodiscard]] auto parse( ParseInput&& in, States&&... st )
    {
+      using node = node_t< std::decay_t< ParseInput > >;
       return parse< Rule, node, Selector, Action, Control >( in, st... );
    }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -11,13 +11,15 @@
 
 #include "../ascii.hpp"
 #include "../config.hpp"
+#include "../eol_exclude_tag.hpp"
+#include "../eol_unknown_tag.hpp"
 #include "../nothing.hpp"
 #include "../rules.hpp"
-#include "../utf8.hpp"
+#include "../unicode/utf8.hpp"
+
+#include "../control/remove_first_state.hpp"
 
 #include "abnf.hpp"
-#include "forward.hpp"
-#include "remove_first_state.hpp"
 #include "uri.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::http
@@ -132,6 +134,7 @@ namespace TAO_PEGTL_NAMESPACE::http
    struct chunk_size
    {
       using rule_t = plus< abnf::HEXDIG >::rule_t;
+      using subs_t = plus< abnf::HEXDIG >::subs_t;
 
       template< apply_mode A,
                 rewind_mode M,
@@ -167,7 +170,7 @@ namespace TAO_PEGTL_NAMESPACE::http
             }
             break;
          }
-         in.bump_in_this_line( i );
+         in.template consume< eol_exclude_tag >( i );
          return i > 0;
       }
    };
@@ -181,6 +184,7 @@ namespace TAO_PEGTL_NAMESPACE::http
    struct chunk_data
    {
       using rule_t = star< abnf::OCTET >::rule_t;
+      using subs_t = star< abnf::OCTET >::subs_t;
 
       template< apply_mode A,
                 rewind_mode M,
@@ -193,20 +197,17 @@ namespace TAO_PEGTL_NAMESPACE::http
       [[nodiscard]] static bool match( ParseInput& in, const std::size_t size, States&&... /*unused*/ )
       {
          if( in.size( size ) >= size ) {
-            in.bump( size );
+            in.template consume< eol_unknown_tag >( size );
             return true;
          }
          return false;
       }
    };
 
-   namespace internal::chunk_helper
+   namespace internal
    {
-      template< typename Base >
-      struct control;
-
       template< template< typename... > class Control, typename Rule >
-      struct control< Control< Rule > >
+      struct chunk_control_r
          : Control< Rule >
       {
          template< apply_mode A,
@@ -225,29 +226,30 @@ namespace TAO_PEGTL_NAMESPACE::http
       };
 
       template< template< typename... > class Control >
-      struct control< Control< chunk_size > >
-         : remove_first_state< Control< chunk_size > >
+      struct chunk_control_r< Control, chunk_size >
+         : remove_first_state_r< Control, chunk_size >
       {};
 
       template< template< typename... > class Control >
-      struct control< Control< chunk_data > >
-         : remove_first_state< Control< chunk_data > >
+      struct chunk_control_r< Control, chunk_data >
+         : remove_first_state_r< Control, chunk_data >
       {};
 
       template< template< typename... > class Control >
-      struct bind
+      struct bind_chunk_control
       {
          template< typename Rule >
-         using type = control< Control< Rule > >;
+         using type = chunk_control_r< Control, Rule >;
       };
 
-   }  // namespace internal::chunk_helper
+   }  // namespace internal
 
    struct chunk
    {
       using impl = seq< chunk_size, chunk_ext, abnf::CRLF, chunk_data, abnf::CRLF >;
 
       using rule_t = impl::rule_t;
+      using subs_t = impl::subs_t;
 
       template< apply_mode A,
                 rewind_mode M,
@@ -260,7 +262,7 @@ namespace TAO_PEGTL_NAMESPACE::http
       [[nodiscard]] static bool match( ParseInput& in, States&&... st )
       {
          std::size_t size{};
-         return impl::template match< A, M, Action, internal::chunk_helper::bind< Control >::template type >( in, size, st... );
+         return impl::template match< A, M, Action, internal::bind_chunk_control< Control >::template type >( in, size, st... );
       }
    };
 

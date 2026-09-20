@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -8,8 +8,6 @@
 #include <cassert>
 #include <ostream>
 #include <string>
-
-#include "../config.hpp"
 
 #include "parse_tree.hpp"
 
@@ -82,9 +80,9 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
       {
          os << "  x" << &n << " [ label=\"";
          escape( os, s );
-         if( n.has_content() ) {
+         if( !n.data.empty() ) {
             os << "\\n\\\"";
-            escape( os, n.string_view() );
+            escape( os, n.data );
             os << "\\\"";
          }
          os << "\" ]\n";

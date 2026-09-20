@@ -1,29 +1,24 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_INTERNAL_AT_HPP
 #define TAO_PEGTL_INTERNAL_AT_HPP
 
-#include "enable_control.hpp"
-#include "seq.hpp"
-#include "success.hpp"
-
 #include "../apply_mode.hpp"
 #include "../config.hpp"
 #include "../rewind_mode.hpp"
 #include "../type_list.hpp"
+
+#include "enable_control.hpp"
+#include "seq.hpp"
+#include "success.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
    template< typename... Rules >
    struct at
       : at< seq< Rules... > >
-   {};
-
-   template<>
-   struct at<>
-      : success
    {};
 
    template< typename Rule >
@@ -42,10 +37,15 @@ namespace TAO_PEGTL_NAMESPACE::internal
                 typename... States >
       [[nodiscard]] static bool match( ParseInput& in, States&&... st )
       {
-         const auto m = in.template auto_rewind< rewind_mode::required >();
-         return Control< Rule >::template match< apply_mode::nothing, rewind_mode::optional, Action, Control >( in, st... );
+         const auto m = Control< at >::template guard< apply_mode::disabled, rewind_mode::required, Action, Control >( in, st... );
+         return Control< Rule >::template match< apply_mode::disabled, rewind_mode::optional, Action, Control >( in, st... );
       }
    };
+
+   template<>
+   struct at<>
+      : success
+   {};
 
    template< typename... Rules >
    inline constexpr bool enable_control< at< Rules... > > = false;

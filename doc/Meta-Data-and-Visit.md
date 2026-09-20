@@ -85,7 +85,7 @@ Unlike `visit()`, `visit_rt()` returns the number of rules visited.
 
 The functions `print_rules()` and `print_sub_rules()` from `include/tao/pegtl/contrib/print.hpp` combine the `visit()` function with visitors that print some information about all (sub-)rules of the supplied grammar to the supplied `std::ostream`.
 
-See `src/example/pegtl/json_print_rules.cpp` and `src/example/pegtl/json_print_sub_rules.cpp` for how to use these functions, and what the output looks like.
+See `src/pegtl/json_print_rules.cpp` and `src/pegtl/json_print_sub_rules.cpp` for how to use these functions, and what the output looks like.
 As expected, the `internal` sub-rules are printed, too.
 
 ## Rule Coverage
@@ -149,8 +149,8 @@ As usual, unless otherwise indicated, all functions and data structure are in th
 
 ---
 
-This document is part of the [PEGTL](https://github.com/taocpp/PEGTL).
+This page is part of the [PEGTL](https://github.com/taocpp/PEGTL) and its [documentation](README.md).
 
-Copyright (c) 2020-2023 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2020-2026 Dr. Colin Hirsch and Daniel Frey<br>
 Distributed under the Boost Software License, Version 1.0<br>
 See accompanying file [LICENSE_1_0.txt](../LICENSE_1_0.txt) or copy at https://www.boost.org/LICENSE_1_0.txt

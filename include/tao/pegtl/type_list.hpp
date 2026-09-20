@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2020-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -6,6 +6,7 @@
 #define TAO_PEGTL_TYPE_LIST_HPP
 
 #include <cstddef>
+#include <type_traits>
 
 #include "config.hpp"
 
@@ -42,6 +43,33 @@ namespace TAO_PEGTL_NAMESPACE
    template< typename... Ts >
    using type_list_concat_t = typename type_list_concat< Ts... >::type;
 
+   template< typename Type, typename... Types >
+   inline constexpr bool type_list_contains_v = ( std::is_same_v< Type, Types > || ... );
+
+   template< typename Type, typename... Types >
+   struct type_list_contains
+      : std::bool_constant< type_list_contains_v< Type, Types... > >
+   {};
+
+   template< typename Type, typename... Types >
+   struct type_list_contains< Type, type_list< Types... > >
+      : type_list_contains< Type, Types... >
+   {};
+
+   template< typename >
+   struct is_type_list
+      : std::false_type
+   {};
+
+   template< typename... Ts >
+   struct is_type_list< type_list< Ts... > >
+      : std::true_type
+   {};
+
+   template< typename T >
+   inline constexpr bool is_type_list_v = is_type_list< T >::value;
+
 }  // namespace TAO_PEGTL_NAMESPACE
 
+// FCOV_EXCL_FILE
 #endif

@@ -1,22 +1,18 @@
-// Copyright (c) 2017-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_CONTRIB_REP_ONE_MIN_MAX_HPP
 #define TAO_PEGTL_CONTRIB_REP_ONE_MIN_MAX_HPP
 
-#include <algorithm>
+#include <cstddef>
 #include <type_traits>
 
 #include "../config.hpp"
 #include "../type_list.hpp"
 
-#include "../internal/bump_help.hpp"
-#include "../internal/bytes.hpp"
+#include "../debug/analyze_traits.hpp"
 #include "../internal/enable_control.hpp"
-#include "../internal/opt.hpp"
-
-#include "analyze_traits.hpp"
 
 namespace TAO_PEGTL_NAMESPACE
 {
@@ -30,13 +26,7 @@ namespace TAO_PEGTL_NAMESPACE
 
          static_assert( Min <= Max );
 
-         [[nodiscard]] static constexpr bool test_one( const char c ) noexcept
-         {
-            static_assert( ( Min == 1 ) && ( Max == 1 ) );
-            return C == c;
-         }
-
-         [[nodiscard]] static constexpr bool test_any( const char c ) noexcept
+         [[nodiscard]] static constexpr bool test( const char c ) noexcept
          {
             return C == c;
          }
@@ -53,7 +43,7 @@ namespace TAO_PEGTL_NAMESPACE
                ++i;
             }
             if( ( Min <= i ) && ( i <= Max ) ) {
-               bump_help< rep_one_min_max >( in, i );
+               in.template consume< rep_one_min_max >( i );
                return true;
             }
             return false;
@@ -66,7 +56,9 @@ namespace TAO_PEGTL_NAMESPACE
          using rule_t = rep_one_min_max;
          using subs_t = empty_list;
 
-         [[nodiscard]] static constexpr bool test_any( const char c ) noexcept
+         static_assert( 0 < Max );
+
+         [[nodiscard]] static constexpr bool test( const char c ) noexcept
          {
             return C == c;
          }
@@ -80,7 +72,7 @@ namespace TAO_PEGTL_NAMESPACE
                ++i;
             }
             if( i <= Max ) {
-               bump_help< rep_one_min_max >( in, i );
+               in.template consume< rep_one_min_max >( i );
                return true;
             }
             return false;

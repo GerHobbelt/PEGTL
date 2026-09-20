@@ -1,45 +1,141 @@
 # Changelog
 
-## 4.0.0
+All noteworthy changes since the first public release.
+
+## Version 4.0.0
 
 **Not yet released**
 
+* Even more templates, in even more places, templates everywhere!
 * Use the [**migration guide**](Migration-Guide.md#version-400) when updating.
-* Switched to Boost Software License, Version 1.0.
-* Added [control function](Control-and-Debug.md) to throw nested exceptions.
-* Changed `parse_error` to contain only one `position`, and:
-* Changed to **nested exceptions** for nested [parsing errors](Errors-and-Exceptions.md).
-* Added functions to visit and flatten [nested exceptions](Contrib-and-Examples.md#taopegtlcontribnested_exceptionshpp).
-* Added new customization point for error messages.
-* Added optional source line output for the tracer.
-* Added new atomic rule [`everything`](Rule-Reference.md#everything).
-* Added new convenience rule [`partial`](Rule-Reference.md#partial-r-).
-* Added new convenience rule [`star_partial`](Rule-Reference.md#star_partial-r-).
-* Added new convenience rule [`strict`](Rule-Reference.md#strict-r-).
-* Added new convenience rule [`star_strict`](Rule-Reference.md#star_strict-r-).
-* Added rule [`try_catch_any_return_false`](Rule-Reference.md#try_catch_any_return_false-r-).
-* Renamed rule `try_catch` to [`try_catch_return_false`](Rule-Reference.md#try_catch_return_false-r-).
-* Added rule [`try_catch_std_return_false`](Rule-Reference.md#try_catch_std_return_false-r-).
-* Renamed rule `try_catch_type` to [`try_catch_type_return_false`](Rule-Reference.md#try_catch_type_return_false-e-r-).
-* Added rule [`try_catch_any_raise_nested`](Rule-Reference.md#try_catch_any_raise_nested-r-).
-* Added rule [`try_catch_raise_nested`](Rule-Reference.md#try_catch_raise_nested-r-).
-* Added rule [`try_catch_std_raise_nested`](Rule-Reference.md#try_catch_std_raise_nested-r-).
-* Added rule [`try_catch_type_raise_nested`](Rule-Reference.md#try_catch_type_raise_nested-e-r-).
-* Moved depth counter to adapter class in contrib.
-* Changed default top-level `rewind_mode` to `dontcare`.
-* Replaced `rewind_mode` values `dontcare` and `active` with new value `optional`.
-* Removed support for `boost::filesystem` and `std::experimental::filesystem`.
-* Removed support for building an amalgamated header.
-* Removed support for Visual Studio 2017.
-* Removed support for GCC 7 and GCC 8.
+* Infrastructure
+  * Switched to Boost Software License, Version 1.0.
+  * Makefile generates binaries in `build/bin/` instead of `build/src/`.
+  * The extra `pegtl` directory in `src/example` and `src/test` was removed.
+  * Makefile generates dependencies in `build/dep/` instead of `build/src/`.
+  * Several headers were moved from `contrib/` to the main PEGTL include folder.
+  * Not all headers in `include/tao/pegtl/` are included by `<tao/pegtl.hpp>`.
+  * All stream parsing headers were moved to `include/tao/pegtl/stream/`.
+  * All Unicode (incl. ICU) rules were moved to `include/tao/pegtl/unicode/`.
+  * All binary rules (incl. enums) were moved to `include/tao/pegtl/binary/`.
+  * All actions beyond `nothing` are now in `include/tao/pegtl/action/`.
+  * All controls beyond `normal` are now in `include/tao/pegtl/control/`.
+  * The grammar debug and analysis features are now in `include/tao/pegtl/debug/`.
+* Exceptions
+  * Changed `parse_error` to contain only one `position`.
+  * Changed `parse_error` to be templated over the position type.
+  * Added `parse_error_base` as non-templated base class of `parse_error`.
+  * Changed to **nested exceptions** for nested [parsing errors](Errors-and-Exceptions.md).
+  * Added [control function](Control-and-Debug.md) to throw nested exceptions.
+  * Changed `parse_nested()` to throw a nested exception instead of adding a position to the current one.
+  * Added functions to visit and flatten [nested exceptions](Contrib-and-Examples.md#taopegtlcontribnested_exceptionshpp).
+* Inputs
+  * Standardized on line - column - count order.
+  * The input classes have been **heavily** refactored.
+  * Most input classes can use any type instead of being hardwired to `char`.
+  * The end-of-line handling has been **heavily** refactored and extended.
+  * Choice of statically, dynamically or user allocated buffer inputs.
+  * Everything related to buffer inputs is now in `include/tao/buffer/`.
+  * Nothing related to buffer inputs is included with `<tao/pegtl.hpp>`.
+  * Moved `action_input` from `internal` to the main PEGTL namespace.
+  * Removed `action_t` type alias from all input classes in favour of using `action_input`.
+  * Never use unaligned memory access (unless compiler generated).
+* Rule Changes
+  * Added Unicode rules that adapt to the input's data size.
+  * Added special end-of-line rules in multiple places.
+  * Added new atomic rule [`function`](Rule-Reference.md#function-f-).
+  * Added new atomic rule [`restart`](Rule-Reference.md#restart).
+  * Added new ASCII rule [`cntrl`](Rule-Reference.md#cntrl).
+  * Added new ASCII rule [`cr`](Rule-Reference.md#cr).
+  * Added new ASCII rule [`cr_lf`](Rule-Reference.md#cr_lf).
+  * Added new ASCII rule [`cr_crlf`](Rule-Reference.md#cr_crlf).
+  * Added new ASCII rule [`cr_lf_crlf`](Rule-Reference.md#cr_lf_crlf).
+  * Added new ASCII rule [`crlf`](Rule-Reference.md#crlf).
+  * Added new ASCII rule [`esc`](Rule-Reference.md#esc).
+  * Added new ASCII rule [`ff`](Rule-Reference.md#ff).
+  * Added new ASCII rule [`graph`](Rule-Reference.md#graph).
+  * Added new ASCII rule [`ht`](Rule-Reference.md#ht).
+  * Added new ASCII rule [`ione`](Rule-Reference.md#ht).
+  * Added new ASCII rule [`lf`](Rule-Reference.md#lf).
+  * Added new ASCII rule [`lf_crlf`](Rule-Reference.md#lf_crlf).
+  * Added new ASCII rule [`not_ione`](Rule-Reference.md#ht).
+  * Added new ASCII rule [`sp`](Rule-Reference.md#sp).
+  * Added new ASCII rule [`vt`](Rule-Reference.md#vt).
+  * Added new ASCII rules that only match in the range 0 to 127.
+  * Added new Unicode rule [`cr`](Rule-Reference.md#cr-1).
+  * Added new Unicode rule [`cr_lf`](Rule-Reference.md#cr_lf-1).
+  * Added new Unicode rule [`cr_crlf`](Rule-Reference.md#cr_crlf-1).
+  * Added new Unicode rule [`cr_lf_crlf`](Rule-Reference.md#cr_lf_crlf-1).
+  * Added new Unicode rule [`crlf`](Rule-Reference.md#crlf-1).
+  * Added new Unicode rule [`lf`](Rule-Reference.md#lf-1).
+  * Added new Unicode rule [`lf_crlf`](Rule-Reference.md#lf_crlf-1).
+  * Added new Unicode rule [`ls`](Rule-Reference.md#ls).
+  * Added new Unicode rule [`nel`](Rule-Reference.md#nel).
+  * Added new Unicode rule [`ps`](Rule-Reference.md#ps).
+  * Added new Unicode rule [`eol1`](Rule-Reference.md#eol1).
+  * Added new Unicode rule [`eolu`](Rule-Reference.md#eolu).
+  * Added dedicated end-of-line rules for end-of-line scanning.
+  * Added dedicated end-of-line rules for lazy end-of-line mode.
+  * Added new atomic rule [`consume`](Rule-Reference.md#consume-count-).
+  * Added new atomic rule [`everything`](Rule-Reference.md#everything).
+  * Added new generic rule [`combine`](Rule-Reference.md#combine-r-l-).
+  * Added new generic rule [`invert`](Rule-Reference.md#invert-r-).
+  * Added new generic rule [`function`](Rule-Reference.md#function).
+  * Added new buffer rule [`is_buffer`](Rule-Reference.md#is_buffer).
+  * Added new convenience rule [`partial`](Rule-Reference.md#partial-r-).
+  * Added new convenience rule [`sep`](Rule-Reference.md#sep-s-r-) (replaces `separated_seq` from contrib).
+  * Added new convenience rule [`sep_pad`](Rule-Reference.md#sep_pad-s-p-r-).
+  * Added new convenience rule [`star_partial`](Rule-Reference.md#star_partial-r-).
+  * Added new convenience rule [`strict`](Rule-Reference.md#strict-r-).
+  * Added new convenience rule [`star_strict`](Rule-Reference.md#star_strict-r-).
+  * Added rule [`try_catch_any_return_false`](Rule-Reference.md#try_catch_any_return_false-r-).
+  * Renamed rule `try_catch` to [`try_catch_return_false`](Rule-Reference.md#try_catch_return_false-r-).
+  * Added rule [`try_catch_std_return_false`](Rule-Reference.md#try_catch_std_return_false-r-).
+  * Renamed rule `try_catch_type` to [`try_catch_type_return_false`](Rule-Reference.md#try_catch_type_return_false-e-r-).
+  * Added rule [`try_catch_any_raise_nested`](Rule-Reference.md#try_catch_any_raise_nested-r-).
+  * Added rule [`try_catch_raise_nested`](Rule-Reference.md#try_catch_raise_nested-r-).
+  * Added rule [`try_catch_std_raise_nested`](Rule-Reference.md#try_catch_std_raise_nested-r-).
+  * Added rule [`try_catch_type_raise_nested`](Rule-Reference.md#try_catch_type_raise_nested-e-r-).
+  * Added rules for matching signed integers mirroring the existing ones for unsigned integers.
+  * Optimized `utf8::string` by expanding `char32_t` code points to UTF-8 sequences at compile time.
+  * Refactored the implementation of `one`, `range`, `ranges`, `not_one` and `not_range`.
+  * Added new rules for enum types to the [binary rules](Rule-Reference.md#binary)
+  * Added new rules that operate on [members](Rule-Reference.md#member) instead of directly on values.
+* Added new customization point for error messages.  -- TODO!
+* Added optional source line output for the tracer.  -- TODO?
+* Other
+  * Routed rewind-guard creation through the Control class.
+  * Renamed `apply_mode::action` to `apply_mode::enabled`.
+  * Renamed `apply_mode::nothing` to `apply_mode::disabled`.
+  * Added new contrib rule `charconv` in `contrib/charconv.hpp`.
+  * Renamed contrib "limit_depth" functionality to "check_depth".
+  * Renamed contrib "check_bytes" functionality to "check_count".
+  * Renamed contrib "limit_bytes" functionality to "limit_count".
+  * Moved depth counter to adapter class `input_with_depth` in [contrib](Contrib-and-Examples#contrib).
+  * Changed default top-level `rewind_mode` to ~~`dontcare`~~ `optional`.
+  * Merged `rewind_mode` values `dontcare` and `active` into new value `optional`.
+  * Renamed `end_of_line()` input member function to `end_of_line_or_file()`.
+  * Renamed contrib "to_string" functionality to "type_to_string".
+  * Added `type_to_string_view` function that mirrors `type_to_string`.
+  * Renamed `alphabet.hpp` to `alphabet_constants.hpp`.
+  * Renamed buffer/incremental parsing to stream parsing.
+  * Changed `change_state` to detect absence of `success()`.
+  * Changed `change_action_and_state` to detect absence of `success()`.
+* Cleanup
+  * Removed rule `forty_two`, we apologize for any inconvenience.
+  * Removed rule `bytes` and replaced with `many` for different data types.
+  * Removed support for `boost::filesystem` and `std::experimental::filesystem`.
+  * Removed support for building an amalgamated header.
+  * Removed support for Visual Studio 2017.
+  * Removed support for GCC 7 and GCC 8.
 
-## 3.2.7
+## Version 3.2.7
 
 Released 2022-07-14
 
 * Removed superfluous deprecated include.
 
-## 3.2.6
+## Version 3.2.6
 
 Released 2022-06-29
 
@@ -47,25 +143,25 @@ Released 2022-06-29
 * Fixed `demangle()` for MSVC, again.
 * Fixed `demangle()` for GCC 12.
 
-## 3.2.5
+## Version 3.2.5
 
 Released 2022-02-05
 
 * Added missing include for fallback `demangle()` implementations.
 
-## 3.2.4
+## Version 3.2.4
 
 Released 2022-02-03
 
 * Fixed `version.hpp`.
 
-## 3.2.3
+## Version 3.2.3
 
 Released 2022-02-03
 
 * Fixed `static_assert` in `demangle()` with recent MSVC.
 
-## 3.2.2
+## Version 3.2.2
 
 Released 2021-10-22
 
@@ -76,7 +172,7 @@ Released 2021-10-22
 * Added `tao/pegtl/contrib/iri.hpp` grammar for IRIs.
 * Added `tao/pegtl/contrib/proto3.hpp` grammar for protocol buffer v3.
 
-## 3.2.1
+## Version 3.2.1
 
 Released 2021-07-31
 
@@ -84,7 +180,7 @@ Released 2021-07-31
 * Fixed CMake export error.
 * Improved compile time efficiency.
 
-## 3.2.0
+## Version 3.2.0
 
 Released 2021-01-15
 
@@ -92,7 +188,7 @@ Released 2021-01-15
 * Improved efficiency of parse tree nodes.
 * Fixed namespace issue with `tao::pegtl::demangle<T>()` (was: `tao::demangle<T>()`).
 
-## 3.1.0
+## Version 3.1.0
 
 Released 2020-12-17
 
@@ -107,7 +203,7 @@ Released 2020-12-17
   * Thank you [Beman Dawes](https://isocpp.org/blog/2020/12/remembering-beman-dawes)!
 * Converted continuous integration infrastructure to GitHub Actions.
 
-## 3.0.0
+## Version 3.0.0
 
 Released 2020-11-28
 
@@ -151,7 +247,7 @@ Released 2020-11-28
   * Removed compatibility `peek_byte()` member functions.
   * Removed compatibility header `changes.hpp` from contrib.
 
-## 2.8.3
+## Version 2.8.3
 
 Released 2020-04-22
 
@@ -159,13 +255,13 @@ Released 2020-04-22
 * Added state manipulators `remove_first_state`, `remove_last_states`, `rotate_states_right`, `rotate_states_left`, and `reverse_states` to contrib.
 * Reduced the number of intermediate parse tree nodes.
 
-## 2.8.2
+## Version 2.8.2
 
 Released 2020-04-05
 
 * Fixed parse tree node generation to correctly remove intermediate nodes.
 
-## 2.8.1
+## Version 2.8.1
 
 Released 2019-08-06
 
@@ -174,7 +270,7 @@ Released 2019-08-06
 * Fixed `discard_input*` actions to properly forward the apply mode.
 * Fixed contrib HTTP grammar for chunked data.
 
-## 2.8.0
+## Version 2.8.0
 
 Released 2019-04-09
 
@@ -200,7 +296,7 @@ Released 2019-04-09
 * Added new Makefile target `amalgamate` to generate a single-header version of the PEGTL.
 * Added support for [Universal Windows Platform (UWP)](https://en.wikipedia.org/wiki/Universal_Windows_Platform).
 
-## 2.7.1
+## Version 2.7.1
 
 Released 2018-09-29
 
@@ -210,20 +306,20 @@ Released 2018-09-29
 * Reduced the number of intermediate parse tree nodes.
 * Allowed an action class template to be used with the parse tree.
 
-## 2.7.0
+## Version 2.7.0
 
 Released 2018-07-31
 
 * Added [`mmap_file<>`](Inputs-and-Parsing.md#file-input) support for Windows.
 * Added [deduction guides](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction) for the input classes when compiling with C++17.
 
-## 2.6.1
+## Version 2.6.1
 
 Released 2018-07-22
 
 * Fixed endianness detection in test program.
 
-## 2.6.0
+## Version 2.6.0
 
 Released 2018-06-22
 
@@ -235,14 +331,14 @@ Released 2018-06-22
 * Optimised convenience rule [`two`](Rule-Reference.md#two-c-).
 * Added new convenience rule [`three`](Rule-Reference.md#three-c-).
 
-## 2.5.2
+## Version 2.5.2
 
 Released 2018-05-31
 
 * Fixed [`opt`](Rule-Reference.md#opt-r-) and [`until`](Rule-Reference.md#until-r-s-) to work as documented in some rare edge cases.
 * Used [`opt_must`](Rule-Reference.md#opt_must-r-s-) and [`star_must`](Rule-Reference.md#star_must-r-s-) to optimise some included grammars.
 
-## 2.5.1
+## Version 2.5.1
 
 Released 2018-05-14
 
@@ -251,7 +347,7 @@ Released 2018-05-14
 * Fixed examples to compile with Visual Studio and MinGW.
 * Added [automated testing](https://travis-ci.org/taocpp/PEGTL) with GCC 8.
 
-## 2.5.0
+## Version 2.5.0
 
 Released 2018-05-01
 
@@ -269,7 +365,7 @@ Released 2018-05-01
 * Added [automated testing](https://travis-ci.org/taocpp/PEGTL) with Clang's `-fms-extensions`.
 * Fixed build with Clang when `-fms-extensions` is used (`clang-cl`).
 
-## 2.4.0
+## Version 2.4.0
 
 Released 2018-02-17
 
@@ -280,34 +376,34 @@ Released 2018-02-17
   * They will be removed in version 3.0.0.
 * Added a deleted overload to prevent creating a `memory_input<>` from a temporary `std::string`.
 
-## 2.3.4
+## Version 2.3.4
 
 Released 2018-02-08
 
 * Fixed build on older systems where `O_CLOEXEC` is not available.
 * Added [automated testing](https://travis-ci.org/taocpp/PEGTL) with Android 6.0 and 7.0.
 
-## 2.3.3
+## Version 2.3.3
 
 Released 2018-01-01
 
 * Added more `noexcept`-specifications.
 * Fixed most `clang-tidy`-issues.
 
-## 2.3.2
+## Version 2.3.2
 
 Released 2017-12-16
 
 * Worked around a Visual Studio 15.5 bug.
 
-## 2.3.1
+## Version 2.3.1
 
 Released 2017-12-14
 
 * Fixed linkage of `tao::pegtl::internal::file_open`.
 * Improved error message for missing `source` parameter of `string_input<>`.
 
-## 2.3.0
+## Version 2.3.0
 
 Released 2017-12-11
 
@@ -317,13 +413,13 @@ Released 2017-12-11
 * Fixed the tracer to work with `apply()`/`apply0()` returning boolean values.
 * Fixed, simplified and improved [`examples/parse_tree.cpp`](Contrib-and-Examples.md#srcexamplepegtlparse_treecpp).
 
-## 2.2.2
+## Version 2.2.2
 
 Released 2017-11-22
 
 * Bumped version.
 
-## 2.2.1
+## Version 2.2.1
 
 Released 2017-11-22
 
@@ -332,7 +428,7 @@ Released 2017-11-22
 * Fixed string handling in [`examples/abnf2pegtl.cc`](Contrib-and-Examples.md#srcexamplepegtlabnf2pegtlcpp).
 * Simplified/improved Android build.
 
-## 2.2.0
+## Version 2.2.0
 
 Released 2017-09-24
 
@@ -343,32 +439,32 @@ Released 2017-09-24
 * Added [automated testing](https://travis-ci.org/taocpp/PEGTL) with Clang 5.
 * Added [automated testing](https://travis-ci.org/taocpp/PEGTL) with Xcode 9.
 
-## 2.1.4
+## Version 2.1.4
 
 Released 2017-06-27
 
 * Fixed shadow warning.
 
-## 2.1.3
+## Version 2.1.3
 
 Released 2017-06-27
 
 * Fixed [`raw_string`](Contrib-and-Examples.md#taopegtlcontribraw_stringhpp) with optional parameters.
 
-## 2.1.2
+## Version 2.1.2
 
 Released 2017-06-25
 
 * Bumped version.
 
-## 2.1.1
+## Version 2.1.1
 
 Released 2017-06-25
 
 * Fixed build with MinGW on Windows.
 * Added [automated testing](https://ci.appveyor.com/project/taocpp/PEGTL) with MinGW.
 
-## 2.1.0
+## Version 2.1.0
 
 Released 2017-06-23
 
@@ -380,7 +476,7 @@ Released 2017-06-23
 * Added [automated testing](https://ci.appveyor.com/project/taocpp/PEGTL) with MinGW-w64.
 * Added [automated testing](https://travis-ci.org/taocpp/PEGTL) with GCC 7.
 
-## 2.0.0
+## Version 2.0.0
 
 Released 2017-05-18
 
@@ -432,13 +528,13 @@ Released 2017-05-18
   * Added [automated testing](https://ci.appveyor.com/project/taocpp/PEGTL) with Visual Studio 2015 and 2017.
   * Added automated testing with Android 5.1, NDK r10e.
 
-## 1.3.1
+## Version 1.3.1
 
 Released 2016-04-06
 
 * Fixed unit test to use `eol` instead of hard-coded line ending.
 
-## 1.3.0
+## Version 1.3.0
 
 Released 2016-04-06
 
@@ -449,7 +545,7 @@ Released 2016-04-06
 * Optimised bumping the input forward and removed little used bump function.
 * Simplified grammar analysis algorithm (and more `analyze()` tests).
 
-## 1.2.2
+## Version 1.2.2
 
 Released 2015-11-12
 
@@ -458,7 +554,7 @@ Released 2015-11-12
 * Optimised bumping the input forward and string unescaping.
 * Promoted `examples/json_changes.hh` to `pegtl/contrib/changes.hh`.
 
-## 1.2.1
+## Version 1.2.1
 
 Released 2015-09-21
 
@@ -468,7 +564,7 @@ Released 2015-09-21
 * Added coverage test and improved test coverage to 100%.
 * Fixed state changing bug in `json_build_one` example.
 
-## 1.2.0
+## Version 1.2.0
 
 Released 2015-08-23
 
@@ -480,7 +576,7 @@ Released 2015-08-23
 * Added [`examples/abnf2pegtl.cc`](Contrib-and-Examples.md#srcexamplepegtlabnf2pegtlcpp) application that converts grammars based on [ABNF (RFC 5234)](https://tools.ietf.org/html/rfc5234) into a PEGTL C++ grammar.
 * Added [`contrib/alphabet.hh`](Contrib-and-Examples.md#taopegtlcontribalphabethpp) with integer constants for alphabetic ASCII letters.
 
-## 1.1.0
+## Version 1.1.0
 
 Released 2015-07-31
 
@@ -491,7 +587,7 @@ Released 2015-07-31
 * A [state](Rule-Reference.md#state-s-r-)'s `S::success()` can now have an extended signature to get access to the current `apply_mode`, *action*- and *control* class (template).
 * The `contrib/raw_string` class template now calls `Action<raw_string<...>::content>::apply()` with the user's state(s).
 
-## 1.0.0
+## Version 1.0.0
 
 Released 2015-03-29
 
@@ -527,34 +623,34 @@ Semantic versioning was introduced with version 1.0.0.
 * The semantics of the `must<>` rules was changed to convert local failure to global failure only for the immediate sub-rules of a `must<>` rule.
 * The `parse()` functions now return a `bool` and can also produce local failures. To obtain the previous behaviour of success-or-global-failure, the top-level grammar rule has to be wrapped in a `must<>`.
 
-## 0.32
+## Version 0.32
 
 Released 2012-12
 
 * Removed superfluous includes (issue 5 from Google code hosting).
 * Fixed bug in `not_at` rule regarding wrong propagation of errors (issue 3 from Google code hosting).
 
-## 0.31
+## Version 0.31
 
 Released 2011-02
 
 * Fixed bug in `not_at` rule regarding wrong propagation of errors (issue 3 from Google code hosting).
 
-## 0.30
+## Version 0.30
 
 * Fixed missing template arguments in the implementation of `smart_parse_string()`.
 
-## 0.29
+## Version 0.29
 
 * Fixed broken convenience rules `space_until_eof` and `blank_until_eol`.
 * Extended the included examples that show how to build parse trees etc.
 
-## 0.28
+## Version 0.28
 
 * Optimised object file footprint of class `printer` and some related functions.
 * Renamed class `rule_helper` to `rule_base` and `action_helper` to `action_base`.
 
-## 0.27
+## Version 0.27
 
 * Changed the type of exceptions thrown by the library to `pegtl::parse_error`.
 * Changed class `basic_debug` to only generate a grammar back-trace when a `pegtl::parse_error` is flying.
@@ -563,7 +659,7 @@ Released 2011-02
 * Removed the `_throws` substring from all remaining parse functions and changed the return type to `void`.
 * Added convenience classes `file_input`, `ascii_file_input` and `dummy_file_input` for custom parse functions.
 
-## 0.26
+## Version 0.26
 
 * Changed pretty-printing of the `until` and `if...` rules (consistency).
 * Changed pretty-printing of rules to use ":=" instead of "===" (conciseness).
@@ -573,24 +669,24 @@ Released 2011-02
 
 The last of these changes effectively requires custom action classes to derive either from a valid rule class, or from the new class `pegtl::action_helper<>`, passing itself as template argument.
 
-## 0.25
+## Version 0.25
 
 * Fixed and cleaned up the rule pretty-printer in many places (readability).
 * Added new convenience rule `enclose`, useful for quoted strings (convenience).
 * Added new rule `apply` to unconditionally apply an action with empty matched string (convenience).
 * Added action argument to `list` rule and added action `nop` for use as default action (convenience).
 
-## 0.24
+## Version 0.24
 
 * Fixed some bugs in the pretty-printer; still in the experimental phase (usability).
 
-## 0.23
+## Version 0.23
 
 * Added new rules `padl` and `padr` (convenience).
 * Added example for quoted strings with arbitrary unicode characters (documentation).
 * Changed rule `pad` to not suppress the padding in diagnostic messages (consistency).
 
-## 0.22
+## Version 0.22
 
 * Cleaned up the source to compile with `-std=c++0x -pedantic` (compliance).
 * Cleaned out some superfluous compiler flags from the Makefile (minimalism).
@@ -605,16 +701,16 @@ The last of these changes effectively requires custom action classes to derive e
 * Changed around the order of the template arguments of the `rep` rule and reduced to strict repeat (minimalism).
 * Changed many rule classes from one template argument to variadic sequence of arguments (flexibility).
 
-## 0.21
+## Version 0.21
 
 * Changed the pretty-printing of rules, this is work in progress (aesthetics).
 * Fixed the exception that occurred when `mmap()`ing an empty file (correctness).
 
-## 0.20
+## Version 0.20
 
 * Added the missing `pegtl.hh` header file to the release archive...
 
-## 0.19
+## Version 0.19
 
 * Cleanly layered implementation of `action_nth` (flexibility).
 * Renamed class `action_all` back to `action` (was better that way).
@@ -628,18 +724,18 @@ The last of these changes effectively requires custom action classes to derive e
 * Changed classes `ifmust` and `ifthen` to accept arbitrary many 'then' rules (succinctness).
 * Fixed potential dangling reference in helper class `names` (correctness).
 
-## 0.18
+## Version 0.18
 
 * Added parser functions `parse_forward` for forward iterators (completeness).
 * Renamed parser functions for input iterators to `parse_input` (consistency).
 * Added parser functions `parse_file` for files, implemented with `mmap(2)` (necessity).
 * Added initial support for customised logging of error messages (flexibility).
 
-## 0.17
+## Version 0.17
 
 * Added support for ranges of input iterators with automatic minimal buffering (flexibility).
 
-## 0.16
+## Version 0.16
 
 * Added class `action_nth` (flexibility).
 * Renamed class `action` to `action_all` (consistency).
@@ -651,12 +747,12 @@ The last of these changes effectively requires custom action classes to derive e
 * Fixed some issues in the R6RS example (CFG to PEG mismatch, only first datum).
 * Added missing template arguments to `smart_parse`-functions (correctness).
 
-## 0.15
+## Version 0.15
 
 * Removed some small superfluous functions (less is more).
 * Changed the "must" tracking from run-time to compile-time (better?).
 
-## 0.14
+## Version 0.14
 
 * Optimised behaviour of `seq<>` and `string<>` (performance).
 * Added detection of division-by-zero to calculator example.
@@ -667,23 +763,23 @@ The last of these changes effectively requires custom action classes to derive e
 * Added class `string_input` to initialise forward_input from a string (convenience).
 * Removed template argument Rule to action functor's `matched()` method (simplicity).
 
-## 0.13
+## Version 0.13
 
 * Added more wrapper functions for parsing (convenience).
 * Renamed existing wrapper functions for parsing (consistency).
 * Added `rewind()` method to class `iterator_input` (indirect).
 
-## 0.12
+## Version 0.12
 
 * Added more directory structure.
 * Fixed compile-error in `sexpression.cc` (correctness).
 
-## 0.11
+## Version 0.11
 
 * Fixed back-tracking in class `string` (correctness).
 * Fixed order of operands in calculator example (correctness).
 
-## 0.10
+## Version 0.10
 
 * Added Scheme R6RS grammar (example).
 * Fixed behaviour at end-of-input (aesthetics).
@@ -692,21 +788,23 @@ The last of these changes effectively requires custom action classes to derive e
 * Changed the design of the input and parser classes (flexibility).
 * Changed how expression rules provide their printer key (simplicity).
 
-## 0.9
+## Version 0.9
 
 Released 2008
 
 * First public release.
+* The number 0.9 was chosen because 1.0 was expected to be next, not 0.10.
 
-## History
+## Ancient History
 
 Development of the PEGTL started in November 2007 as an experiment in C++0x.
 It is based on ideas from the YARD library by Christopher Diggins.
 
+
 ---
 
-This document is part of the [PEGTL](https://github.com/taocpp/PEGTL).
+This page is part of the [PEGTL](https://github.com/taocpp/PEGTL) and its [documentation](README.md).
 
-Copyright (c) 2007-2023 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2007-2026 Dr. Colin Hirsch and Daniel Frey<br>
 Distributed under the Boost Software License, Version 1.0<br>
 See accompanying file [LICENSE_1_0.txt](../LICENSE_1_0.txt) or copy at https://www.boost.org/LICENSE_1_0.txt

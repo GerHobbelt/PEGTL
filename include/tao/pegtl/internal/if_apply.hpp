@@ -1,17 +1,18 @@
-// Copyright (c) 2017-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_INTERNAL_IF_APPLY_HPP
 #define TAO_PEGTL_INTERNAL_IF_APPLY_HPP
 
-#include "apply_single.hpp"
-#include "enable_control.hpp"
-
+#include "../action_input.hpp"
 #include "../apply_mode.hpp"
 #include "../config.hpp"
 #include "../rewind_mode.hpp"
 #include "../type_list.hpp"
+
+#include "apply_impl.hpp"
+#include "enable_control.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
@@ -31,12 +32,11 @@ namespace TAO_PEGTL_NAMESPACE::internal
                 typename... States >
       [[nodiscard]] static bool match( ParseInput& in, States&&... st )
       {
-         if constexpr( ( A == apply_mode::action ) && ( sizeof...( Actions ) != 0 ) ) {
-            using action_t = typename ParseInput::action_t;
-            auto m = in.template auto_rewind< rewind_mode::required >();
-            if( Control< Rule >::template match< apply_mode::action, rewind_mode::optional, Action, Control >( in, st... ) ) {
-               const action_t i2( m.inputerator(), in );
-               return m( ( apply_single< Actions >::match( i2, st... ) && ... ) );
+         if constexpr( ( A == apply_mode::enabled ) && ( sizeof...( Actions ) > 0 ) ) {
+            auto m = Control< if_apply >::template guard< A, rewind_mode::required, Action, Control >( in, st... );
+            if( Control< Rule >::template match< apply_mode::enabled, rewind_mode::optional, Action, Control >( in, st... ) ) {
+               const TAO_PEGTL_NAMESPACE::action_input< ParseInput > i2( m.rewind_position(), in );
+               return m( ( apply_impl< Actions >::apply( i2, st... ) && ... ) );
             }
             return false;
          }

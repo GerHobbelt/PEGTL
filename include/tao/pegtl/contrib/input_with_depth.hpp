@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2021-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -6,6 +6,7 @@
 #define TAO_PEGTL_CONTRIB_INPUT_WITH_DEPTH_HPP
 
 #include <cstddef>
+#include <type_traits>
 
 #include "../config.hpp"
 
@@ -30,8 +31,8 @@ namespace TAO_PEGTL_NAMESPACE
             --m_depth;
          }
 
-         depth_guard& operator=( depth_guard&& ) = delete;
-         depth_guard& operator=( const depth_guard& ) = delete;
+         void operator=( depth_guard&& ) = delete;
+         void operator=( const depth_guard& ) = delete;
 
          [[nodiscard]] std::size_t current_depth() const noexcept
          {

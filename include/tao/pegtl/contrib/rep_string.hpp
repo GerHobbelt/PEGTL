@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -9,7 +9,7 @@
 
 #include "../config.hpp"
 
-#include "../internal/string.hpp"
+#include "../internal/ascii_string.hpp"
 
 namespace TAO_PEGTL_NAMESPACE
 {
@@ -19,14 +19,14 @@ namespace TAO_PEGTL_NAMESPACE
       struct make_rep_string;
 
       template< char... Ss, char... Cs >
-      struct make_rep_string< 0, string< Ss... >, Cs... >
+      struct make_rep_string< 0, ascii_string< Ss... >, Cs... >
       {
-         using type = string< Ss... >;
+         using type = ascii_string< Ss... >;
       };
 
       template< std::size_t N, char... Ss, char... Cs >
-      struct make_rep_string< N, string< Ss... >, Cs... >
-         : make_rep_string< N - 1, string< Ss..., Cs... >, Cs... >
+      struct make_rep_string< N, ascii_string< Ss... >, Cs... >
+         : make_rep_string< N - 1, ascii_string< Ss..., Cs... >, Cs... >
       {};
 
    }  // namespace internal
@@ -35,11 +35,12 @@ namespace TAO_PEGTL_NAMESPACE
    {
       template< std::size_t N, char... Cs >
       struct rep_string
-         : internal::make_rep_string< N, internal::string<>, Cs... >::type
+         : internal::make_rep_string< N, internal::ascii_string<>, Cs... >::type
       {};
 
    }  // namespace ascii
 
 }  // namespace TAO_PEGTL_NAMESPACE
 
+// FCOV_EXCL_FILE
 #endif

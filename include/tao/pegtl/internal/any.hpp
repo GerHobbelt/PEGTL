@@ -1,51 +1,20 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_INTERNAL_ANY_HPP
 #define TAO_PEGTL_INTERNAL_ANY_HPP
 
-#include "enable_control.hpp"
-#include "peek_char.hpp"
+#include <cstddef>
 
 #include "../config.hpp"
+#include "../eol_unknown_tag.hpp"
 #include "../type_list.hpp"
+
+#include "enable_control.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename Peek >
-   struct any;
-
-   template<>
-   struct any< peek_char >
-   {
-      using peek_t = peek_char;
-      using data_t = char;
-
-      using rule_t = any;
-      using subs_t = empty_list;
-
-      [[nodiscard]] static bool test_one( const char /*unused*/ ) noexcept
-      {
-         return true;
-      }
-
-      [[nodiscard]] static bool test_any( const char /*unused*/ ) noexcept
-      {
-         return true;
-      }
-
-      template< typename ParseInput >
-      [[nodiscard]] static bool match( ParseInput& in ) noexcept( noexcept( in.empty() ) )
-      {
-         if( !in.empty() ) {
-            in.bump();
-            return true;
-         }
-         return false;
-      }
-   };
-
    template< typename Peek >
    struct any
    {
@@ -55,24 +24,30 @@ namespace TAO_PEGTL_NAMESPACE::internal
       using rule_t = any;
       using subs_t = empty_list;
 
-      [[nodiscard]] static bool test_one( const data_t /*unused*/ ) noexcept
+      [[nodiscard]] static constexpr bool test( const data_t /*unused*/ ) noexcept
       {
-         return true;
-      }
-
-      [[nodiscard]] static bool test_any( const data_t /*unused*/ ) noexcept
-      {
-         return true;
+         return true;  // TODO: Is it a problem that this is only true for values that Peek can return?
       }
 
       template< typename ParseInput >
-      [[nodiscard]] static bool match( ParseInput& in ) noexcept( noexcept( Peek::peek( in ) ) )
+      [[nodiscard]] static bool match( ParseInput& in )
       {
-         if( const auto t = Peek::peek( in ) ) {
-            in.bump( t.size );
-            return true;
+         if constexpr( Peek::template bulk< ParseInput >() ) {
+            constexpr std::size_t s = Peek::template size< ParseInput >();
+            static_assert( s > 0 );
+            if( in.size( s ) >= s ) {
+               in.template consume< eol_unknown_tag >( s );
+               return true;
+            }
+            return false;
          }
-         return false;
+         else {
+            if( const auto t = Peek::peek( in ) ) {
+               in.template consume< eol_unknown_tag >( t.size() );
+               return true;
+            }
+            return false;
+         }
       }
    };
 

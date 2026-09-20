@@ -1,17 +1,19 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_DEMANGLE_HPP
 #define TAO_PEGTL_DEMANGLE_HPP
 
+#include <cstddef>
 #include <string_view>
 
 #include "config.hpp"
 
 namespace TAO_PEGTL_NAMESPACE
 {
-   // ensure a consistent interface
+   // Ensure a consistent interface.
+
    template< typename T >
    [[nodiscard]] constexpr std::string_view demangle() noexcept;
 
@@ -35,6 +37,7 @@ template< typename T >
 namespace TAO_PEGTL_NAMESPACE::internal
 {
    // When using libstdc++ with clang, std::string_view::find is not constexpr :(
+
    template< char C >
    constexpr const char* string_view_find( const char* p, std::size_t n ) noexcept
    {
@@ -73,10 +76,11 @@ template< typename T >
 
 // GCC 9.1 and 9.2 have a bug that leads to truncated __PRETTY_FUNCTION__ names,
 // see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91155
+
 template< typename T >
 [[nodiscard]] constexpr std::string_view TAO_PEGTL_NAMESPACE::demangle() noexcept
 {
-   // fallback: requires RTTI, no demangling
+   // Fallback: Requires RTTI, no demangling.
    return typeid( T ).name();
 }
 
@@ -113,8 +117,8 @@ template< typename T >
 template< typename T >
 [[nodiscard]] constexpr std::string_view TAO_PEGTL_NAMESPACE::demangle() noexcept
 {
-   // we can not add static_assert for additional safety,
-   // see issues #296, #301 and #308
+   // We can not add static_assert for additional safety,
+   // see issues #296, #301 and #308.
    constexpr std::string_view sv = __FUNCSIG__;
    constexpr auto begin = sv.find( "demangle<" );
    constexpr auto tmp = sv.substr( begin + 9 );
@@ -133,7 +137,7 @@ template< typename T >
 template< typename T >
 [[nodiscard]] constexpr std::string_view TAO_PEGTL_NAMESPACE::demangle() noexcept
 {
-   // fallback: requires RTTI, no demangling
+   // Fallback: Requires RTTI, no demangling.
    return typeid( T ).name();
 }
 

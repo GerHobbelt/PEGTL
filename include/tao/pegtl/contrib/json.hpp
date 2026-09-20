@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -8,7 +8,7 @@
 #include "../ascii.hpp"
 #include "../config.hpp"
 #include "../rules.hpp"
-#include "../utf8.hpp"
+#include "../unicode/utf8.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::json
 {
@@ -45,13 +45,13 @@ namespace TAO_PEGTL_NAMESPACE::json
    struct char_ : if_then_else< one< '\\' >, escaped, unescaped > {};  // NOLINT(readability-identifier-naming)
 
    struct string_content : until< at< one< '"' > >, char_ > {};
-   struct string : seq< one< '"' >, string_content, any >
+   struct string : seq< one< '"' >, string_content, consume< 1 > >
    {
       using content = string_content;
    };
 
    struct key_content : until< at< one< '"' > >, char_ > {};
-   struct key : seq< one< '"' >, key_content, any >
+   struct key : seq< one< '"' >, key_content, consume< 1 > >
    {
       using content = key_content;
    };
@@ -89,4 +89,5 @@ namespace TAO_PEGTL_NAMESPACE::json
 
 }  // namespace TAO_PEGTL_NAMESPACE::json
 
+// FCOV_EXCL_FILE
 #endif

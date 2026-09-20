@@ -1,27 +1,29 @@
-// Copyright (c) 2014-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef TAO_PEGTL_INTERNAL_REP_OPT_HPP
 #define TAO_PEGTL_INTERNAL_REP_OPT_HPP
 
-#include "enable_control.hpp"
-#include "seq.hpp"
-#include "success.hpp"
+#include <cstddef>
 
 #include "../apply_mode.hpp"
 #include "../config.hpp"
 #include "../rewind_mode.hpp"
 #include "../type_list.hpp"
 
+#include "enable_control.hpp"
+#include "seq.hpp"
+#include "success.hpp"
+
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< unsigned Max, typename... Rules >
+   template< std::size_t Max, typename... Rules >
    struct rep_opt
       : rep_opt< Max, seq< Rules... > >
    {};
 
-   template< unsigned Max >
+   template< std::size_t Max >
    struct rep_opt< Max >
       : success
    {};
@@ -31,7 +33,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
       : success
    {};
 
-   template< unsigned Max, typename Rule >
+   template< std::size_t Max, typename Rule >
    struct rep_opt< Max, Rule >
    {
       using rule_t = rep_opt;
@@ -47,13 +49,13 @@ namespace TAO_PEGTL_NAMESPACE::internal
                 typename... States >
       [[nodiscard]] static bool match( ParseInput& in, States&&... st )
       {
-         for( unsigned i = 0; ( i != Max ) && Control< Rule >::template match< A, rewind_mode::required, Action, Control >( in, st... ); ++i ) {
+         for( std::size_t i = 0; ( i != Max ) && Control< Rule >::template match< A, rewind_mode::required, Action, Control >( in, st... ); ++i ) {
          }
          return true;
       }
    };
 
-   template< unsigned Max, typename... Rules >
+   template< std::size_t Max, typename... Rules >
    inline constexpr bool enable_control< rep_opt< Max, Rules... > > = false;
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal

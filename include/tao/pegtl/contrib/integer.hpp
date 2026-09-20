@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2026 Dr. Colin Hirsch and Daniel Frey
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
@@ -18,11 +18,12 @@
 
 #include "../ascii.hpp"
 #include "../config.hpp"
+#include "../eol_exclude_tag.hpp"
 #include "../parse.hpp"
 #include "../parse_error.hpp"
 #include "../rules.hpp"
 
-#include "analyze_traits.hpp"
+#include "../debug/analyze_traits.hpp"
 
 namespace TAO_PEGTL_NAMESPACE
 {
@@ -62,9 +63,7 @@ namespace TAO_PEGTL_NAMESPACE
    {
       [[nodiscard]] constexpr bool is_digit( const char c ) noexcept
       {
-         // We don't use std::isdigit() because it might
-         // return true for other values on MS platforms.
-
+         // std::isdigit() can be platform and locale dependent.
          return ( '0' <= c ) && ( c <= '9' );
       }
 
@@ -154,12 +153,12 @@ namespace TAO_PEGTL_NAMESPACE
          if( !in.empty() ) {
             const char c = in.peek_char();
             if( is_digit( c ) ) {
-               in.bump_in_this_line();
+               in.template consume< eol_exclude_tag >( 1 );
                if( c == '0' ) {
                   return in.empty() || ( !is_digit( in.peek_char() ) );
                }
                while( ( !in.empty() ) && is_digit( in.peek_char() ) ) {
-                  in.bump_in_this_line();
+                  in.template consume< eol_exclude_tag >( 1 );
                }
                return true;
             }
@@ -178,14 +177,14 @@ namespace TAO_PEGTL_NAMESPACE
             char c = in.peek_char();
             if( is_digit( c ) ) {
                if( c == '0' ) {
-                  in.bump_in_this_line();
+                  in.template consume< eol_exclude_tag >( 1 );
                   return in.empty() || ( !is_digit( in.peek_char() ) );
                }
                do {
                   if( !accumulate_digit< Unsigned, Maximum >( st, c ) ) {
-                     throw TAO_PEGTL_NAMESPACE::parse_error( "integer overflow", in );
+                     throw_parse_error( "integer overflow", in );
                   }
-                  in.bump_in_this_line();
+                  in.template consume< eol_exclude_tag >( 1 );
                } while( ( !in.empty() ) && is_digit( c = in.peek_char() ) );
                return true;
             }
@@ -204,7 +203,7 @@ namespace TAO_PEGTL_NAMESPACE
             char c = in.peek_char();
             if( c == '0' ) {
                if( ( in.size( 2 ) < 2 ) || ( !is_digit( in.peek_char( 1 ) ) ) ) {
-                  in.bump_in_this_line();
+                  in.template consume< eol_exclude_tag >( 1 );
                   return true;
                }
                return false;
@@ -218,7 +217,7 @@ namespace TAO_PEGTL_NAMESPACE
                   }
                   ++b;
                } while( ( !in.empty() ) && is_digit( c = in.peek_char( b ) ) );
-               in.bump_in_this_line( b );
+               in.template consume< eol_exclude_tag >( b );
                return true;
             }
          }
@@ -237,7 +236,7 @@ namespace TAO_PEGTL_NAMESPACE
          // This function "only" offers basic exception safety.
          st = 0;
          if( !internal::convert_unsigned( st, in.string_view() ) ) {
-            throw parse_error( "unsigned integer overflow", in );
+            throw_parse_error( "unsigned integer overflow", in );
          }
       }
    };
@@ -247,8 +246,8 @@ namespace TAO_PEGTL_NAMESPACE
       using rule_t = unsigned_rule;
       using subs_t = empty_list;
 
-      template< typename ParseInput >
-      [[nodiscard]] static bool match( ParseInput& in ) noexcept( noexcept( in.empty() ) )
+      template< typename ParseInput, typename... States >
+      [[nodiscard]] static bool match( ParseInput& in, States&&... /*unused*/ ) noexcept( noexcept( in.empty() ) )
       {
          return internal::match_unsigned( in );  // Does not check for any overflow.
       }
@@ -267,7 +266,7 @@ namespace TAO_PEGTL_NAMESPACE
                 class Control,
                 typename ParseInput,
                 typename... States >
-      [[nodiscard]] static auto match( ParseInput& in, States&&... /*unused*/ ) noexcept( noexcept( in.empty() ) ) -> std::enable_if_t< A == apply_mode::nothing, bool >
+      [[nodiscard]] static auto match( ParseInput& in, States&&... /*unused*/ ) noexcept( noexcept( in.empty() ) ) -> std::enable_if_t< A == apply_mode::disabled, bool >
       {
          return internal::match_unsigned( in );  // Does not check for any overflow.
       }
@@ -280,7 +279,7 @@ namespace TAO_PEGTL_NAMESPACE
                 class Control,
                 typename ParseInput,
                 typename Unsigned >
-      [[nodiscard]] static auto match( ParseInput& in, Unsigned& st ) -> std::enable_if_t< ( A == apply_mode::action ) && std::is_unsigned_v< Unsigned >, bool >
+      [[nodiscard]] static auto match( ParseInput& in, Unsigned& st ) -> std::enable_if_t< ( A == apply_mode::enabled ) && std::is_unsigned_v< Unsigned >, bool >
       {
          // This function "only" offers basic exception safety.
          st = 0;
@@ -301,7 +300,7 @@ namespace TAO_PEGTL_NAMESPACE
          // This function "only" offers basic exception safety.
          st = 0;
          if( !internal::convert_unsigned< Unsigned, Maximum >( st, in.string_view() ) ) {
-            throw parse_error( "unsigned integer overflow", in );
+            throw_parse_error( "unsigned integer overflow", in );
          }
       }
    };
@@ -314,8 +313,8 @@ namespace TAO_PEGTL_NAMESPACE
 
       static_assert( std::is_unsigned_v< Unsigned > );
 
-      template< typename ParseInput >
-      [[nodiscard]] static bool match( ParseInput& in )
+      template< typename ParseInput, typename... States >
+      [[nodiscard]] static bool match( ParseInput& in, States&&... /*unused*/ )
       {
          Unsigned st = 0;
          return internal::match_and_convert_unsigned_with_maximum_nothrow< ParseInput, Unsigned, Maximum >( in, st );
@@ -338,7 +337,7 @@ namespace TAO_PEGTL_NAMESPACE
                 class Control,
                 typename ParseInput,
                 typename... States >
-      [[nodiscard]] static auto match( ParseInput& in, States&&... /*unused*/ ) -> std::enable_if_t< A == apply_mode::nothing, bool >
+      [[nodiscard]] static auto match( ParseInput& in, States&&... /*unused*/ ) -> std::enable_if_t< A == apply_mode::disabled, bool >
       {
          Unsigned st = 0;
          return internal::match_and_convert_unsigned_with_maximum_throws< ParseInput, Unsigned, Maximum >( in, st );
@@ -352,7 +351,7 @@ namespace TAO_PEGTL_NAMESPACE
                 class Control,
                 typename ParseInput,
                 typename Unsigned2 >
-      [[nodiscard]] static auto match( ParseInput& in, Unsigned2& st ) -> std::enable_if_t< ( A == apply_mode::action ) && std::is_same_v< Unsigned, Unsigned2 >, bool >
+      [[nodiscard]] static auto match( ParseInput& in, Unsigned2& st ) -> std::enable_if_t< ( A == apply_mode::enabled ) && std::is_same_v< Unsigned, Unsigned2 >, bool >
       {
          // This function "only" offers basic exception safety.
          st = 0;
@@ -371,7 +370,7 @@ namespace TAO_PEGTL_NAMESPACE
          // This function "only" offers basic exception safety.
          st = 0;
          if( !internal::convert_signed( st, in.string_view() ) ) {
-            throw parse_error( "signed integer overflow", in );
+            throw_parse_error( "signed integer overflow", in );
          }
       }
    };
@@ -381,8 +380,8 @@ namespace TAO_PEGTL_NAMESPACE
       using rule_t = signed_rule;
       using subs_t = empty_list;
 
-      template< typename ParseInput >
-      [[nodiscard]] static bool match( ParseInput& in ) noexcept( noexcept( in.empty() ) )
+      template< typename ParseInput, typename... States >
+      [[nodiscard]] static bool match( ParseInput& in, States&&... /*unused*/ ) noexcept( noexcept( in.empty() ) )
       {
          return parse< signed_rule_new >( in );  // Does not check for any overflow.
       }
@@ -415,7 +414,7 @@ namespace TAO_PEGTL_NAMESPACE
                 class Control,
                 typename ParseInput,
                 typename... States >
-      [[nodiscard]] static auto match( ParseInput& in, States&&... /*unused*/ ) noexcept( noexcept( in.empty() ) ) -> std::enable_if_t< A == apply_mode::nothing, bool >
+      [[nodiscard]] static auto match( ParseInput& in, States&&... /*unused*/ ) noexcept( noexcept( in.empty() ) ) -> std::enable_if_t< A == apply_mode::disabled, bool >
       {
          return parse< signed_rule_new >( in );  // Does not check for any overflow.
       }
@@ -428,7 +427,7 @@ namespace TAO_PEGTL_NAMESPACE
                 class Control,
                 typename ParseInput,
                 typename Signed >
-      [[nodiscard]] static auto match( ParseInput& in, Signed& st ) -> std::enable_if_t< ( A == apply_mode::action ) && std::is_signed_v< Signed >, bool >
+      [[nodiscard]] static auto match( ParseInput& in, Signed& st ) -> std::enable_if_t< ( A == apply_mode::enabled ) && std::is_signed_v< Signed >, bool >
       {
          return parse< signed_rule_new, internal::signed_action_action >( in, st );  // Throws on overflow.
       }
