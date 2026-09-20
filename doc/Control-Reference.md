@@ -1,6 +1,7 @@
 # Control Reference
 
 The reference documentation for all control class templates.
+The control classes that are part of the [debug facilities](Debug-Facilities.md) are documented in their respective sections on that page.
 
 
 ## Contents
@@ -88,14 +89,14 @@ template< template< typename... > class Control = normal >
 struct input_control_n
 {
    template< typename Rule >
-   using type = state_control_r< Control, Rule >;
+   using type = input_control_r< Control, Rule >;
 };
 ```
 
 The `input_control` will make calls to the input's control functions only when the static member variable `template< typename Rule > static constexpr bool enable` is `true` for the current `Rule`.
 This is independent of the usual way `other_control< Rule >::enable` is used to decide whether to call regular control functions.
 
-The control functions in the input are similar to their normal control functions counterparts, however there are differences in invocation.
+The control functions in the input are similar to their normal control function counterparts, however there are differences in invocation.
 
 1. Normal control functions are `static`, input control functions are non-static member functions.
 2. Normal control functions are invoked as `Control< Rule >::function()` while input control functions as `in.function< Rule >()` assuming that `in` is the current `ParseInput` object.
@@ -144,7 +145,7 @@ Note that, unlike for normal control classes, if `ParseInput< Rule >::enable == 
 
 A control adapter that provides a non-intrusive way to selectively make rules behave "as if" they were inside of a [`must`](Rule-Reference.md#must-r-) rule.
 
-* Uses custom error messages for `raise()` and `raise_nested()`.
+* Uses [custom error messages](Errors-and-Exceptions.md#custom-error-messages) for `raise()` and `raise_nested()`.
 * Uses custom error messages to select rules for `must`-like behavior.
 * Can enforce custom error message to all calls to `raise()` and `raise_nested()`.
 * Modifies `failure()`, `raise()` and `raise_nested()`.
@@ -163,7 +164,7 @@ struct must_if_n
 };
 ```
 
-The template parameter `Errors` has to contain the variable with the custom error messages.
+The template parameter `Errors` has to contain the variable with the [custom error messages](Errors-and-Exceptions.md#custom-error-messages).
 
 ```c++
 struct errors
@@ -175,7 +176,7 @@ struct errors
 
 When `Errors::message< R >` is equal to `nullptr` for a rule `R` then matching `R` behaves like it would with `Control` as control.
 
-When `Errors::message< R >` is **not** `nullptr` then a call to `failure()` will make a call to `raise()`, converting the local failure to a global failure using that message in the `parse_error` exception (instead of the default from `normal` which is `"parse error matching "` followed by `demangle< R >()`).
+When `Errors::message< R >` is **not** `nullptr` then a call to `failure()` will make a call to `raise()`, converting the local failure to a global failure using that message in the [`parse_error`](Errors-and-Exceptions.md#parse-errors) exception (instead of the default from `normal` which is `"parse error matching "` followed by `demangle< R >()`).
 
 One way to set up the messages is to define a global variable template, specialize it for all rules as required, and reference it from the `message` member variable of the dedicated `Errors` type.
 
@@ -500,7 +501,7 @@ struct state_control_n
 The `state_control` will make calls to the first state's control functions only when the static member variable `template< typename Rule > static constexpr bool enable` is `true` for the current `Rule`.
 This is independent of the usual way `other_control< Rule >::enable` is used to decide whether to call regular control functions.
 
-The control functions in the input are similar to their normal control functions counterparts, however there are differences in invocation.
+The control functions in the first state are similar to their normal control function counterparts, however there are differences in invocation.
 
 1. Normal control functions are `static`, state control functions are non-static member functions.
 2. Normal control functions are invoked as `Control< Rule >::function()` while state control functions as `st.function< Rule >()` assuming that `st` is the current first state.

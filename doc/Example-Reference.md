@@ -14,7 +14,7 @@ The reference documentation for the included example grammars and programs.
 ## Preamble
 
 This page lists all included example grammars and programs.
-The examples are not considered part of the public interface subject to semantic versioning.
+The examples are not considered part of the public interface subject to [semantic versioning](https://semver.org/).
 
 
 ## Grammars
@@ -121,7 +121,7 @@ A small example that provokes the [grammar analysis](Debug-Facilities.md#grammar
 
 ###### [`behavior.cpp`](../src/example/behavior.cpp)
 
-Generates the tables for the [rule comparisons](Rules-and-Grammars.md#rule-comparisons) on the [rule and grammars](Rules-and-Grammars.md) page.
+Generates the tables for the [rule comparisons](Rules-and-Grammars.md#rule-comparisons) on the [rules and grammars](Rules-and-Grammars.md) page.
 
 ###### [`calculator.cpp`](../src/example/calculator.cpp)
 
@@ -161,7 +161,7 @@ Shows a rule that uses run-time information to decide a match with a grammar sim
 
 ###### [`expression.cpp`](../src/example/expression.cpp)
 
-A work-in-progress expression evaulation example that supports prefix, infix and postfix operators as well as the ternary operator. The set of operators and their precedences can be easily adapted.
+A work-in-progress expression evaluation example that supports prefix, infix and postfix operators as well as the ternary operator. The set of operators and their precedences can be easily adapted.
 
 ###### [`hello_world.cpp`](../src/example/hello_world.cpp)
 
@@ -169,7 +169,7 @@ The reverse "hello world" example from the [introduction](Introduction.md).
 
 ###### [`indent_aware.cpp`](../src/example/indent_aware.cpp)
 
-Shows one approach to implementing an indentation-aware language with a very very small subset of Python.
+Shows one approach to implementing an indentation-aware language with a very small subset of Python.
 
 ###### [`iri_struct.cpp`](../src/example/iri_struct.cpp)
 
@@ -190,7 +190,7 @@ Extends on `json_parse.cpp` by parsing JSON files into generic JSON data structu
 
 ###### [`json_count.cpp`](../src/example/json_count.cpp)
 
-Shows how to use a simple custom control to create some parsing statistics while parsing JSON files.
+Shows how to use a simple [custom control](Control-and-Normal.md) to create some parsing statistics while parsing JSON files.
 
 ###### [`json_coverage.cpp`](../src/example/json_coverage.cpp)
 
@@ -198,19 +198,19 @@ Combines the JSON [grammar](#jsonhpp) with the [rule coverage](Debug-Facilities.
 
 ###### [`json_parse.cpp`](../src/example/json_parse.cpp)
 
-Shows how to use the custom error messages defined in `json_errors.hpp` with the JSON [grammar](Example-Reference.md#jsonhpp) to parse command line arguments as JSON data.
+Shows how to use the [custom error messages](Errors-and-Exceptions.md#custom-error-messages) defined in `json_errors.hpp` with the JSON [grammar](Example-Reference.md#jsonhpp) to parse command line arguments as JSON data.
 
 ###### [`json_print_debug.cpp`](../src/example/json_print_debug.cpp)
 
-Calls the [`print_debug()`](Debug-Facilities.md#grammar-print) function to list the rules of the JSON grammar.
+Calls the [`print_debug()`](Debug-Facilities.md#grammar-print) function to list the rules of the [JSON grammar](#jsonhpp).
 
 ###### [`json_print_names.cpp`](../src/example/json_print_names.cpp)
 
-Calls the [`print_names()`](Debug-Facilities.md#grammar-print) function to list the rules of the JSON grammar.
+Calls the [`print_names()`](Debug-Facilities.md#grammar-print) function to list the rules of the [JSON grammar](#jsonhpp).
 
 ###### [`json_record.cpp`](../src/example/json_record.cpp)
 
-Shows how to combine the JSON [grammar](#jsonhpp) with the record facility to create a linear record of selected rule matches.
+Shows how to combine the JSON [grammar](#jsonhpp) with the [record facility](Extra-Reference.md#recordhpp) to create a linear record of selected rule matches.
 
 ###### [`json_stream.cpp`](../src/example/json_stream.cpp)
 
@@ -263,7 +263,7 @@ The above will generate an SVG file with a graphical representation of the parse
 
 ###### [`parse_tree_user_state.cpp`](../src/example/parse_tree_user_state.cpp)
 
-Minimal example showing that user states are forwarded through parse tree parsing to actions.
+Minimal example showing that user states are forwarded through [parse tree](Parse-Tree.md) parsing to actions.
 
 ###### [`proto3_analyze.cpp`](../src/example/proto3_analyze.cpp)
 
@@ -338,11 +338,11 @@ argv[ 3 ] = X"Y
 
 ###### [`uri_print_debug.cpp`](../src/example/uri_print_debug.cpp)
 
-Shows how to use `print_debug()` from `include/tao/pegtl/debug/print.hpp` to print all rules of the [URI grammar](#urihpp).
+Shows how to use [`print_debug()`](Debug-Facilities.md#grammar-print) from `include/tao/pegtl/debug/print.hpp` to print all rules of the [URI grammar](#urihpp).
 
 ###### [`uri_print_names.cpp`](../src/example/uri_print_names.cpp)
 
-Shows how to use `print_names()` from `include/tao/pegtl/debug/print.hpp` to print all rules of the [URI grammar](#urihpp).
+Shows how to use [`print_names()`](Debug-Facilities.md#grammar-print) from `include/tao/pegtl/debug/print.hpp` to print all rules of the [URI grammar](#urihpp).
 
 ###### [`uri_struct.cpp`](../src/example/uri_struct.cpp)
 
@@ -351,7 +351,7 @@ Parses its command line arguments.
 
 ###### [`uri_trace.cpp`](../src/example/uri_trace.cpp)
 
-Shows how to use `complete_trace` from `include/tao/pegtl/debug/trace.hpp` to parse a [URI](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier) with a complete trace.
+Shows how to use [`complete_trace`](Debug-Facilities.md#parse-trace) from `include/tao/pegtl/debug/trace.hpp` to parse a [URI](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier) with a complete trace.
 Parses its command line arguments.
 
 

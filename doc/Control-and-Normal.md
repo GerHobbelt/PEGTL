@@ -40,7 +40,7 @@ A **control** is a class that adheres to an informal control interface and is in
 ## Introduction
 
 The control has functions that are called on many occasions during a parsing run.
-These control functionality can be customized for multiple reasons, most prominently to
+This control functionality can be customized for multiple reasons, most prominently to
 
 * obtain some debug or trace information from a parsing run, or
 * customize and/or extend some behavior of a parsing run.
@@ -278,7 +278,7 @@ By default `enable` is `true` for all user-visible rules, i.e. for all rule clas
 For these internal rule classes `enable` is set to `false`.
 
 To understand which problem this solves consider the fact that some PEGTL combinators are implemented using other rules and combinators.
-For example [`minus`](Rule-Reference.md#minus-m-s-) does not have its own implementation, it is built from [`rematch](Rule-Reference.md#rematch-r-s-), [`not_at`](Rule-Reference.md#not_at-r-) and [`eof`](Rule-Reference.md#eof).
+For example [`minus`](Rule-Reference.md#minus-m-s-) does not have its own implementation, it is built from [`rematch`](Rule-Reference.md#rematch-r-s-), [`not_at`](Rule-Reference.md#not_at-r-) and [`eof`](Rule-Reference.md#eof).
 
 ```c++
 template< typename M, typename S >

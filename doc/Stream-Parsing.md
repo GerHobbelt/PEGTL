@@ -55,7 +55,7 @@ If the buffer does not contain enough data the stream input will call the reader
 The [`prefetch`](#prefetch-num-) and [`require`](#require-num-) rules can be used to manually prefetch some input data into the buffer.
 
 Removing parsed bytes from the buffer is called a *discard*.
-This making space for more to-be-parsed data needs to happen regularly while parsing and can be done either manually or automatically.
+Making space for more to-be-parsed data needs to happen regularly while parsing and can be done either manually or automatically.
 
 The [`discard`](#discard) rule and/or the [`discard_input`](#discard_input) and [`discard_input_on`](#discard_input_on-bool-) actions are used for manual discards.
 The stream inputs whose name contains `_auto_` perform aggressive automatic discarding.
@@ -63,11 +63,11 @@ The stream inputs whose name contains `_auto_` perform aggressive automatic disc
 > [!NOTE]
 > A buffer discard can move data in the buffer, i.e. pointers to non-discarded input data can become invalid!
 
-For choosing the buffer size in general, and when choosing where to perform a manual discard, both the attached actions and the backtracking behavior of the grammar need to be taken into consideration.
+For choosing the buffer size in general, and when choosing where to perform a manual discard, both the attached [actions](Actions-and-States.md) and the [backtracking](Rules-and-Grammars.md#backtracking) behavior of the grammar need to be taken into consideration.
 
-When an action `A` is attached to a rule `R` and `A< R >::apply()` (not `apply0()`) exists it will be called with an action input representing the matched portion of the input, wherefore no discard is allowed to happen while matching `R` and anything -- directly or indirectly -- called from `R`. Similarly, when local failure of a rule `R` can lead to backtracking then no discard is allowed to happen while matching `R` and anything called from `R`.
+When an action `A` is attached to a rule `R` and `A< R >::apply()` (not `apply0()`) exists it will be called with an [action input](Actions-and-States.md#action-input) representing the matched portion of the input, wherefore no discard is allowed to happen while matching `R` and anything -- directly or indirectly -- called from `R`. Similarly, when local failure of a rule `R` can lead to backtracking then no discard is allowed to happen while matching `R` and anything called from `R`.
 
-In other words, a discard is only possible when there are no active rewind guards, which is exactly what the auto-discard inputs keep track of.
+In other words, a discard is only possible when there are no active [rewind guards](Rules-and-Grammars.md#rewind-guard), which is exactly what the auto-discard inputs keep track of.
 
 All stream parsing related classes and class templates reside in namespace `tao::pegtl`.
 This default can be changed via the macro `TAO_PEGTL_NAMESPACE` in `tao/pegtl/config.hpp`.
@@ -77,8 +77,8 @@ This default can be changed via the macro `TAO_PEGTL_NAMESPACE` in `tao/pegtl/co
 
 There is no direct interaction with buffer objects, however the arguments to a buffer constructor need to be supplied to any input using that buffer.
 
-The expositions of the buffer classes only documents their specific constructor arguments and template parameters.
-To see how the buffer classes are implemented plase consult the appropriate header files.
+The expositions of the buffer classes only document their specific constructor arguments and template parameters.
+To see how the buffer classes are implemented please consult the appropriate header files.
 
 ###### Alloc Buffer
 
@@ -525,7 +525,7 @@ These [rules](Rules-and-Grammars.md) are included with `<tao/pegtl/stream.hpp>`.
 
 Unlike [most other rules](Rule-Reference.md) they have no separate implementation in namespace `tao::pegtl::internal`.
 
-The analyze traits for these rules are in `<tao/pegtl/stream/analyze_traits.hpp>` which is **not** included with `<tao/pegtl/stream.hpp>`.
+The [analyze traits](Debug-Facilities.md#analyze-traits) for these rules are in `<tao/pegtl/stream/analyze_traits.hpp>` which is **not** included with `<tao/pegtl/stream.hpp>`.
 
 ###### `discard`
 

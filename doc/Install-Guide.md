@@ -94,7 +94,7 @@ Some tests and examples are (partially) disabled when compiling without exceptio
 ## Disabling RTTI
 
 The PEGTL is compatible with `-fno-rtti` on GCC, Clang, and MSVC.
-The only exceptions are GCC versions 9.1 and 9.2 due to an unfortunate compiler bug, see [bug #91155](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91155).
+The only exceptions are GCC versions 9.1, 9.2 and 16 due to an unfortunate compiler bug, see [bug #91155](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91155).
 
 On other compilers [RTTI](https://en.wikipedia.org/wiki/Run-time_type_information) is required by default (for demangling, see `include/tao/pegtl/demangle.hpp`).
 Let us know if you use such a compiler since an RTTI-free compiler-specific demangling function might be possible.
@@ -205,7 +205,7 @@ are also defined.
 ### Mixing `find_package` and `add_subdirectory`
 
 With the advent of improved methods of managing dependencies (such as [Conan],
-[CMake FetchContent]), multiple package inclusion methods needs to be able to
+[CMake FetchContent]), multiple package inclusion methods need to be able to
 co-exist.
 
 If PEGTL was first included with `find_package` then subsequent calls to
@@ -318,7 +318,7 @@ $ sed -i 's/TAO_PEGTL_/MYLIB_PEGTL_/g' $(find -name '[^.]*.[hc]pp')
 
 The above command needs to run from the top-level directory of the embedded
 PEGTL. Additionally, `MYLIB_PEGTL_NAMESPACE` needs to be set as explained
-above; alternatively, since the PEGTL source is already being mnodified,
+above; alternatively, since the PEGTL source is already being modified,
 `include/tao/pegtl/config.hpp` can be changed to use the desired namespace.
 
 

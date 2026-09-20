@@ -37,11 +37,11 @@ To do something useful with the information gathered during a parsing run it is 
 
 This page explains semantic actions, how they are attached to a grammar, and how they can be passed data to operate on.
 
-Actions are functions that are called during the parsing run whenever the rule they are attached to successfully matched.
+Actions are functions that are called during the parsing run whenever the rule they are attached to matches successfully.
 When an action is thus *applied*, the corresponding function receives the *states*, an arbitrary list of (user-defined) objects, as arguments.
 
 This is the primary role of actions and the most prevalent of their use cases.
-In a distinct role an action can be used to [change the matching behavior](#match) of the rule they are attached to.
+In a distinct role an action can be used to [change the matching behavior](#match) of the rule it is attached to.
 These two roles should **not** be mixed.
 Most of this document focuses on the primary role.
 
@@ -472,7 +472,7 @@ Note that `change_action_and_state<>` and `change_action_and_states<>` behave li
 ## Match
 
 Besides `apply()` and `apply0()`, an action class specialization can also have a `match()` static member function.
-The default control class template `normal` will detect the presence of a suitable `match()` function and call this function instead of `tao::pegtl::match()`.
+The default [normal control](Control-and-Normal.md#normal-control) will detect the presence of a suitable `match()` function and call this function instead of `tao::pegtl::match()`.
 
 ```c++
 template<>
@@ -533,7 +533,7 @@ The following assertion is only enabled when `std::is_base_of_v< tao::pegtl::not
 * `a` must have a callable `apply()` or `apply0()`.
 
 The class [`tao::pegtl::maybe_nothing`](Action-Reference.md#maybe_nothing) is an accessible base class of all the changing actions explained above.
-This make is possible, but not necessary, to implement `apply()` or `apply0()` for actions derived from them.
+This makes it possible, but not necessary, to implement `apply()` or `apply0()` for actions derived from them.
 
 Note that [`maybe_nothing`](Action-Reference.md#maybe_nothing) can be combined, through multiple inheritance, with one of [`nothing<>`](Action-Reference.md#nothing-r-), [`require_apply`](Action-Reference.md#require_apply) or [`require_apply0`](Action-Reference.md#require_apply0).
 
@@ -587,7 +587,7 @@ One solution is to rewrite `R` as `R' = seq< A, sor< B, C > >` where of course a
 
 Another solution is to undo the effects of the Action attached to `A` in case the encompassing `seq< A, B >` (or `seq< A, C >`) fail.
 
-The advantage of this approach is that the implementation of the Action for `A` can pretend that is only called when really needed.
+The advantage of this approach is that the implementation of the Action for `A` can pretend that it is only called when really needed.
 The disadvantage is that there is no function on the Action that is called in the case of failure which requires the user to either write a custom `match()` function in the Action for `seq< A, B >` or to implement the `failure()` function in a custom [Control class](Control-and-Normal.md).
 
 #### Manual Commit

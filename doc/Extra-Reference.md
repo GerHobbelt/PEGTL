@@ -52,7 +52,7 @@ In both rules the functions accept arbitrary state arguments, and both return `b
 * If the first state argument is a mutable reference to `Integral` then it will be assigned the result of the string-to-integer conversion.
 * If the first state argument is of any other type it will be ignored -- together with any additional states.
 
-The `_throws` vs. `_nothrow` suffix chooses between failing locally, i.e. returning `false`, when `std::from_chars()` returns `std::errc::result_out_of_range`, or failing globally, i.e. throwing an exception derived from `tao::pegtl::parse_error_base`.
+The `_throws` vs. `_nothrow` suffix chooses between failing locally, i.e. returning `false`, when `std::from_chars()` returns `std::errc::result_out_of_range`, or failing globally, i.e. throwing an exception derived from `tao::pegtl::parse_error_base` as described in [Errors and Exceptions](Errors-and-Exceptions.md#failure-modes).
 
 The template parameter `Integral` can also be `void`, which changes the behavior slightly.
 In this case
@@ -62,7 +62,55 @@ In this case
 
 ###### [`dispatch.hpp`](../include/tao/pegtl/extra/dispatch.hpp)
 
-An experimental approach to attaching actions to multiple rules with less code.
+An experimental approach to attaching [actions](Actions-and-States.md) to multiple rules with less code.
+Instead of specializing one action class template for every rule, a list of clauses maps rules to actions.
+Rules matched by no clause use [`nothing`](Action-Reference.md#nothing-r-), while rules matched by more than one clause cause a compile-time error.
+
+```c++
+template< typename Action, typename... Rules >
+struct clause1;
+
+template< template< typename... > class Action, typename... Rules >
+struct clause2;
+
+template< typename Action, typename... Clauses >
+struct default1;
+
+template< template< typename... > class Action, typename... Clauses >
+struct default2;
+
+template< typename... Clauses >
+struct dispatch;
+```
+
+The `clause1` template attaches the same concrete `Action` class to each rule in `Rules...`.
+The `clause2` template attaches `Action< Rule >` to each selected rule and is useful when the action needs to depend on the matched rule type.
+
+The `default1` and `default2` templates are enabled for rules not enabled by any of the clauses passed as their remaining template arguments.
+As with the explicit clauses, `default1` uses a concrete action class while `default2` uses an action class template.
+
+The action class template created by a dispatcher is available as `dispatch< Clauses... >::action`.
+The `parse()` member function is a convenience wrapper around [`match()`](Control-and-Normal.md#match) using that action class template.
+
+```c++
+template< typename... Clauses >
+struct dispatch
+{
+   template< typename Rule >
+   using action = /* selected action, or nothing< Rule > */;
+
+   template< typename Rule,
+             apply_mode A = apply_mode::enabled,
+             rewind_mode M = rewind_mode::optional,
+             template< typename... > class Control = normal,
+             typename ParseInput,
+             typename... States >
+   [[nodiscard]] static bool parse( ParseInput&&, States&&... );
+};
+```
+
+Both `dispatch` and the default clauses also accept a single [`type_list`](../include/tao/pegtl/type_list.hpp) in place of a parameter pack.
+See [`src/example/dispatch.cpp`](../src/example/dispatch.cpp) for a small example that dispatches different actions for selected JSON rules.
 
 ###### [`nested_exceptions.hpp`](../include/tao/pegtl/extra/nested_exceptions.hpp)
 
@@ -213,7 +261,7 @@ The overloads that take a single type can be used with `tao::pegtl::string<>` or
 
 A slightly refactored version of the previous unescape header which is now moved to `deprecated/unescape.hpp`.
 
-It defines individual action classes for common unescape operations as well as an action class template that attaches these actions to corresponding grammar rules.
+It defines individual [action](Actions-and-States.md) classes for common unescape operations as well as an action class template that attaches these actions to corresponding grammar rules.
 
 All actions output to their first state (second argument) which must be a mutable `std::string`.
 

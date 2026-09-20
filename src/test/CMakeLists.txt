@@ -67,6 +67,7 @@ set(test_sources
   debug_trace_1.cpp
   debug_trace_2.cpp
   debug_trace_3.cpp
+  debug_trace_4.cpp
   debug_visit.cpp
   demangle.cpp
   deprecated_alphabet.cpp
@@ -278,9 +279,12 @@ foreach(testsourcefile ${test_sources})
     CXX_EXTENSIONS OFF
   )
   if(MSVC)
-    target_compile_options(${exename} PRIVATE /W4 /WX /utf-8)
+    target_compile_options(${exename} PRIVATE /W4 /WX /utf-8 /bigobj)
   else()
     target_compile_options(${exename} PRIVATE -pedantic -Wall -Wextra -Wshadow -Werror)
+    if(MINGW)
+      target_compile_options(${exename} PRIVATE -Wa,-mbig-obj)
+    endif()
   endif()
   if(ANDROID)
     add_test(NAME ${exename} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMAND ${CMAKE_COMMAND} "-DANDROID_NDK=${ANDROID_NDK}" "-DTEST_RESOURCES_DIR=${CMAKE_SOURCE_DIR}" "-DTEST_RESOURCES=src/test/data;src/test/file_data.txt;Makefile" "-DUNITTEST=${exename}" -P ${CMAKE_CURRENT_SOURCE_DIR}/ExecuteOnAndroid.cmake)
