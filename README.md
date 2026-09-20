@@ -11,16 +11,16 @@
 [![CodeQL](https://github.com/taocpp/PEGTL/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/taocpp/PEGTL/actions/workflows/codeql-analysis.yml)
 [![Codecov](https://codecov.io/gh/taocpp/PEGTL/branch/main/graph/badge.svg?token=ykWa8RRdyk)](https://codecov.io/gh/taocpp/PEGTL)
 
-The Parsing Expression Grammar Template Library (PEGTL) is a zero-dependency [C++](https://en.cppreference.com/w/cpp.html) header-only [parser combinator](https://en.wikipedia.org/wiki/Parser_combinator) library for creating parsers according to a [Parsing Expression Grammar](http://en.wikipedia.org/wiki/Parsing_expression_grammar) (PEG).
+The Parsing Expression Grammar Template Library (PEGTL) is a zero-dependency [C++](https://en.cppreference.com/w/cpp.html) [header-only](https://en.wikipedia.org/wiki/Header-only) [parser combinator](https://en.wikipedia.org/wiki/Parser_combinator) library for creating [parsers](https://en.wikipedia.org/wiki/Parsing#Parser) according to a [Parsing Expression Grammar](http://en.wikipedia.org/wiki/Parsing_expression_grammar) (PEG).
 
 
 ## Documentation
 
-* [Changelog](doc/Changelog.md)
-* [Main Branch](https://github.com/taocpp/PEGTL/doc/README.md) <sup>[C++17](https://en.cppreference.com/w/cpp/17.html)</sup>
-* [Version 3.x](https://github.com/taocpp/PEGTL/blob/3.x/doc/README.md) <sup>[C++17](https://en.cppreference.com/w/cpp/17.html)</sup>
-* [Version 2.x](https://github.com/taocpp/PEGTL/blob/2.x/doc/README.md) <sup>[C++11](https://en.cppreference.com/w/cpp/11.html)</sup>
-* [Version 1.x](https://github.com/taocpp/PEGTL/blob/1.x/doc/README.md) <sup>[C++11](https://en.cppreference.com/w/cpp/11.html)</sup>
+* [Main Branch](https://github.com/taocpp/PEGTL/doc/README.md) &nbsp; <sup>[C++17](https://en.cppreference.com/w/cpp/17.html)</sup>
+* [Version 3.x Branch](https://github.com/taocpp/PEGTL/blob/3.x/doc/README.md) &nbsp; <sup>[C++17](https://en.cppreference.com/w/cpp/17.html)</sup>
+* [Version 2.x Branch](https://github.com/taocpp/PEGTL/blob/2.x/doc/README.md) &nbsp; <sup>[C++11](https://en.cppreference.com/w/cpp/11.html)</sup>
+* [Version 1.x Branch](https://github.com/taocpp/PEGTL/blob/1.x/doc/README.md) &nbsp; <sup>[C++11](https://en.cppreference.com/w/cpp/11.html)</sup>
+
 
 ## Introduction
 

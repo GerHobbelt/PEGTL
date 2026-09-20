@@ -1,9 +1,7 @@
 # Stream Parsing
 
-The PEGTL is primarily designed and optimized for parsing contiguous blocks of memory like a memory-mapped file or the contents of a `std::string`.
-It also supports *stream parsing* where only a small portion of a large input is kept in a memory buffer at any time.
-
-The stream parsing facilities can be included via `<tao/pegtl/stream.hpp>` -- or via the individual include files in `include/tao/pegtl/stream`.
+The PEGTL is *primarily* designed and optimized for parsing contiguous blocks of memory like a memory-mapped file or the contents of a `std::string`.
+It does also support *stream parsing* where only a small portion of a large input is kept in a contiguous memory buffer, a sliding window to the input data.
 
 
 ## Contents
@@ -37,17 +35,19 @@ The stream parsing facilities can be included via `<tao/pegtl/stream.hpp>` -- or
 
 ## Overview
 
+The stream parsing facilities can be included via `<tao/pegtl/stream.hpp>`, or via their respective individual include files in `include/tao/pegtl/stream`.
+
 Stream parsing is performed by using a *stream input* for a parsing run.
 A stream input has the same interface as other inputs as well as some stream input specific functions.
-It also has two stream input specific components, the *buffer* and the *reader*.
+It also has two stream input specific components, the [*buffer*](#buffers) and the [*reader*](#readers).
 
 The buffer wraps the memory region in which a portion of the input data is kept.
-Different [buffers](#Buffers) allocate memory in different ways, e.g. an embedded `std::array` or via `operator new[]`.
+Different [buffers](#buffers) allocate memory in different ways, e.g. an embedded `std::array` or via `operator new[]`.
 
 The buffer size, i.e. how many bytes can be kept in memory at any one time, and the chunk size, i.e. the minimum number of bytes requested from the reader when it needs more data, can be freely chosen.
 
 The reader object provides a simple interface to read more input data.
-Different [readers](#Readers) read data from different sources, e.g. a `std::istream` or a range of input iterators.
+Different [readers](#readers) read data from different sources, e.g. a `std::istream` or a range of input iterators.
 
 During a parsing run, all rules that directly attempt to match some input bytes, e.g. `any` as opposed to `seq`, tell the input how many bytes they want to match against.
 If the buffer does not contain enough data the stream input will call the reader to supply more.
@@ -57,7 +57,7 @@ The [`prefetch`](#prefetch-num-) and [`require`](#require-num-) rules can be use
 Removing parsed bytes from the buffer is called a *discard*.
 This making space for more to-be-parsed data needs to happen regularly while parsing and can be done either manually or automatically.
 
-The [`discard`](#discard) rule and/or the [`discard_input`](#discard-input) and [`discard_input_on`](#discard-input-on) actions are used for manual discards.
+The [`discard`](#discard) rule and/or the [`discard_input`](#discard_input) and [`discard_input_on`](#discard_input_on-bool-) actions are used for manual discards.
 The stream inputs whose name contains `_auto_` perform aggressive automatic discarding.
 
 > [!NOTE]
@@ -75,10 +75,10 @@ This default can be changed via the macro `TAO_PEGTL_NAMESPACE` in `tao/pegtl/co
 
 ## Buffers
 
-There is no direct interaction with buffer objects, however the arguments to a buffer constructor need to be supplied to any input using that buffer (same for template parameters).
+There is no direct interaction with buffer objects, however the arguments to a buffer constructor need to be supplied to any input using that buffer.
 
-Note that the expositions of the buffer classes only serve to document their specific constructor arguments and template parameters.
-To see how the buffer classes are actually implemented we refer the reader to the appropriate header files.
+The expositions of the buffer classes only documents their specific constructor arguments and template parameters.
+To see how the buffer classes are implemented plase consult the appropriate header files.
 
 ###### Alloc Buffer
 
@@ -124,7 +124,7 @@ public:
 
 ## Readers
 
-Readers need to implement only two functionalities, construction with reader-specific arguments and a read function.
+Readers need to implement two operations, construction with reader-specific arguments and a read function.
 The read function takes a pointer to a buffer and the length of the buffer.
 It attempts to read `length` bytes returning how many bytes were actually read (or zero at end-of-file).
 Errors are reported as exception, or by terminating the program when compiling with exceptions disabled.
@@ -157,6 +157,8 @@ public:
 };
 ```
 
+When the length of the input string is known some kind of normal [view input](Input-Reference.md#view-input) should be used instead.
+
 ###### CStream Reader
 
 The cstream reader takes a `std::FILE*` to an open C file stream.
@@ -180,13 +182,16 @@ class istream_reader
 {
 public:
    explicit istream_reader( std::istream& stream ) noexcept;
+
+private:
+   std::istream& m_stream;
 };
 ```
 
 ###### Iterator Reader
 
 The iterator reader takes a range of input iterators.
-It copies the iterators, but not (initially) the range of bytes they represent.
+It copies the iterators, but not the range of objects they represent.
 
 ```c++
 template< typename InputIterator >
@@ -361,7 +366,7 @@ using other_iterator_auto_input = /* unspecified */
 
 ###### Text Inputs
 
-The text inputs use `text_position` or `position_with_source< Source, text_position >` with the [same limitations](TODO!) as the regular inputs regarding the line and column numbers.
+The text inputs use `text_position` or `position_with_source< Source, text_position >` with the same limitations when going beyond ASCII as the regular inputs.
 
 ```c++
 template< typename Eol = tao_stream_eol,
@@ -438,7 +443,7 @@ using other_text_iterator_input = /* unspecified */
 
 ###### Text Auto Inputs
 
-The inputs with `text` and `auto` in their name combine the name-giving features from the [text inputs](#text-inputs) and the [auto inputs](#auto-inputs).
+The inputs with `text` and `auto` in their name combine the name-giving features from the [text inputs](#text-inputs) and the [auto inputs](#plain-auto-inputs).
 
 ```c++
 template< typename Eol = tao_stream_eol,
@@ -516,13 +521,11 @@ using other_text_iterator_auto_input = /* unspecified */
 
 ## Rules
 
-The `discard` and `require` rules do nothing on non-stream inputs.
-
-All rules are included with `<tao/pegtl/buffer.hpp>` or can be included individually.
+These [rules](Rules-and-Grammars.md) are included with `<tao/pegtl/stream.hpp>`.
 
 Unlike [most other rules](Rule-Reference.md) they have no separate implementation in namespace `tao::pegtl::internal`.
 
-The analyze traits for these rules are in `<tao/pegtl/buffer/analyze_traits.hpp>` which is **not** included automatically with `<tao/pegtl/buffer.hpp>`.
+The analyze traits for these rules are in `<tao/pegtl/stream/analyze_traits.hpp>` which is **not** included with `<tao/pegtl/stream.hpp>`.
 
 ###### `discard`
 
@@ -563,18 +566,20 @@ The analyze traits for these rules are in `<tao/pegtl/buffer/analyze_traits.hpp>
 
 ## Actions
 
+These [actions](Actions-and-States.md) are included with `<tao/pegtl/stream.hpp>`.
+
 ###### `discard_input`
 
 * Action with (only) a `match()` function.
 * Calls `discard()` on the input if the rule it is attached to returns.
-* Publicly derives from [`maybe_nothing`](Action-Reference.md#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](Action-Reference.md#maybe_nothing).
 
 ###### `discard_input_on< Bool >`
 
 * Action with (only) a `match()` function.
 * Takes a `bool B` as template parameter.
 * Calls `discard()` on the input if the rule it is attached to returns `B`.
-* Publicly derives from [`maybe_nothing`](Action-Reference.md#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](Action-Reference.md#maybe_nothing).
 
 ###### `discard_input_on_failure`
 

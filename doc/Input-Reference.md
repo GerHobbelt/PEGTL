@@ -21,6 +21,7 @@ The [stream](Stream-Parsing.md) inputs are [documented here](Stream-Parsing.md#i
   * [Text Read Input](#text-read-input)
   * [Text Mmap Input](#text-mmap-input)
 * [Input Adapters](#input-adapters)
+  * [Input with Depth](#input-with-depth)
   * [Input with Offset](#input-with-offset)
 * [Index](#index)
 
@@ -31,9 +32,9 @@ All inputs documented on this page are defined in `tao/pegtl/inputs.hpp` which i
 
 All inputs documented on this page implement the common input functions consisting of
 
-* the [input interface](Input-Anatomy.md#input-interface),
-* the [convenience functions](Input-Anatomy.md#input-convenience),
-* the [buffer compatibility](Input-Anatomy.md#buffer-compatibility).
+* the [input interface](Inputs-and-Parsing.md#input-interface),
+* the [convenience functions](Inputs-and-Parsing.md#input-convenience),
+* the [stream compatibility](Inputs-and-Parsing.md#stream-compatibility).
 
 #### Namespaces
 
@@ -56,13 +57,15 @@ The non-text inputs also have an `Eol` template parameter, however they only use
 
 ## Inputs
 
+By [default](Introduction.md#namespaces) all inputs reside in namespace `tao::pegtl`.
+
 ### Argv Input
 
 * Used to parse a single command line argument `argv[ n ]`.
 * Sets the source to `"argv[ n ]"` when passed `argv` and `n`.
-* [Restartable](Input-Anatomy.md#inputs-with-start).
-* [Without lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [With source](Input-Anatomy.md#inputs-with-source) (by default).
+* [Restartable](Inputs-and-Parsing.md#inputs-with-start).
+* [Without lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [With source](Inputs-and-Parsing.md#inputs-with-source) (by default).
 
 #### Exposition
 
@@ -100,9 +103,9 @@ argv_input( char**, const int ) -> argv_input<>;
 ### Base input
 
 * Does **not** copy the input data!
-* [Without start](Input-Anatomy.md#inputs-with-start)
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [Without source](Input-Anatomy.md#inputs-with-source).
+* [Without start](Inputs-and-Parsing.md#inputs-with-start)
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [Without source](Inputs-and-Parsing.md#inputs-with-source).
 
 This is the most light-weight of all input classes.
 It only keeps two pointers, the one returned by `current()` and the one returned by `end()`.
@@ -183,9 +186,9 @@ base_input( const std::array< Data, Size >& ) -> base_input< default_eol, Data >
 ### View Input
 
 * Does **not** copy the input data.
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [Without source](Input-Anatomy.md#inputs-with-source) (by default).
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [Without source](Inputs-and-Parsing.md#inputs-with-source) (by default).
 * Lile [`base_input`](#base-input) but with start.
 * Like [`text_view_input`](#text-view-input) but without lines and columns in the position.
 
@@ -345,9 +348,9 @@ view_input( String&&, const std::array< Data, Size >& ) -> view_input< default_e
 ### Copy Input
 
 * Copies the input data to a container data member.
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [Without source](Input-Anatomy.md#inputs-with-source) (by default).
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [Without source](Inputs-and-Parsing.md#inputs-with-source) (by default).
 * Like [`text_copy_input`](#text-copy-input) but without lines and columns in the position.
 
 #### Exposition
@@ -465,9 +468,9 @@ copy_input( String&&, const std::initializer_list< data_t >& ) -> copy_input< de
 ### File Input
 
 * Implemented with `mmap_input` when available, and `read_input` as fallback.
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [With source](Input-Anatomy.md#inputs-with-source) types `std::filesysten::path`.
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [With source](Inputs-and-Parsing.md#inputs-with-source) types `std::filesysten::path`.
 * Like [`text_file_input`](#text-file-input) but without lines and columns in the position.
 
 #### Exposition
@@ -487,9 +490,9 @@ file_input( Args...&& ) -> file_input< default_eol >;
 
 * Uses `std::fopen()` and `std::fread()`.
 * Reads the whole file into a `std::string`.
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [With source](Input-Anatomy.md#inputs-with-source) types `std::filesysten::path`.
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [With source](Inputs-and-Parsing.md#inputs-with-source) types `std::filesysten::path`.
 * Like [`text_read_input`](#text-read-input) but without lines and columns in the position.
 
 #### Exposition
@@ -530,9 +533,9 @@ read_input( Args...&& ) -> read_input< default_eol >;
 
 * Mmaps the file into memory.
 * Only available on systems with Posix *mmap* and Windows.
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [With source](Input-Anatomy.md#inputs-with-source) types `std::filesysten::path`.
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [With source](Inputs-and-Parsing.md#inputs-with-source) types `std::filesysten::path`.
 * Like [`text_mmap_input`](#text-mmap-input) but without lines and columns in the position.
 
 #### Exposition
@@ -571,9 +574,9 @@ mmap_input( Args...&& ) -> mmap_input< default_eol, char >;
 ### Text View Input
 
 * Does **not** copy the input data.
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [Without source](Input-Anatomy.md#inputs-with-source) (by default).
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [Without source](Inputs-and-Parsing.md#inputs-with-source) (by default).
 * Like [`view_input`](#view-input) but with lines and columns in the position.
 
 #### Exposition
@@ -728,9 +731,9 @@ text_view_input( String&&, const std::array< Data, Size >& ) -> text_view_input<
 ### Text Copy Input
 
 * Copies the input data to a container data member.
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [Without source](Input-Anatomy.md#inputs-with-source) (by default).
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [Without source](Inputs-and-Parsing.md#inputs-with-source) (by default).
 * Like [`copy_input`](#copy-input) but with lines and columns in the position.
 
 #### Exposition
@@ -850,9 +853,9 @@ text_copy_input( String&&, const std::initializer_list< Data >& ) -> text_copy_i
 ### Text File Input
 
 * Implemented with `text_mmap_input` when available, and `text_read_input` as fallback.
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [With source](Input-Anatomy.md#inputs-with-source) types `std::filesysten::path`.
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [With source](Inputs-and-Parsing.md#inputs-with-source) types `std::filesysten::path`.
 * Like [`file_input`](#file-input) but with lines and columns in the position.
 
 ```c++
@@ -872,9 +875,9 @@ text_file_input( Args...&& ) -> text_file_input< default_eol >;
 
 * Uses `std::fopen()` and `std::fread()`.
 * Reads the whole file into a `std::string`.
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [With source](Input-Anatomy.md#inputs-with-source) types `std::filesysten::path`.
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [With source](Inputs-and-Parsing.md#inputs-with-source) types `std::filesysten::path`.
 * Like [`read_input`](#read-input) but with lines and columns in the position.
 
 #### Exposition
@@ -915,9 +918,9 @@ text_read_input( Args...&& ) -> text_read_input< default_eol >;
 
 * Mmaps the file into memory.
 * Only available on systems with Posix `mmap(2)` (and Windows).
-* [With start](Input-Anatomy.md#inputs-with-start).
-* [With lines](Input-Anatomy.md#inputs-with-lines) (by default).
-* [With source](Input-Anatomy.md#inputs-with-source) types `std::filesysten::path`.
+* [With start](Inputs-and-Parsing.md#inputs-with-start).
+* [With lines](Inputs-and-Parsing.md#inputs-with-lines) (by default).
+* [With source](Inputs-and-Parsing.md#inputs-with-source) types `std::filesysten::path`.
 * Like [`mmap_input`](#mmap-input) but with lines and columns in the position.
 
 #### Exposition
@@ -956,7 +959,55 @@ text_mmap_input( Args...&& ) -> text_mmap_input< default_eol, char >;
 
 ## Input Adapters
 
+### Input with Depth
+
+An input adapter that adds a depth counter for use with [`check_depth`](Action-Reference.md#check_depth-n-) to limit the rule recursion depth during a parsing run.
+
+```c++
+template< typename Input >
+class input_with_depth
+   : public Input
+{
+public:
+   using Input::Input;
+
+   [[nodiscard]] internal::depth_guard make_depth_guard() noexcept;
+   [[nodiscard]] std::size_t current_depth() const noexcept;
+};
+```
+
 ### Input with Offset
+
+An input adapter that keeps an offset position that is added to all positions reported by the input.
+Both `current_position()` and `previous_position()` return the same position type as `Input`'s functions.
+
+```c++
+template< typename Input >
+class input_with_offset
+   : public Input
+{
+public:
+   using data_t = typename Input::data_t;
+   using error_position_t = typename Input::error_position_t;
+   using offset_position_t = typename Input::offset_position_t;
+   using rewind_position_t = typename Input::rewind_position_t;
+#if defined( __cpp_exceptions )
+   using parse_error_t = parse_error< error_position_t >;
+#endif
+
+   template< typename... Ts >
+   explicit input_with_offset( offset_position_t&& s, Ts&&... ts );
+
+   template< typename... Ts >
+   explicit input_with_offset( const offset_position_t& s, Ts&&... ts );
+
+   [[nodiscard]] auto current_position() const;
+   [[nodiscard]] auto previous_position( const rewind_position_t& saved ) const;
+   [[nodiscard]] const offset_position_t& direct_offset() const noexcept;
+
+   void direct_position() const = delete;
+};
+```
 
 
 ## Index
@@ -965,6 +1016,7 @@ text_mmap_input( Args...&& ) -> text_mmap_input< default_eol, char >;
 * [Base Input](#base-input) <sup>[(input)](#inputs)</sup>
 * [Copy Input](#copy-input) <sup>[(input)](#inputs)</sup>
 * [File Input](#file-input) <sup>[(input)](#inputs)</sup>
+* [Input with Depth](#input-with-depth) <sup>[(input adapters)](#input-adapters)</sup>
 * [Input with Offset](#input-with-offset) <sup>[(input adapters)](#input-adapters)</sup>
 * [Mmap Input](#mmap-input) <sup>[(input)](#inputs)</sup>
 * [Read Input](#read-input) <sup>[(input)](#inputs)</sup>

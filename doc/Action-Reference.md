@@ -1,8 +1,7 @@
 # Action Reference
 
 The reference documention for all included actions
-The actions related to [stream parsing](Stream-Parsing.nd) are [documented here](Stream-Parsing.md#actions).
-The actions not considered part of the core library are [documented here](TODO).
+The actions related to [stream parsing](Stream-Parsing.md) are [documented here](Stream-Parsing.md#actions).
 
 
 ## Contents
@@ -14,8 +13,10 @@ The actions not considered part of the core library are [documented here](TODO).
 
 ## Preamble
 
+By [default](Introduction.md#namespaces) all actionss reside in namespace `tao::pegtl`.
+
 Only `include/tao/pegtl/nothing.hpp`, which defines `nothing` and `maybe_nothing`, is automatically included with `<tao/pegtl.hpp>`.
-For all other actions the appropriate headers from `include/tao/pegtl/action/` need to be included manually.
+For all other actions the appropriate headers from [`include/tao/pegtl/action/`](../include/tao/pegtl/action) need to be included manually.
 
 The action classes shown below are selectively attached in the usual way.
 For example we can invoke [`change_action`](#change_action-a-) to switch the parsing run from `my_action` to `other_action` while parsing `some_rule` as follows.
@@ -37,7 +38,7 @@ struct my_action< some_rule >
 
 > [!IMPORTANT]
 > Please remember that the current `apply_mode` enables or disables only the `apply()` and `apply0()` action functions.
-> When an action has a `match()` function it will be called regardless of the `apply_mode`.
+> When an action has a `match()` function it will be called regardless of `apply_mode`.
 
 Some actions have a `success()` function that is called when the rule the action was attached to succeeds.
 In some cases there is a default implementation that can be replaced with a user-defined function, in other cases there is no default and a user-defined function has to be supplied.
@@ -77,9 +78,9 @@ This pattern is used throughout the PEGTL and is the reason for all action and c
 
 ## Actions
 
-By [default](Introduction.md#namespace-structure) all action classes and class templates reside in namespace `tao::pegtl`.
+By [default](Introduction.md#namespaces) all action classes and class templates reside in namespace `tao::pegtl`.
 
-###### `add_guard< G >`
+###### [`add_guard< G >`](../include/tao/pegtl/action/add_guard.hpp)
 
 * Creates an object of type `G` before parsing the rule `R` it is attached to.
 * If `G` can be default-constructed it will be, or
@@ -87,7 +88,7 @@ By [default](Introduction.md#namespace-structure) all action classes and class t
 * If actions are enabled and `G` has a `success()` method it will be called with the input and all states if `R` succeeds.
 * Included via `include/tao/pegtl/action/add_guard.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 The difference between `add_guard` and `add_state` is that `add_guard` does not add the newly constructed object to the states while parsing the rule it is attached to.
 
@@ -113,7 +114,7 @@ struct add_guard
 };
 ```
 
-###### `add_state< S >`
+###### [`add_state< S >`](../include/tao/pegtl/action/add_state.hpp)
 
 * Creates an object of type `S` before parsing the rule `R` it is attached to.
 * Adds this new object of type `S` as first state object while parsing `R`.
@@ -122,7 +123,7 @@ struct add_guard
 * If actions are enabled and `S` has a `success()` method it will be called with the input and all states if `R` succeeds.
 * Included via `include/tao/pegtl/action/add_state.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 The difference between `add_guard` and `add_state` is that `add_state` adds the newly constructed object as first state while parsing the rule it is attached to.
 
@@ -133,14 +134,14 @@ struct add_state
 { ... };
 ```
 
-###### `change_action< A >`
+###### [`change_action< A >`](../include/tao/pegtl/action/change_action.hpp)
 
 * Parses the rule it is attached to substituting `A` as current action.
 * Does **not** change the current `apply_mode`.
 * Non-intrusive action equivalent of the [`action`](Rule-Reference.md#action-a-r-) rule.
 * Included via `include/tao/pegtl/action/change_action.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 template< template< typename... > class NewAction >
@@ -149,7 +150,7 @@ struct change_action
 { ... };
 ```
 
-###### `change_action_and_state< A, S >`
+###### [`change_action_and_state< A, S >`](../include/tao/pegtl/action/change_action_and_state.hpp)
 
 * Parses the rule it is attached to substituting `A` as current action.
 * Does **not** change the current `apply_mode`.
@@ -161,7 +162,7 @@ struct change_action
 * Combines [`change_action`](#change_action-a-) and [`change_state`](#change_state-s-) into a single action.
 * Included via `include/tao/pegtl/action/change_action_and_state.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 template< template< typename... > class NewAction, typename NewState >
@@ -170,7 +171,7 @@ struct change_action_and_state
 { ... };
 ```
 
-###### `change_action_and_states< A, S... >`
+###### [`change_action_and_states< A, S... >`](../include/tao/pegtl/action/change_action_and_states.hpp)
 
 * Combines [`change_action`](#change_action-a-) and [`change_states`](#change_states-s-) into a single action.
 * Parses the rule it is attached to substituting `A` as current action.
@@ -182,7 +183,7 @@ struct change_action_and_state
 * There is no default implementation for `success()`, it **must** be user defined.
 * Included via `include/tao/pegtl/action/change_action_and_states.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 template< template< typename... > class NewAction, typename... NewStates >
@@ -191,13 +192,13 @@ struct change_action_and_states
 { ... };
 ```
 
-###### `change_control< C >`
+###### [`change_control< C >`](../include/tao/pegtl/action/change_control.hpp)
 
 * Parses the rule it is attached to substituting `C` as current control.
 * Non-intrusive action equivalent of the [`control`](Rule-Reference.md#control-c-r-) rule.
 * Included via `include/tao/pegtl/action/change_control.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 template< template< typename... > class NewControl >
@@ -206,12 +207,12 @@ struct change_control
 { ... };
 ```
 
-###### `change_rule< R >`
+###### [`change_rule< R >`](../include/tao/pegtl/action/change_rule.hpp)
 
 * Parses this action's template parameter instead of the rule this action is attached to.
 * Included via `include/tao/pegtl/action/change_rule.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 template< typename NewRule >
@@ -223,7 +224,7 @@ struct change_rule
 > [!CAUTION]
 > The change made by this action is invisible to the [grammar analysis](Debug-Facilities.md#grammar-analysis).
 
-###### `change_state< S >`
+###### [`change_state< S >`](../include/tao/pegtl/action/change_state.hpp)
 
 * Creates an object of type `S` before parsing the rule `R` it is attached to.
 * Uses the new object of type `S` as **only** state object while parsing `R`.
@@ -232,7 +233,7 @@ struct change_rule
 * If actions are enabled and `S` has a `success()` method it will be called with the input and all states if `R` succeeds.
 * Included via `include/tao/pegtl/action/change_state.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 template< typename NewState >
@@ -241,7 +242,7 @@ struct change_state
 { ... };
 ```
 
-###### `change_states< S... >`
+###### [`change_states< S... >`](../include/tao/pegtl/action/change_states.hpp)
 
 * Creates objects of types `S...` before parsing the rule `R` it is attached to.
 * Uses the new objects of types `S...` as state objects while parsing `R`.
@@ -250,7 +251,7 @@ struct change_state
 * There is no default implementation for `success()`, it **must** be user defined.
 * Included via `include/tao/pegtl/action/change_states.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 template< typename... NewStates >
@@ -259,13 +260,13 @@ struct change_states
 { ... };
 ```
 
-###### `check_consume< N >`
+###### [`check_consume< N >`](../include/tao/pegtl/action/check_consume.hpp)
 
 * Checks how many input objects the rule it is attached to consumed.
 * Throws an exception when it consumed *more than* `N` input objects.
 * Included via `include/tao/pegtl/action/check_consume.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 * Similar to [`limit_consume`](#limit_consume-n-), but `check_consume` checks the consumption *after* matching.
 
 
@@ -276,14 +277,29 @@ struct change_states
  { ... };
 ```
 
-###### `control_action`
+###### [`check_depth< N >`](../include/tao/pegtl/action/check_depth.hpp)
+
+* Limits the rule nesting depth for the rule(s) it is attached to.
+* Throws an exception when the nesting depth exceeds the limit.
+* Does not count rules when control is disabled.
+* Requires an input with `make_depth_guard()` function like [`input_with_depth`](Input-Reference.md#input-with-depth).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
+
+```c++
+ template< std::size_t Maximum >
+ struct check_depth
+    : maybe_nothing
+ { ... };
+```
+
+###### [`control_action`](../include/tao/pegtl/action/control_action.hpp)
 
 * Adds the `start()`, `success()` and `failure()` control functions to the action.
 * Implements do-nothing default versions of these functions.
 * Optionally adds the `unwind()` control function to the action.
 * Included via `include/tao/pegtl/action/control_action.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 struct control_action
@@ -312,14 +328,14 @@ As in other cases where the PEGTL auto-detects the presence of `unwind()` its *a
    static void unwind( const ParseInput&, States&&... );
 ```
 
-###### `disable_action`
+###### [`disable_action`](../include/tao/pegtl/action/disable_action.hpp)
 
 * Parses the rule it is attached to with actions disabled:
 * Changes the current `apply_mode` to `apply_mode::disabled`.
-* Non-intrusive action equivalent of the [`disable`](Rule-Reference.md#disable) rule.
+* Non-intrusive action equivalent of the [`disable`](Rule-Reference.md#disable-r-) rule.
 * Included via `include/tao/pegtl/action/disable_action.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 struct disable_action
@@ -327,14 +343,14 @@ struct disable_action
 { ... };
 ```
 
-###### `enable_action`
+###### [`enable_action`](../include/tao/pegtl/action/enable_action.hpp)
 
 * Parses the rule it is attached to with actions enabled:
 * Changes the current `apply_mode` to `apply_mode::enabled`.
-* Non-intrusive acion equivalent of the [`enable`](Rule-Reference.md#enable) rule.
+* Non-intrusive acion equivalent of the [`enable`](Rule-Reference.md#enable-r-) rule.
 * Included via `include/tao/pegtl/action/enable_action.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 
 ```c++
 struct enable_action
@@ -342,14 +358,14 @@ struct enable_action
 { ... };
 ```
 
-###### `limit_consume< N >`
+###### [`limit_consume< N >`](../include/tao/pegtl/action/limit_consume.hpp)
 
 * Parses the rule it is attached to with the input limited to contain at most the next `N` objects.
 * Throws an exception when the rule consumes all `N` input objects (unless there are no more input objects).
-* Requires an input that implements `private_set_end()` like the [`view_input`](Input-Reference.md#view_input).
+* Requires an input that implements `private_set_end()` like the [`view_input`](Input-Reference.md#view-input).
 * Included via `include/tao/pegtl/action/limit_consume.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 * Similar to [`check_consume`](#check_consume-n-), but `limit_consume` limits by modifying the input *before* matching.
 
 
@@ -360,12 +376,12 @@ struct enable_action
  { ... };
 ```
 
-###### `match_typed_state< T >`
+###### [`match_typed_state< T >`](../include/tao/pegtl/action/match_typed_state.hpp)
 
 * Parses the rule it is attached to with only the state of type `T`.
 * Included via `include/tao/pegtl/action/match_typed_state.hpp`.
 * This action implements only a `match()` function and therefore:
-* Publicly derives from [`maybe_nothing`](#maybe-nothing).
+* Publicly derives from [`maybe_nothing`](#maybe_nothing).
 * Related to the [control](Control-and-Normal.md) class [`apply_typed_state`](Control-Reference.md#apply_typed_state).
 
 ```c++
@@ -375,7 +391,7 @@ struct match_typed_state
 { ... };
 ```
 
-###### `maybe_nothing`
+###### [`maybe_nothing`](../include/tao/pegtl/nothing.hpp)
 
 * A type alias for `tao::pegtl::nothing< void >`.
 * Included via `include/tao/pegtl/nothing.hpp` or `include/tao/pegtl.hpp`.
@@ -387,7 +403,7 @@ When `my_action< void >` has `tao::pegtl::nothing< void >` aka. `maybe_nothing` 
 using maybe_nothing = nothing< void >;
 ```
 
-###### `nothing< R >`
+###### [`nothing< R >`](../include/tao/pegtl/nothing.hpp)
 
 * A "do nothing" action, defined as an empty class template.
 * Included via `include/tao/pegtl/nothing.hpp` or `include/tao/pegtl.hpp`.
@@ -411,7 +427,7 @@ struct my_action
 // ... (partial) specialisations of my_action ...
 ```
 
-###### `require_apply`
+###### [`require_apply`](../include/tao/pegtl/action/require_apply.hpp)
 
 * An empty tag class related to actions, not an action itself.
 * Included via `include/tao/pegtl/action/require_apply.hpp`.
@@ -424,7 +440,7 @@ struct require_apply
 {};
 ```
 
-###### `require_apply0`
+###### [`require_apply0`](../include/tao/pegtl/action/require_apply0.hpp)
 
 * An empty tag class related to actions, not an action itself.
 * Included via `include/tao/pegtl/action/require_apply0.hpp`.
@@ -450,6 +466,7 @@ struct require_apply0
 * [`change_state`](#change_state-s-) <sup>[(actions)](#actions)</sup>
 * [`change_states`](#change_states-s-) <sup>[(actions)](#actions)</sup>
 * [`check_consume`](#check_consume-n-) <sup>[(actions)](#actions)</sup>
+* [`check_depth`](#check_depth-n-) <sup>[(actions)](#actions)</sup>
 * [`control_action`](#control_action) <sup>[(actions)](#actions)</sup>
 * [`disable_action`](#disable_action) <sup>[(actions)](#actions)</sup>
 * [`enable_action`](#enable_action) <sup>[(actions)](#actions)</sup>

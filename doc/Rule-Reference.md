@@ -4,8 +4,6 @@ The reference documentation for all rules and combinators.
 
 The rules related to [stream parsing](Stream-Parsing.md) are [documented here](Stream-Parsing.md#rules).
 
-The rules not considered part of the core library are [documented here](TODO).
-
 
 ## Contents
 
@@ -30,17 +28,15 @@ The rules not considered part of the core library are [documented here](TODO).
 
 ## Preamble
 
-For how rule and combinators are implemented see [Rule Implementation](Rule-Implementation.md).
+For how rule and combinators are implemented see [Implementing Rules](Rules-and-Grammars.md#implementing-rules).
 
-For additional and experimental rules and combinators see ... TODO.
+For additional and experimental rules and combinators see the [Extra Reference](Extra-Reference.md) and the [Example Reference](Example-Reference.md).
 
 #### Namespaces
 
 All rules reside in namespace `tao::pegtl` or a sub-namespace of `tao::pegtl`.
 This default can be changed via the macro `TAO_PEGTL_NAMESPACE` in `tao/pegtl/config.hpp`.
 The namespace `tao::pegtl` is generally omitted on this page.
-
-TODO: Consistent namespace usage in equivalent rules.
 
 #### Equivalence
 
@@ -51,7 +47,7 @@ For rules other than `must<>` that contain "must" in their name, rule equivalenc
 
 #### Implementation
 
-The "meta data and implementation mapping" section of each rule's description shows both how the rule is implemented and what the [meta data](Meta-Data-and-Visit.md) looks like.
+The "meta data and implementation mapping" section of each rule's description shows both how the rule is implemented and what the [meta data](Debug-Facilities.md#meta-data) looks like.
 When the list of sub-rules is empty then the definition of `subs_t` is omitted from the description.
 
 Remember that the default [control](Control-and-Normal.md) `tao::pegtl::normal` does **not** call control functions for rules in the `tao::pegtl::internal` namespace.
@@ -65,7 +61,7 @@ In the zero case, i.e. `seq<>`, we also say `R` is "empty", otherwise `R` is "no
 #### End Of Line Rules
 
 Rules that can be used for end-of-line scanning mode and/or lazy end-of-line tracking are documented as being "also available in the `scan` and/or `lazy` sub-namespace".
-The different end-of-line modes that can be chosen for an input are documented in [TODO].
+The different end-of-line modes that can be chosen for an input are documented in [Inputs and Parsing](Inputs-and-Parsing.md#ends-of-lines).
 
 
 ## Atomic
@@ -148,6 +144,11 @@ Note that the default behavior can be changed either by defining `TAO_PEGTL_DEFA
 * Delegates matching to the function `F`.
 * For details see `tao/pegtl/rules.hpp` and `tao/pegtl/internal/function.hpp`.
 
+###### `invert< R >`
+
+* Takes any rule implemented with `internal::terminal` as template parameter.
+* Results in a type alias identical to `R` but with toggled `invert_mode`.
+
 ###### `restart`
 
 * Rule that always succeeds.
@@ -171,7 +172,7 @@ The ASCII rules operate on any input of integral or enum type of size 1.
 
 Unless noted otherwise they do **not** restrict the range of matched values to 7-bit ASCII values.
 For example rules like `ascii::any` or `ascii::not_one< 'a' >` will match *all* possible byte values, and *all* possible byte values excluding `'a'`, respectively.
-The rules [`any7`](#any7), [`many7`](#many7), [`not_one7`](#not_one7-c-), [`not_ione7`](#not_ione7-c-) and [`not_range7`](#not_range7-c-d-) are like their respective counterparts without the trailing `7` but only match values that can be represented in 7 bits.
+The rules [`any7`](#any7), [`many7`](#many7-num-), [`not_one7`](#not_one7-c-), [`not_ione7`](#not_ione7-c-) and [`not_range7`](#not_range7-c-d-) are like their respective counterparts without the trailing `7` but only match values that can be represented in 7 bits.
 
 It is possible to match UTF-8 multi-byte characters with the non-seven ASCII rules.
 For example the Euro sign code point `U+20AC`, which is encoded by the UTF-8 sequence `E2 82 AC`, is matched by both `ascii::string< 0xe2, 0x82, 0xac >` and `utf8::one< 0x20ac >`.
@@ -204,6 +205,11 @@ For all ASCII rules the template parameters representing characters are of type 
 * [Equivalent] to `(ascii::)range< 0, 127 >`.
 * [Meta data] and [implementation] mapping:
   - `(ascii::)any7::rule_t` is `internal::any< internal::peek_seven >`
+
+###### `bdigit`
+
+* Matches and consumes a single ASCII binary digit.
+* [Equivalent] to `(ascii::)one< '0', '1' >`.
 
 ###### `blank`
 
@@ -364,6 +370,13 @@ For all ASCII rules the template parameters representing characters are of type 
   - `ascii::not_ione<>::rule_t` is `internal::any< internal::peek_char >`
   - `ascii::not_ione< C... >::rule_t` is `internal::terminal< internal::invert_mode::enabled, internal::ione< internal::peek_char, Cs... > >`.
 
+###### `not_ione7< C... >`
+
+* Like `(ascii::)not_ione< C... >` but only matches values that can be represented in 7 bits.
+* [Meta data] and [implementation] mapping:
+  - `ascii::not_ione7<>::rule_t` is `internal::any< internal::peek_seven >`
+  - `ascii::not_ione7< C... >::rule_t` is `internal::terminal< internal::invert_mode::enabled, internal::ione< internal::peek_seven, Cs... > >`.
+
 ###### `not_one< C... >`
 
 * Succeeds when the input is not empty, and:
@@ -418,8 +431,13 @@ For all ASCII rules the template parameters representing characters are of type 
 
 ###### `print`
 
-* Matches and consumes any single ASCII character traditionally defined as *printable*.
+* Matches and consumes any single ASCII character traditionally defined as [*printable*](https://en.cppreference.com/cpp/string/byte/isprint).
 * [Equivalent] to `(ascii::)range< 32, 126 >`.
+
+###### `punct`
+
+* Matches and consumes any single ASCII character defined as [*punctuation*](https://en.cppreference.com/cpp/string/byte/ispunct).
+* [Equivalent] to `(ascii::)ranges< '!', '/', ':', '@', '[', '`', '{', '~' >`.
 
 ###### `range< C, D >`
 
@@ -952,9 +970,9 @@ These rules are in namespace `tao::pegtl`.
 * [Equivalent] to `sor< seq< R... >, success >`.
 * [Meta data] and [implementation] mapping:
   - `opt<>::rule_t` is `internal::success`
-  - `opt< R >::rule_t` is `internal::opt< R >`
+  - `opt< R >::rule_t` is `internal::partial< R >`
   - `opt< R >::subs_t` is `type_list< R >`
-  - `opt< R... >::rule_t` is `internal::opt< internal::seq< R... > >`
+  - `opt< R... >::rule_t` is `internal::partial< internal::seq< R... > >`
   - `opt< R... >::subs_t` is `type_list< internal::seq< R... > >`
 
 ###### `plus< R... >`
@@ -1006,9 +1024,9 @@ These rules are in namespace `tao::pegtl`.
 * [Equivalent] to `opt< plus< R... > >`.
 * `R` must be a non-empty rule pack.
 * [Meta data] and [implementation] mapping:
-  - `star< R >::rule_t` is `internal::star< R >`
+  - `star< R >::rule_t` is `internal::star_partial< R >`
   - `star< R >::subs_t` is `type_list< R >`
-  - `star< R... >::rule_t` is `internal::star< internal::seq< R... > >`
+  - `star< R... >::rule_t` is `internal::star_partial< internal::seq< R... > >`
   - `star< R... >::subs_t` is `type_list< internal::seq< R... > >`
 
 
@@ -1068,7 +1086,7 @@ These rules are in namespace `tao::pegtl`.
   - `minus< M, S >::rule_t` is `internal::rematch< M, internal::not_at< S, internal::eof > >`
   - `minus< M, S >::subs_t` is `type_list< M, internal::not_at< S, internal::eof > >`
 
-Note that `S` is ignored by the [grammar analysis](Grammar-Analysis.md).
+Note that `S` is ignored by the [grammar analysis](Debug-Facilities.md#grammar-analysis).
 
 ###### `pad< R, S, T = S >`
 
@@ -1080,7 +1098,7 @@ Note that `S` is ignored by the [grammar analysis](Grammar-Analysis.md).
 
 A common mistake is to forget about the implicit `star` and use e.g. `star< blank >` for `S` (and `T`).
 This attempts to match `star< star< S > >` which is an infinite loop without progress.
-The PEGTL [grammar analysis](Grammar-Analysis.md) catches this mistake.
+The PEGTL [grammar analysis](Debug-Facilities.md#grammar-analysis) catches this mistake.
 
 ###### `pad_opt< R, P >`
 
@@ -1243,7 +1261,7 @@ Note that the grammar analysis does not correctly handle recursions in the gramm
 
 ###### `unordered_partial< R... >`
 
-* Combines the behavioru of [`partial`](#partial-r-) and [`unordered`](#unordered-r-).
+* Combines the behaviour of [`partial`](#partial-r-) and [`unordered`](#unordered-r-).
 * [Meta data] and [implementation] mapping:
   - `unordered_partial<>::rule_t` is `internal::success`
   - `unordered_partial< R... >::rule_t` is `internal::unordered< true, R... >`
@@ -1942,6 +1960,7 @@ Convenience wrappers for enumerated properties that return a value instead of an
 * [`bidi_mirrored`](#bidi_mirrored) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`binary_property< P >`](#binary_property-p-) <sup>[(icu rules)](#basic-icu-rules)</sup>
 * [`binary_property< P, V >`](#binary_property-p-v-) <sup>[(icu rules)](#basic-icu-rules)</sup>
+* [`bdigit`](#bdigit) <sup>[(ascii)](#ascii)</sup>
 * [`blank`](#blank) <sup>[(ascii)](#ascii)</sup>
 * [`block< V >`](#block-v-) <sup>[(icu rules)](#icu-rules-for-enumerated-properties)</sup>
 * [`bof`](#bof) <sup>[(atomic)](#atomic)</sup>
@@ -2006,6 +2025,7 @@ Convenience wrappers for enumerated properties that return a value instead of an
 * [`if_must< R, S... >`](#if_must-r-s-) <sup>[(exceptional)](#exceptional)</sup>
 * [`if_must_else< R, S, T >`](#if_must_else-r-s-t-) <sup>[(exceptional)](#exceptional)</sup>
 * [`if_then_else< R, S, T >`](#if_then_else-r-s-t-) <sup>[(convenience)](#convenience)</sup>
+* [`invert< R >`](#invert-r-) <sup>[(atomic)](#atomic)</sup>
 * [`ione< C... >`](#ione-c-) <sup>[(ascii)](#ascii)</sup>
 * [`istring< C... >`](#istring-c-) <sup>[(ascii)](#ascii)</sup>
 * [`join_control`](#join_control) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
@@ -2015,8 +2035,8 @@ Convenience wrappers for enumerated properties that return a value instead of an
 * [`lead_canonical_combining_class< V >`](#lead_canonical_combining_class-v-) <sup>[(icu rules)](#icu-rules-for-value-properties)</sup>
 * [`lf`](#lf) <sup>[(ascii)](#ascii)</sup>
 * [`lf`](#lf-1) <sup>[(unicode)](#unicode)</sup>
-* [`lfcr`](#lfcr) <sup>[(ascii)](#ascii)</sup>
-* [`lfcr`](#lfcr-1) <sup>[(unicode)](#unicode)</sup>
+* [`lf_crlf`](#lf_crlf) <sup>[(ascii)](#ascii)</sup>
+* [`lf_crlf`](#lf_crlf-1) <sup>[(unicode)](#unicode)</sup>
 * [`line_break< V >`](#line_break-v-) <sup>[(icu rules)](#icu-rules-for-enumerated-properties)</sup>
 * [`list< R, S >`](#list-r-s-) <sup>[(convenience)](#convenience)</sup>
 * [`list< R, S, P >`](#list-r-s-p-) <sup>[(convenience)](#convenience)</sup>
@@ -2109,10 +2129,9 @@ Convenience wrappers for enumerated properties that return a value instead of an
 * [`s_term`](#s_term) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`segment_starter`](#segment_starter) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`sentence_break< V >`](#sentence_break-v-) <sup>[(icu rules)](#icu-rules-for-enumerated-properties)</sup>
-* [`separated< S, R... >`(#separated-s-r-) <sup>[(convenience)](#convenience)</sup>
-* [`separated_pad< S, P, R... >`(#separated_pad-s-p-r-) <sup>[(convenience)](#convenience)</sup>
+* [`separated< S, R... >`](#separated-s-r-) <sup>[(convenience)](#convenience)</sup>
+* [`separated_pad< S, P, R... >`](#separated_pad-s-p-r-) <sup>[(convenience)](#convenience)</sup>
 * [`seq< R... >`](#seq-r-) <sup>[(combinators)](#combinators)</sup>
-* [`seven`](#seven) <sup>[(ascii)](#ascii)</sup>
 * [`shebang`](#shebang) <sup>[(ascii)](#ascii)</sup>
 * [`soft_dotted`](#soft_dotted) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`sor< R... >`](#sor-r-) <sup>[(combinators)](#combinators)</sup>
@@ -2137,7 +2156,7 @@ Convenience wrappers for enumerated properties that return a value instead of an
 * [`three< C >`](#three-c-) <sup>[(ascii)](#ascii)</sup>
 * [`trail_canonical_combining_class< V >`](#trail_canonical_combining_class-v-) <sup>[(icu rules)](#icu-rules-for-value-properties)</sup>
 * [`try_catch_any_raise_nested< R... >`](#try_catch_any_raise_nested-r-) <sup>[(exceptional)](#exceptional)</sup>
-* [`try_catch_any_return_false< R... >`](#try_catch_any_return_false-r-) <sup>[(exceptional)](#exceptional)</sup>
+* [`try_catch_any_return_false< E, R... >`](#try_catch_any_return_false-e-r-) <sup>[(exceptional)](#exceptional)</sup>
 * [`try_catch_raise_nested< R... >`](#try_catch_raise_nested-r-) <sup>[(exceptional)](#exceptional)</sup>
 * [`try_catch_return_false< R... >`](#try_catch_return_false-r-) <sup>[(exceptional)](#exceptional)</sup>
 * [`try_catch_std_raise_nested< R... >`](#try_catch_std_raise_nested-r-) <sup>[(exceptional)](#exceptional)</sup>
@@ -2173,7 +2192,7 @@ See accompanying file [LICENSE_1_0.txt](../LICENSE_1_0.txt) or copy at https://w
 [stream input]: Stream-Parsing.md
 [Equivalent]: #equivalence
 [implementation]: #implementation
-[Meta data]: Meta-Data-and-Visit.md
+[Meta data]: Debug-Facilities.md#meta-data
 [PEG]: https://en.wikipedia.org/wiki/Parsing_expression_grammar
 
 [the `scan` sub-namespace]: Inputs-and-Parsing.md#scan-tracking

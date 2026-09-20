@@ -1,6 +1,6 @@
 # Rules and Grammars
 
-A (parsing) rule is a class (or a class template) with a (suitable) static `match()` function (and some type aliases).
+A (parsing) rule is a class that models a [(production) rule](https://en.wikipedia.org/wiki/Production_(computer_science)) of a [formal grammar](https://en.wikipedia.org/wiki/Formal_grammar), or a [parser combinator](https://en.wikipedia.org/wiki/Parser_combinator).
 A grammar is a set of one or more related parsing rules, with one (or more) designated top-level rules as entry point(s).
 
 
@@ -20,6 +20,10 @@ A grammar is a set of one or more related parsing rules, with one (or more) desi
   * [Type Aliases](#type-aliases)
   * [Exceptions](#exceptions)
   * [Complete Example](#complete-example)
+* [Rule Optimizations](#rule-optimizations)
+  * [Backtracking](#backtracking)
+  * [Whitespace](#whitespace)
+  * [Combinations](#combinations)
 * [Rule Comparisons](#rule-comparisons)
   * [Simple Combinators](#simple-combinators)
   * [Iterating Combinators](#iterating-combinators)
@@ -30,7 +34,9 @@ A grammar is a set of one or more related parsing rules, with one (or more) desi
 
 ## Introduction
 
-A (parsing) rule is a class that matches a portion of the input against some condition and either succeeds, possibly consuming a portion of the input, or fails.
+A (parsing) rule is a class (or a class template) with a (suitable) static `match()` function (and some type aliases).
+This match function attempts to match a portion of the input against some condition and either succeeds, possibly consuming a portion of the input, or fails.
+
 A grammar is a set of one or more related parsing rules including an informally designated top-level rule that serves as entry point.
 The top-level rule is *also* sometimes called a grammar.
 
@@ -116,7 +122,7 @@ This is all to how new rules are created from existing rules, using C++ template
 
 See the [Rule Reference](Rule-Reference.md) for a complete list of all rules and combinators included with the PEGTL.
 
-Some included "unofficial" rules can be found in `include/tao/pegtl/contrib` as documented on the [Contrib and Examples](Contrib-and-Examples.md) page.
+Some included "unofficial" rules can be found in `include/tao/pegtl/extra` as documented on the [Extra Reference](Extra-Reference.md) page.
 
 
 ## Recursive Rules
@@ -612,6 +618,58 @@ second line
 ```
 
 
+## Rule Optimizations
+
+Some notes on performance how to design grammars for best performance.
+
+### Backtracking
+
+For performance reasons a grammar should be designed to minimize backtracking.
+We will start with a simple example.
+
+```c++
+using namespace tao::pegtl;
+struct R = sor< seq< A, B >, seq< A, C > > {};  // R = (AB)/(AC)
+```
+
+If the input matches `seq< A, C >`, then matching `R` on said input will parse `A` twice (assuming that `B` does not match anything that `C` does).
+The first time `A` will match successfully during the unsuccessful attempt to match `seq< A, B >`.
+The second time `A` will match the same part of the input successfully again during the successful attempt to match `seq< A, C >`.
+The solution is to change the grammar as follows.
+
+```c++
+struct R = seq< A, sor< B, C > > {};  // R = A(B/C)
+```
+
+Not backtracking over `A` has the additional advantage of not triggering any action attached to `A` twice.
+
+In practice, opportunities to remove superfluous backtracking might not be as obvious as with such a simple rule.
+For a more complex example please read the comments ate the beginning of the Lua 5.3 grammar in `src/pegtl/lua53.hpp`.
+It shows how to eliminate both left-recursion and superfluous backtracking with multiple rules and recursions.
+
+### Whitespace
+
+Grammars should be designed to minimize redundant multiple parsing of the same whitespace, comments or other padding.
+
+One good way to achieve this is to choose a strategy for whitespace handling and then consistently stick to it.
+For example the JSON grammar in `include/tao/pegtl/contrib/json.hpp` consistently has every rule for a "token" consume any following whitespace via the `ws` rule, too.
+That way every rule can assume to start matching some "real" input since any whitespace would have already been consumed by the previous one.
+
+### Combinations
+
+The `at<>`-rule never consumes input, and therefore always uses an input-marker to rewind the input back to where it started, regardless of the match-result.
+In the context of optimising our [JSON library](https://github.com/taocpp/json), we noticed that the combination `at< one< ... > >` could be combined into an optimized `at_one< ... >` rule:
+Instead of `one< ... >` advancing the input, and `at< one< ... > >` rewinding, the combined rule would omit both the advancing and the rewinding.
+
+Put to the test, the optimized `at_one< '"' >` rule did not show any performance advantage over `at< one< '"' > >`, at least with `-O3`.
+Presumably the compiler was smart enough to perform the optimisation by itself.
+
+However with `-O0`, the optimized `at_one< '"' >` was faster by 5-10% in a [JSON library](https://github.com/taocpp/json) micro-benchmark.
+As the PEGTL should only be used with optimizations enabled, we removed the `at_one<>` rule, as we try to reduce the number of rules that don't provide a clear benefit.
+
+We still need to test whether the compiler manages to perform the same optimisation in more complex cases.
+
+
 ## Rule Comparisons
 
 The following tables compare groups of related combinators by showing their matching behaviors on some sample inputs.
@@ -636,7 +694,7 @@ struct c : one< 'c' > {};
 |--|--|--|--|--|--|--|
 | [`seq< a, b >`](Rule-Reference.md#seq-r-) | **f** | **f** | "ab" | **f** | **f** | "ab" |
 | [`opt< a, b >`](Rule-Reference.md#opt-r-) | "" | "" | "ab" | "" | "" | "ab" |
-| [`opt_must< a, b >`](Rule-Reference.md#opt_must-r-) | "" | **E** | "ab" | "" | **E** | "ab" |
+| [`opt_must< a, b >`](Rule-Reference.md#opt_must-r-s-) | "" | **E** | "ab" | "" | **E** | "ab" |
 | [`strict< a, b >`](Rule-Reference.md#strict-r-) | "" | **f** | "ab" | "" | **f** | "ab" |
 | [`partial< a, b >`](Rule-Reference.md#partial-r-) | "" | "a" | "ab" | "" | "a" | "ab" |
 | [`must< a, b >`](Rule-Reference.md#must-r-) | **E** | **E** | "ab" | **E** | **E** | "ab" |
@@ -680,7 +738,7 @@ struct c : one< 'c' > {};
 | [`any`](Rule-Reference.md#any) | "a" | "c" | "e" | "G" | "Z" | "\xA4" |
 | [`one< 'c', 'g' >`](Rule-Reference.md#one-c-) | **f** | "c" | **f** | **f** | **f** | **f** |
 | [`ione< 'c', 'g' >`](Rule-Reference.md#ione-c-) | **f** | "c" | **f** | "G" | **f** | **f** |
-| [`range< 'c', 'g' >`](Rule-Reference.md#rance-c-d-) | **f** | "c" | "e" | **f** | **f** | **f** |
+| [`range< 'c', 'g' >`](Rule-Reference.md#range-c-d-) | **f** | "c" | "e" | **f** | **f** | **f** |
 | [`not_one< 'c', 'g' >`](Rule-Reference.md#not_one-c-) | "a" | **f** | "e" | "G" | "Z" | "\xA4" |
 | [`not_ione< 'c', 'g' >`](Rule-Reference.md#not_ione-c-) | "a" | **f** | "e" | **f** | "Z" | "\xA4" |
 | [`not_range< 'c', 'g' >`](Rule-Reference.md#not_range-c-d-) | "a" | **f** | **f** | "G" | "Z" | "\xA4" |

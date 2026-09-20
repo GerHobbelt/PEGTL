@@ -1,6 +1,6 @@
 # Install Guide
 
-How to install the PEGTL and the system requirements.
+How to install the PEGTL, and verify and ensure that the system requirements are met.
 
 
 ## Contents
@@ -47,12 +47,12 @@ It is recommended to *always* compile with *some* optimizations enabled, especia
 
 Larger projects will frequently require the `/bigobj` option when compiling with Visual Studio on Windows.
 
-The PEGTL should also be compatible with other C++17 capable compilers and on other Unix or sufficiently Unix-like operating systems.
+The PEGTL should also be compatible with other C++17 capable compilers and work on other Unix or Unix-like operating systems.
 
 
 ## Disabling Exceptions
 
-The PEGTL *is* compatible with `-fno-exceptions`, however not all features are available when exceptions are disabled while others slightly change their behavior.
+The PEGTL *is* compatible with `-fno-exceptions`, however some features and functions are not available or change their behavior without exceptions.
 
 Parsing rules that throw or catch exceptions and therefore require exception support:
 
@@ -85,7 +85,7 @@ Grammars and other classes that indirectly rely on exception support or are intr
 Facilities that use `std::perror()` and `std::terminate()` instead of `throw` when exceptions are disabled:
 
  * All I/O errors during file mapping and reading.
- * Some [contrib](Contrib-and-Examples.md#contrib) actions.
+ * Some [extra](Extra-Reference.md) actions.
 
 Some tests and examples are (partially) disabled when compiling without exception support.
 
@@ -95,7 +95,7 @@ Some tests and examples are (partially) disabled when compiling without exceptio
 The PEGTL is compatible with `-fno-rtti` on GCC, Clang, and MSVC.
 The only exceptions are GCC versions 9.1 and 9.2 due to an unfortunate compiler bug, see [bug #91155](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91155).
 
-On other compilers RTTI is required by default (for demangling, see `include/tao/pegtl/demangle.hpp`).
+On other compilers [RTTI](https://en.wikipedia.org/wiki/Run-time_type_information) is required by default (for demangling, see `include/tao/pegtl/demangle.hpp`).
 Let us know if you use such a compiler since an RTTI-free compiler-specific demangling function might be possible.
 
 
@@ -227,7 +227,7 @@ For more options and ways to use CMake, please refer to the [CMake documentation
 
 ## Distributions
 
-Some [Linux distributions](https://distrowatch.org/), and related projects like [Homebrew](https://brew.sh/) and [MacPorts](https://macports.org/), have PEGTL packages that can be installed with their respective native package manager.
+Some [Linux distributions](https://distrowatch.org/), and projects like [Homebrew](https://brew.sh/) and [MacPorts](https://macports.org/), have PEGTL packages that can be installed with their respective native package manager.
 Please check on the project homepage or with the package manager whether a PEGTL package is available.
 
 We greatly appreciate the work of the people providing and maintaining these packages.

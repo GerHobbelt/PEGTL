@@ -1,7 +1,6 @@
 # Control Reference
 
 The reference documention for all control class templates.
-The controls not considered part of the core library are [documented here](TODO).
 
 
 ## Contents
@@ -43,16 +42,16 @@ In cases where it is expected to be useful the `Control` parameter defaults to `
 
 ## Controls
 
-By [default](Introduction.md#namespace-structure) all controls reside in namespace `tao::pegtl`.
+By [default](Introduction.md#namespaces) all controls reside in namespace `tao::pegtl`.
 
-###### `apply_typed_state`
+###### [`apply_typed_state`](../include/tao/pegtl/control/apply_typed_state.hpp)
 
 A control adapter that forwards only one single state argument, selected by its type, to the adapted control's `apply()` and `apply0()` functions.
 
 * The parameter `State` is the type selected for `apply()` and `apply0()`.
 * All other control functions are taken from the adapted control.
 * Included via `include/tao/pegtl/control/apply_typed_state.hpp`.
-* Related to the [action](Actions-and-State.md) class [`match_typed_state`](Action-Reference.md#match_typed_state-t-).
+* Related to the [action](Actions-and-States.md) class [`match_typed_state`](Action-Reference.md#match_typed_state-t-).
 
 ```c++
 template< typename State, typename Base >
@@ -69,7 +68,7 @@ struct apply_typed_state_n
 };
 ```
 
-###### `input_control`
+###### [`input_control`](../include/tao/pegtl/control/input_control.hpp)
 
 A control adapter that forwards (most) control functions to both another control *and* [the input](Inputs-and-Parsing.md#input-classes).
 
@@ -141,7 +140,7 @@ struct my_input
 
 Note that, unlike for normal control classes, if `ParseInput< Rule >::enable == true` then `unwind()` is **not** optional for the input.
 
-###### `must_if`
+###### [`must_if`](../include/tao/pegtl/control/must_if.hpp)
 
 A control adapter that provides a non-intrusive way to selectively make rules behave "as if" they were inside of a [`must`](Rule-Reference.md#must-r-) rule.
 
@@ -196,15 +195,15 @@ struct errors
 When the template parameter `RequireMessage` is set to `true` then `must_if< E, B >::type< T >::raise()` will statically assert `E::message< T > != nullptr` and use that message in the `parse_error` exception.
 This case is triggered when `T` is not a parsing rule in the grammar or when `T` occurs inside of `must` or some related combinator.
 
-###### `normal`
+###### [`normal`](../include/tao/pegtl/normal.hpp)
 
 The [control](Control-and-Normal.md) class (template) `normal` is the control for normal PEGTL behavior.
 
 It is the only control that implements the control functionality -- all other controls are adapters that modify the behavior of another control.
 
-It is also the default [control](Control-and-Normal.md) for the [`parse()`](Inputs-and-Parsing.md#parse-funciton) and [`parse_nested()`](Inputs-and-Parsing.md#nested-parsing) functions.
+It is also the default [control](Control-and-Normal.md) for the [`parse()`](Inputs-and-Parsing.md#parse-function) and [`parse_nested()`](Inputs-and-Parsing.md#nested-parsing) functions.
 
-###### `remove_first_state`
+###### [`remove_first_state`](../include/tao/pegtl/control/remove_first_state.hpp)
 
 A control adapter that calls most control functions with the first state removed.
 
@@ -227,7 +226,7 @@ struct remove_first_state_n
 };
 ```
 
-###### `remove_first_states`
+###### [`remove_first_states`](../include/tao/pegtl/control/remove_first_states.hpp)
 
 A control adapter that calls most control functions with the first `N` states removed.
 
@@ -250,7 +249,7 @@ struct remove_first_states_n
 };
 ```
 
-###### `remove_last_state`
+###### [`remove_last_state`](../include/tao/pegtl/control/remove_last_states.hpp)
 
 A control adapter that calls most control functions with the last state removed.
 
@@ -273,7 +272,7 @@ struct remove_last_state_n
 };
 ```
 
-###### `remove_last_states`
+###### [`remove_last_states`](../include/tao/pegtl/control/remove_last_states.hpp)
 
 A control adapter that calls most control functions with the last `N` states removed.
 
@@ -296,7 +295,7 @@ struct remove_last_states_n
 };
 ```
 
-###### `reverse_states`
+###### [`reverse_states`](../include/tao/pegtl/control/reverse_states.hpp)
 
 A control adapter that calls most control functions with the states in reverse order.
 
@@ -319,7 +318,7 @@ struct reverse_states_n
 };
 ```
 
-###### `rewind_control`
+###### [`rewind_control`](../include/tao/pegtl/control/rewind_control.hpp)
 
 A control adapater that adds control function calls to monitor input rewinding.
 
@@ -370,7 +369,7 @@ This control adapter will add [rewind control functions](#rewind_control) to `in
 
 This control adapter adds [rewind control functions](#rewind_control) to `state_control` but it won't be documented until somebody actually needs it.
 
-###### `rotate_states_left`
+###### [`rotate_states_left`](../include/tao/pegtl/control/rotate_states_left.hpp)
 
 A control adapter that forwards most control functions with the states rotated left by `N`.
 
@@ -393,7 +392,7 @@ struct rotate_states_left_n
 };
 ```
 
-###### `rotate_states_right`
+###### [`rotate_states_right`](../include/tao/pegtl/control/rotate_states_right.hpp)
 
 A control adapter that forwards most control functions with the states rotated right by `N`.
 
@@ -416,7 +415,7 @@ struct rotate_states_right_n
 };
 ```
 
-###### `shuffle_states`
+###### [`shuffle_states`](../include/tao/pegtl/control/shuffle_states.hpp)
 
 A control adapter that calls most control function with the states in arbitrary order.
 
@@ -459,7 +458,7 @@ The value of `Shuffle::value< I, S >` determines the index of the input state to
 The control adapters [`remove_first_state`](#remove_first_state), [`remove_last_state`](#remove_last_state), [`remove_last_states`](#remove_last_states), [`reverse_states`](#reverse_states), [`rotate_states_left`](#rotate_states_left) and [`rotate_states_right`](#rotate_states_right) internally use `shuffle_states`.
 Their respective `Shuffle` implementations can be used as examples.
 
-###### `state_control`
+###### [`state_control`](../include/tao/pegtl/control/state_control.hpp)
 
 A control adapter that forwards (most) control functions to both another control *and* [the first state](Actions-and-States.md#states).
 
@@ -537,7 +536,7 @@ Note that, unlike for normal control classes, if `ParseInput< Rule >::enable == 
 * [`remove_last_states`](#remove_last_states) <sup>[(controls)](#controls)</sup>
 * [`reverse_states`](#reverse_states) <sup>[(controls)](#controls)</sup>
 * [`rewind_control`](#rewind_control) <sup>[(controls)](#controls)</sup>
-* [`rewind_input_control`](#rewind_input_control) <sup>[(controls)](#controls)</sup>
+* [`rewind_input_control`](#rewind_input_control-todo) <sup>[(controls)](#controls)</sup>
 * [`rewind_state_control`](#rewind_state_control) <sup>[(controls)](#controls)</sup>
 * [`rotate_states_left`](#rotate_states_left) <sup>[(controls)](#controls)</sup>
 * [`rotate_states_right`](#rotate_states_right) <sup>[(controls)](#controls)</sup>
