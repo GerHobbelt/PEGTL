@@ -6,6 +6,7 @@
 #define TAO_PEGTL_HPP
 
 #include "pegtl/ascii.hpp"
+#include "pegtl/demangle.hpp"
 #include "pegtl/inputs.hpp"
 #include "pegtl/parse.hpp"
 #include "pegtl/rules.hpp"
@@ -16,6 +17,7 @@
 #include "pegtl/parse_error_base.hpp"
 #endif
 
+#include "pegtl/parse_nested.hpp"
 #include "pegtl/pegtl_string.hpp"
 
 #include "pegtl/unicode/utf8.hpp"

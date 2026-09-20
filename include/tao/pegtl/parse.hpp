@@ -13,11 +13,6 @@
 #include "nothing.hpp"
 #include "rewind_mode.hpp"
 
-#if defined( __cpp_exceptions )
-#include <exception>
-#include <stdexcept>
-#endif
-
 namespace TAO_PEGTL_NAMESPACE
 {
    template< typename Rule,
@@ -31,30 +26,6 @@ namespace TAO_PEGTL_NAMESPACE
    {
       static_assert( !std::is_const_v< ParseInput > );
       return Control< Rule >::template match< A, M, Action, Control >( in, st... );
-   }
-
-   template< typename Rule,
-             template< typename... > class Action = nothing,
-             template< typename... > class Control = normal,
-             apply_mode A = apply_mode::enabled,
-             rewind_mode M = rewind_mode::optional,
-             typename Ambient,
-             typename ParseInput,
-             typename... States >
-   auto parse_nested( const Ambient& am, ParseInput&& in, States&&... st )
-   {
-      static_assert( !std::is_const_v< ParseInput > );
-#if defined( __cpp_exceptions )
-      try {
-         return parse< Rule, Action, Control, A, M >( in, st... );
-      }
-      catch( std::exception& /*unused*/ ) {
-         Control< Rule >::raise_nested( am, in, st... );
-      }
-#else
-      (void)am;
-      return parse< Rule, Action, Control, A, M >( in, st... );
-#endif
    }
 
 }  // namespace TAO_PEGTL_NAMESPACE

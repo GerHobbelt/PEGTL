@@ -14,12 +14,13 @@ int main()
 #include <iostream>
 
 #include <tao/pegtl/debug/analyze.hpp>
-
-#include "lua53.hpp"
+#include <tao/pegtl/example/lua53.hpp>
 
 int main()  // NOLINT(bugprone-exception-escape)
 {
-   if( const auto problems = TAO_PEGTL_NAMESPACE::analyze< lua53::grammar >() != 0 ) {
+   using namespace TAO_PEGTL_NAMESPACE;
+
+   if( const auto problems = analyze< lua53::grammar >() != 0 ) {
       std::cout << "problems: " << problems << std::endl;
       return 1;
    }

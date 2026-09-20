@@ -1,6 +1,6 @@
 # Stream Parsing
 
-The PEGTL is primarily designed and optimised for parsing contiguous blocks of memory like a memory-mapped file or the contents of a `std::string`.
+The PEGTL is primarily designed and optimized for parsing contiguous blocks of memory like a memory-mapped file or the contents of a `std::string`.
 It also supports *stream parsing* where only a small portion of a large input is kept in a memory buffer at any time.
 
 The stream parsing facilities can be included via `<tao/pegtl/stream.hpp>` -- or via the individual include files in `include/tao/pegtl/stream`.
@@ -26,6 +26,7 @@ The stream parsing facilities can be included via `<tao/pegtl/stream.hpp>` -- or
 * [Rules](#rules)
   * [`discard`](#discard)
   * [`is_stream`](#is_stream)
+  * [`prefetch< Num >`](#prefetch-num-)
   * [`require< Num >`](#require-num-)
 * [Actions](#actions)
   * [`discard_input`](#discard_input)
@@ -51,7 +52,7 @@ Different [readers](#Readers) read data from different sources, e.g. a `std::ist
 During a parsing run, all rules that directly attempt to match some input bytes, e.g. `any` as opposed to `seq`, tell the input how many bytes they want to match against.
 If the buffer does not contain enough data the stream input will call the reader to supply more.
 
-The [`require`](#require-num-) rule can be used to manually prefetch a chunk of input data into the buffer.
+The [`prefetch`](#prefetch-num-) and [`require`](#require-num-) rules can be used to manually prefetch some input data into the buffer.
 
 Removing parsed bytes from the buffer is called a *discard*.
 This making space for more to-be-parsed data needs to happen regularly while parsing and can be done either manually or automatically.
@@ -62,7 +63,7 @@ The stream inputs whose name contains `_auto_` perform aggressive automatic disc
 > [!NOTE]
 > A buffer discard can move data in the buffer, i.e. pointers to non-discarded input data can become invalid!
 
-For choosing the buffer size in general, and when choosing where to perform a manual discard, both the attached actions and the backtracking behaviour of the grammar need to be taken into consideration.
+For choosing the buffer size in general, and when choosing where to perform a manual discard, both the attached actions and the backtracking behavior of the grammar need to be taken into consideration.
 
 When an action `A` is attached to a rule `R` and `A< R >::apply()` (not `apply0()`) exists it will be called with an action input representing the matched portion of the input, wherefore no discard is allowed to happen while matching `R` and anything -- directly or indirectly -- called from `R`. Similarly, when local failure of a rule `R` can lead to backtracking then no discard is allowed to happen while matching `R` and anything called from `R`.
 
@@ -525,10 +526,10 @@ The analyze traits for these rules are in `<tao/pegtl/buffer/analyze_traits.hpp>
 
 ###### `discard`
 
-* [Equivalent] to `success`, but also
+* Equivalent to `success`, but also
 * calls the input's `discard()` member function.
 * Make sure that all consumed data can in fact be discarded!
-* [Meta data] and [implementation] mapping:
+* Meta data and implementation mapping:
   - `discard::rule_t` is `discard`
 
 ###### `is_stream`
@@ -536,14 +537,26 @@ The analyze traits for these rules are in `<tao/pegtl/buffer/analyze_traits.hpp>
 * Succeeds when parsing with a stream input.
 * Fails (local failure) for all other inputs.
 * The result is determined at compile time.
-* [Meta data] and [implementation] mapping:
+* Meta data and implementation mapping:
   - `is_stream::rule_t` is `is_stream`
+
+###### `prefetch< Num >`
+
+* Requests the input to buffer at least `Num` objects.
+* Always succeeds.
+* Does nothing on non-stream inputs.
+* Equivalent to `sor< require< Num >, success >`.
+* Meta data and implementation mapping:
+  - `prefetch< 0 >::rule_t` is `internal::success`
+  - `prefetch< N >::rule_t` is `prefetch< N >`
 
 ###### `require< Num >`
 
-* Succeeds if at least `Num` further input bytes are, or can be made, available.
-* With stream inputs the reader is called to provide more input if necessary.
-* [Meta data] and [implementation] mapping:
+* Requests the input to buffer at least `Num` objects.
+* Succeeds if at least `Num` input objects are available.
+* Checks number of remaining objects on non-stream inputs, too.
+* Can call the [reader](#readers) to fill the buffer on stream inputs.
+* Meta data and implementation mapping:
   - `require< 0 >::rule_t` is `internal::success`
   - `require< N >::rule_t` is `require< N >`
 

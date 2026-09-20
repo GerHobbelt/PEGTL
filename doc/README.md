@@ -8,19 +8,25 @@
 * [Introduction](Introduction.md)
 * [Install Guide](Install-Guide.md)
 * [Rules and Grammars](Rules-and-Grammars.md)
-* [Inputs and Parsing](Inputs-and-Parsing.md)
 
+* [Inputs and Parsing](Inputs-and-Parsing.md)
 * [Actions and States](Actions-and-States.md)
-* [Control and Debug](Control-and-Debug.md)
+* [Control and Normal(Control-and-Normal.md)
 * [Errors and Exceptions](Errors-and-Exceptions.md) -- big TODO!
+
+* [Debug Facilities](Debug-Facilities.md)
 
 * [Rule Reference](Rule-Reference.md)
 * [Input Reference](Input-Reference.md)
 * [Action Reference](Action-Reference.md)
 * [Control Reference](Control-Reference.md)
+
+* [Contrib and Examples](Contrib-and-Examples.md)
+
 * [Parse Tree](Parse-Tree.md)
 * [Stream Parsing](Stream-Parsing.md)
 * [Advanced Topics](Advanced-Topics.md)
+
 * [Migration Guide](Migration-Guide.md)
 * [Changelog](Changelog.md)
 
@@ -92,6 +98,41 @@
     * [Input Convenience](Inputs-and-Parsing.md#input-convenience)
     * [Stream Compatibility](Inputs-and-Parsing.md#stream-compatibility)
 
+* [Actions and States](Actions-and-States.md)
+
+* [Control and Normal(Control-and-Normal.md)
+  * [Introduction](Control-and-Normal.md#introduction)
+  * [Control Interface](Control-and-Normal.md#control-interface)
+    * [`start`](Control-and-Normal.md#start)
+    * [`success`](Control-and-Normal.md#success)
+    * [`failure`](Control-and-Normal.md#failure)
+    * [`guard`](Control-and-Normal.md#guard)
+    * [`raise`](Control-and-Normal.md#raise)
+    * [`raise_nested`](Control-and-Normal.md#raise_nested)
+    * [`unwind`](Control-and-Normal.md#unwind)
+    * [`apply`](Control-and-Normal.md#apply)
+    * [`apply0`](Control-and-Normal.md#apply0)
+    * [`match`](Control-and-Normal.md#match)
+  * [Normal Control](Control-and-Normal.md#normal-control)
+    * [`enable`](Control-and-Normal.md#enable)
+    * [`start`](Control-and-Normal.md#start-1)
+    * [`success`](Control-and-Normal.md#success-1)
+    * [`failure`](Control-and-Normal.md#failure-1)
+    * [`guard`](Control-and-Normal.md#guard-1)
+    * [`raise`](Control-and-Normal.md#raise-1)
+    * [`raise_nested`](Control-and-Normal.md#raise_nested-1)
+    * [`apply`](Control-and-Normal.md#apply-1)
+    * [`apply0`](Control-and-Normal.md#apply0-1)
+    * [`match`](Control-and-Normal.md#match-1)
+  * [Changing Control](Control-and-Normal.md#changing-control)
+    * [Via Rules](Control-and-Normal.md#via-rules)
+    * [Via Actions](Control-and-Normal.md#via-actions)
+  * [Control Traces](Control-and-Normal.md#control-traces)
+    * [Rule Success](Control-and-Normal.md#rule-success)
+    * [Rule Local Failure](Control-and-Normal.md#rule-local-failure)
+    * [Action Apply](Control-and-Normal.md#action-apply)
+
+
 * [Rule Reference](Rule-Reference.md)
   * [Preamble](Rule-Reference.md#preamble)
   * [Atomic](Rule-Reference.md#atomic)
@@ -159,6 +200,7 @@
   * [Rules](Stream-Parsing.md#rules)
     * [`discard`](Stream-Parsing.md#discard)
     * [`is_stream`](Stream-Parsing.md#is_stream)
+    * [`prefetch< Num >`](Stream-Parsing.md#prefetch-num-)
     * [`require< Num >`](Stream-Parsing.md#require-num-)
   * [Actions](Stream-Parsing.md#actions)
     * [`discard_input`](Stream-Parsing.md#discard_input)

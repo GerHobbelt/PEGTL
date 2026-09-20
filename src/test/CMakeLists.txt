@@ -36,10 +36,9 @@ set(test_sources
   ascii_two.cpp
   contrib_alphabet.cpp
   contrib_charconv.cpp
-  contrib_check_count.cpp
+  contrib_check_consume.cpp
   contrib_check_depth.cpp
   contrib_dispatch.cpp
-  contrib_http.cpp
   contrib_if_then.cpp
   contrib_input_with_depth.cpp
   contrib_input_with_offset.cpp
@@ -47,9 +46,7 @@ set(test_sources
   contrib_integer_convert.cpp
   contrib_integer_match.cpp
   contrib_integer_maximum.cpp
-  contrib_iri.cpp
-  contrib_json.cpp
-  contrib_limit_count.cpp
+  contrib_limit_consume.cpp
   contrib_nested_exceptions.cpp
   contrib_parse_tree.cpp
   contrib_parse_tree_to_dot.cpp
@@ -59,7 +56,7 @@ set(test_sources
   contrib_rep_string.cpp
   contrib_type_to_string.cpp
   contrib_unescape.cpp
-  contrib_uri.cpp
+  control_apply_typed_state.cpp
   control_input_control.cpp
   control_remove_first_state.cpp
   control_remove_last_states.cpp
@@ -85,6 +82,10 @@ set(test_sources
   error_message_1.cpp
   error_message_2.cpp
   error_message_3.cpp
+  example_http.cpp
+  example_iri.cpp
+  example_json.cpp
+  example_uri.cpp
   icu_utf16_base.cpp
   icu_utf32_base.cpp
   icu_utf8_base.cpp
@@ -213,6 +214,7 @@ set(test_sources
   stream_iterator_input.cpp
   stream_rule_discard.cpp
   stream_rule_is_stream.cpp
+  stream_rule_prefetch.cpp
   stream_rule_require.cpp
   stream_stream_input_base.cpp
   stream_text_stream_input.cpp
@@ -220,6 +222,7 @@ set(test_sources
   test_result.cpp
   test_setup.cpp
   text_position.cpp
+  type_list.cpp
   uint16_general.cpp
   uint32_general.cpp
   uint64_general.cpp

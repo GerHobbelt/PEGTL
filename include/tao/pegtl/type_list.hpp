@@ -10,6 +10,8 @@
 
 #include "config.hpp"
 
+#include "internal/dependent_false.hpp"
+
 namespace TAO_PEGTL_NAMESPACE
 {
    template< typename... Ts >
@@ -19,6 +21,18 @@ namespace TAO_PEGTL_NAMESPACE
    };
 
    using empty_list = type_list<>;
+
+   template< typename... >
+   struct type_list_append;
+
+   template< typename... Ts, typename... As >
+   struct type_list_append< type_list< Ts... >, As... >
+   {
+      using type = type_list< Ts..., As... >;
+   };
+
+   template< typename... Ts >
+   using type_list_append_t = typename type_list_append< Ts... >::type;
 
    template< typename... >
    struct type_list_concat;
@@ -43,18 +57,38 @@ namespace TAO_PEGTL_NAMESPACE
    template< typename... Ts >
    using type_list_concat_t = typename type_list_concat< Ts... >::type;
 
-   template< typename Type, typename... Types >
-   inline constexpr bool type_list_contains_v = ( std::is_same_v< Type, Types > || ... );
-
-   template< typename Type, typename... Types >
+   template< typename T, typename... Ts >
    struct type_list_contains
-      : std::bool_constant< type_list_contains_v< Type, Types... > >
-   {};
+   {
+      static constexpr bool value = ( std::is_same_v< T, Ts > || ... );
+   };
 
-   template< typename Type, typename... Types >
-   struct type_list_contains< Type, type_list< Types... > >
-      : type_list_contains< Type, Types... >
-   {};
+   template< typename T, typename... Ts >
+   struct type_list_contains< T, type_list< Ts... > >
+   {
+      static constexpr bool value = type_list_contains< T, Ts... >::value;
+   };
+
+   template< typename T, typename... Ts >
+   struct type_list_contains< T, type_list< type_list< Ts... > > >
+   {
+      static_assert( internal::dependent_false< T, Ts... > );
+   };
+
+   template< typename... Ts, typename... Us >
+   struct type_list_contains< type_list< Ts... >, Us... >
+   {
+      static_assert( internal::dependent_false< Ts..., Us... > );
+   };
+
+   template< typename... Ts, typename... Us >
+   struct type_list_contains< type_list< Ts... >, type_list< type_list< Us... > > >
+   {
+      static_assert( internal::dependent_false< Ts..., Us... > );
+   };
+
+   template< typename T, typename... Ts >
+   inline constexpr bool type_list_contains_v = type_list_contains< T, Ts... >::value;
 
    template< typename >
    struct is_type_list

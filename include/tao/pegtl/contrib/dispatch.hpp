@@ -15,6 +15,7 @@
 #include "../normal.hpp"
 #include "../nothing.hpp"
 #include "../rewind_mode.hpp"
+#include "../type_list.hpp"
 
 #include "../internal/dependent_false.hpp"
 
@@ -28,7 +29,7 @@ namespace TAO_PEGTL_NAMESPACE
       template< typename Rule >
       struct tuple_to_action< Rule, std::tuple<> >
       {
-         using type = nothing< Rule >;  // TODO: Give direct access to this default?
+         using type = nothing< Rule >;
       };
 
       template< typename Rule, template< typename, typename... > class Clause, typename Action, typename... Rules >
@@ -46,7 +47,7 @@ namespace TAO_PEGTL_NAMESPACE
       template< typename Rule, typename... Clauses >
       struct tuple_to_action< Rule, std::tuple< Clauses... > >
       {
-         static_assert( dependent_false< Rule, Clauses... >, "More than one action clause applies!" );  // TODO: Should we error out or apply the first or apply all? User choice?
+         static_assert( dependent_false< Rule, Clauses... >, "More than one action clause applies!" );  // TODO: Error? Apply first? Apply all? User choice?
       };
 
       template< typename Rule, typename Clause >
@@ -81,12 +82,22 @@ namespace TAO_PEGTL_NAMESPACE
       static constexpr bool enable = ( ( !Clauses::template enable< Rule > ) && ... );
    };
 
+   template< typename Action, typename... Clauses >
+   struct default1< Action, type_list< Clauses... > >
+      : default1< Action, Clauses... >
+   {};
+
    template< template< typename... > class Action, typename... Clauses >
    struct default2
    {
       template< typename Rule >
       static constexpr bool enable = ( ( !Clauses::template enable< Rule > ) && ... );
    };
+
+   template< template< typename... > class Action, typename... Clauses >
+   struct default2< Action, type_list< Clauses... > >
+      : default2< Action, Clauses... >
+   {};
 
    template< typename... Clauses >
    struct dispatch
@@ -107,6 +118,11 @@ namespace TAO_PEGTL_NAMESPACE
          return TAO_PEGTL_NAMESPACE::match< Rule, A, M, actions, Control >( in, st... );
       }
    };
+
+   template< typename... Clauses >
+   struct dispatch< type_list< Clauses... > >
+      : dispatch< Clauses... >
+   {};
 
 }  // namespace TAO_PEGTL_NAMESPACE
 

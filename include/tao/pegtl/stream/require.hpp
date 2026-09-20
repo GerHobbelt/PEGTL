@@ -14,16 +14,16 @@
 
 namespace TAO_PEGTL_NAMESPACE
 {
-   template< std::size_t Amount >
+   template< std::size_t Num >
    struct require
    {
       using rule_t = require;
       using subs_t = empty_list;
 
       template< typename ParseInput >
-      [[nodiscard]] static bool match( ParseInput& in ) noexcept( noexcept( in.size( 1 ) ) )
+      [[nodiscard]] static bool match( ParseInput& in ) noexcept( noexcept( in.size( Num ) ) )
       {
-         return in.size( Amount ) >= Amount;
+         return in.size( Num ) >= Num;
       }
    };
 

@@ -1,21 +1,20 @@
 cmake_minimum_required(VERSION 3.8...3.19)
 
 set(example_sources
-  abnf2_record.cpp
+  abnf_record.cpp
   abnf2pegtl.cpp
   analyze.cpp
   behaviour.cpp
   calculator.cpp
   chomsky_hierarchy.cpp
-  coverage.cpp
-  csv1.cpp
-  csv2.cpp
+  csv_1.cpp
+  csv_2.cpp
   dispatch.cpp
   dynamic_match.cpp
   expression.cpp
   hello_world.cpp
   indent_aware.cpp
-  iri.cpp
+  iri_struct.cpp
   json_analyze.cpp
   json_ast.cpp
   json_build.cpp
@@ -33,7 +32,8 @@ set(example_sources
   modulus_match.cpp
   parse_tree.cpp
   parse_tree_user_state.cpp
-  proto3.cpp
+  proto3_analyze.cpp
+  proto3_parse.cpp
   random_order.cpp
   recover.cpp
   s_expression.cpp
@@ -42,9 +42,9 @@ set(example_sources
   token_input_1.cpp
   token_input_2.cpp
   unescape.cpp
-  uri.cpp
   uri_print_debug.cpp
   uri_print_names.cpp
+  uri_struct.cpp
   uri_trace.cpp
 )
 

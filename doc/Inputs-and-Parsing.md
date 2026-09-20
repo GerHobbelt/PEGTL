@@ -80,7 +80,7 @@ bool my_parse( const std::filesystem::path& file, my_state& state )
 The PEGTL includes several [input classes](Input-Reference.md) for parsing memory, standard library containers, and files.
 Additionally there are dedicated [stream inputs](Stream-Parsing.md#inputs) for [stream parsing](Stream-Parsing.md).
 
-On closer inspection one will not be suprised to find the inputs to actually be class templates that can be further customized in various ways.
+On closer inspection one will not be surprised to find the inputs to actually be class templates that can be further customized in various ways.
 We will first classify the inputs according to the components of their names, explaining what e.g. a `text_mmap_input` is, and then explain their template parameters.
 
 ### Classification
@@ -106,6 +106,8 @@ All of the above inputs are also either
 
 - plain inputs whose position information is "simple", most often a count from the start of the input data, or
 - `text` inputs whose position information includes a line and column number based on the `Eol` parameter explained below.
+
+In addition there is the [`action_input`](Actions-and-States.md#action-input) which is closely associated with the inputs listed here but considered distinct because it can not be used as input for a parsing run.
 
 ### Parameters
 
@@ -253,7 +255,7 @@ bool parse( ParseInput& in,
 
 - The [`Rule` class](Rules-and-Grammars.md) represents the top-level parsing rule of the grammar and is mandatory.
 - The [`Action`](Actions-and-States.md) defaults to an action that does nothing. It is required to pass a user-defined action for a parsing run to do more, e.g. build some data structure, than validate an input against the grammar.
-- The [`Control`](Control-and-Debug.md) defaults to the normal control class that implements the expected and documented behaviour. It can be changed for debugging, e.g. printing all rule match attempts and their outcomes, and for some other advanced use cases, e.g. gathering rule invocation statistics.
+- The [`Control`](Control-and-Normal.md) defaults to the normal control class that implements the expected and documented behavior. It can be changed for debugging, e.g. printing all rule match attempts and their outcomes, and for some other advanced use cases, e.g. gathering rule invocation statistics.
 - The [`States`](Actions-and-States.md#changing-states) are the types of the additional state objects `st` that are passed to all rules' `match()` functions, all actions' `apply()` and `apply0()` functions, and all control functions. What is needed here depends on what the actions (and control functions) expect.
 - The `apply_mode` defaults to `apply_mode::enabled` which enables actions. Can be changed to `rewind_mode::disabled` or in the grammar with the [`enable`](Rule-Reference.md#enable-r-) and [`disable`](Rule-Reference.md#disable-r-) rules.
 - The `rewind_mode` defaults to `rewind_mode::dontcare` in which case the input might not be rewound to its start when `parse()` returns `false`. Rewinding can be enabled by passing `rewind_mode::required`.
@@ -324,8 +326,6 @@ The basic interface implemented by all inputs.
 
 ```c++
    using namespace tao::pegtl;
-
-   // Type aliases:
 
    using data_t = char ... or something else;
    using error_position_t = ...one of the position classes;
@@ -475,8 +475,8 @@ It requires an input `in` where `in.begin_of_line( pos )` and `in.end_of_line_or
 
 ### Stream Compatibility
 
-The PEGTL is designed to minimize the impact of the existence of the [stream inputs](TODO) on the core library.
-This goal was mostly achieved with the exception of some input functions and how the rules use them.
+The PEGTL is designed to minimize the impact of the existence of the [stream parsing](Stream-Parsing.md) on the core library.
+This goal was *mostly* achieved with the exception of some input functions and how the rules use them.
 All non-stream input classes implement the following functions for compatibility with the stream inputs.
 
 ```c++
@@ -497,7 +497,7 @@ All non-stream input classes implement the following functions for compatibility
    {}
 ```
 
-All rules that need to be compatible with [stream inputs](TODO) need to use the `end()` and `size()` variants *with* argument.
+All rules that need to be compatible with [stream inputs](Stream-Parsing.md#inputs) need to use the `end()` and `size()` variants *with* argument.
 The argument tells the stream input how much data it needs to prefetch or the rule to attempt its match.
 
 That is why, for example, the implementation of [`consume< Num >`](Rule-Reference.md#consume-num-) uses `if( in.size( Num ) >= Num )` instead of `if( in.size() >= Num )` to test whether the Input `in` contains at least `Num` further objects.

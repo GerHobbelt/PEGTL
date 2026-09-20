@@ -28,6 +28,7 @@
 #include <tao/pegtl/parse_error.hpp>
 #include <tao/pegtl/parse_error_base.hpp>
 #endif
+#include <tao/pegtl/parse_nested.hpp>
 #include <tao/pegtl/pegtl_string.hpp>
 #include <tao/pegtl/pointer_position.hpp>
 #include <tao/pegtl/position_with_source.hpp>
@@ -58,11 +59,12 @@
 #include <tao/pegtl/action/control_action.hpp>
 #include <tao/pegtl/action/disable_action.hpp>
 #include <tao/pegtl/action/enable_action.hpp>
+#include <tao/pegtl/action/match_typed_state.hpp>
 #include <tao/pegtl/action/require_apply.hpp>
 #include <tao/pegtl/action/require_apply0.hpp>
 
-#include <tao/pegtl/stream/analyze_traits.hpp>
 #include <tao/pegtl/stream/alloc_buffer.hpp>
+#include <tao/pegtl/stream/analyze_traits.hpp>
 #include <tao/pegtl/stream/array_buffer.hpp>
 #include <tao/pegtl/stream/buffers.hpp>
 #include <tao/pegtl/stream/cstream_reader.hpp>
@@ -75,13 +77,15 @@
 #include <tao/pegtl/stream/is_stream.hpp>
 #include <tao/pegtl/stream/istream_reader.hpp>
 #include <tao/pegtl/stream/other_buffer.hpp>
+#include <tao/pegtl/stream/prefetch.hpp>
 #include <tao/pegtl/stream/require.hpp>
-#include <tao/pegtl/stream/stream_input_base.hpp>
 #include <tao/pegtl/stream/stream_input.hpp>
+#include <tao/pegtl/stream/stream_input_base.hpp>
 #include <tao/pegtl/stream/stream_input_with_source.hpp>
 #include <tao/pegtl/stream/text_stream_input.hpp>
 #include <tao/pegtl/stream/text_stream_input_with_source.hpp>
 
+#include <tao/pegtl/control/apply_typed_state.hpp>
 #include <tao/pegtl/control/input_control.hpp>
 #if defined( __cpp_exceptions )
 #include <tao/pegtl/control/must_if.hpp>
@@ -113,9 +117,12 @@
 #include <tao/pegtl/debug/trace_traits.hpp>
 #include <tao/pegtl/debug/visit.hpp>
 
+#if defined( TAO_PEGTL_TEST_ICU )
 #include <tao/pegtl/unicode/icu16.hpp>
 #include <tao/pegtl/unicode/icu32.hpp>
 #include <tao/pegtl/unicode/icu8.hpp>
+#endif
+
 #include <tao/pegtl/unicode/utf16.hpp>
 #include <tao/pegtl/unicode/utf32.hpp>
 #include <tao/pegtl/unicode/utf8.hpp>
