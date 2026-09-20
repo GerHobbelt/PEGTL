@@ -22,6 +22,8 @@ set(test_sources
   action_match_typed_state.cpp
   apply_mode.cpp
   ascii_any.cpp
+  ascii_astring.cpp
+  ascii_aistring.cpp
   ascii_chars.cpp
   ascii_classes.cpp
   ascii_ellipsis.cpp
@@ -31,6 +33,7 @@ set(test_sources
   ascii_ione.cpp
   ascii_istring.cpp
   ascii_keyword.cpp
+  ascii_many.cpp
   ascii_not_ione.cpp
   ascii_not_one.cpp
   ascii_not_range.cpp
@@ -46,6 +49,17 @@ set(test_sources
   base_exceptions.cpp
   base_result.cpp
   base_setup.cpp
+  builder_build.cpp
+  builder_cases.cpp
+  builder_const.cpp
+  builder_create.cpp
+  builder_disabled.cpp
+  builder_json.cpp
+  builder_multi.cpp
+  builder_optional.cpp
+  builder_repeat.cpp
+  builder_value.cpp
+  builder_variant.cpp
   control_apply_typed_state.cpp
   control_input_control.cpp
   control_remove_first_state.cpp
@@ -96,14 +110,17 @@ set(test_sources
   example_semver2.cpp
   example_uri.cpp
   extra_charconv.cpp
+  extra_charconv_to.cpp
   extra_dispatch.cpp
   extra_nested_exceptions.cpp
   extra_parse_tree.cpp
   extra_parse_tree_to_dot.cpp
+  extra_partial_apply1.cpp
   extra_raw_string.cpp
   extra_record.cpp
   extra_type_to_string.cpp
   extra_unescape.cpp
+  extra_unescape_to.cpp
   icu_utf16_base.cpp
   icu_utf32_base.cpp
   icu_utf8_base.cpp
@@ -178,7 +195,6 @@ set(test_sources
   rule_action.cpp
   rule_apply.cpp
   rule_apply0.cpp
-  rule_ascii_many.cpp
   rule_at.cpp
   rule_bof.cpp
   rule_bol.cpp
@@ -197,6 +213,7 @@ set(test_sources
   rule_invert.cpp
   rule_list.cpp
   rule_list_must.cpp
+  rule_list_opt.cpp
   rule_list_tail.cpp
   rule_minus.cpp
   rule_must.cpp
@@ -231,8 +248,8 @@ set(test_sources
   rule_try_catch_raise_nested.cpp
   rule_try_catch_return_false.cpp
   rule_unordered.cpp
+  rule_unordered_partial.cpp
   rule_until.cpp
-  rule_utf8_string.cpp
   stream_analyze_traits.cpp
   stream_alloc_buffer.cpp
   stream_array_buffer.cpp
@@ -258,6 +275,7 @@ set(test_sources
   utf16_general.cpp
   utf32_general.cpp
   utf8_general.cpp
+  utf8_string.cpp
 )
 
 # file(GLOB ...) is used to validate the above list of test_sources

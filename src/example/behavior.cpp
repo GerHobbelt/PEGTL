@@ -145,9 +145,11 @@ namespace TAO_PEGTL_NAMESPACE::example
          const std::vector< std::string > v = { "", "a", "aa", "ab", "aba", "abab", "abc", "ac", "acb", "acba", "acbca" };
          header( v );
          row< list< a, b > >( "list< a, b >", v );
+         row< list_opt< a, b > >( "list_opt< a, b >", v );
          row< list_tail< a, b > >( "list_tail< a, b >", v );
          row< list_must< a, b > >( "list_must< a, b >", v );
          row< list< a, b, c > >( "list< a, b, c >", v );
+         row< list_opt< a, b, c > >( "list_opt< a, b, c >", v );
          row< list_tail< a, b, c > >( "list_tail< a, b, c >", v );
          row< list_must< a, b, c > >( "list_must< a, b, c >", v );
       }
@@ -178,6 +180,19 @@ namespace TAO_PEGTL_NAMESPACE::example
       std::cout << std::endl;
    }
 
+   void table6()
+   {
+      std::cout << "## ASCII String Rules\n\n";
+      {
+         const std::vector< std::string > v = { "", "inf", "infinityx", "iNFi", "infiNiTy" };
+         header( v );
+         row< string< 'i', 'n', 'f', 'i', 'n', 'i', 't', 'y' > >( "string< \"infinity\" >", v );
+         row< istring< 'i', 'n', 'f', 'i', 'n', 'i', 't', 'y' > >( "istring< \"infinity\" >", v );
+         row< astring< 3, 'i', 'n', 'f', 'i', 'n', 'i', 't', 'y' > >( "astring< 3, \"infinity\" >", v );
+         row< aistring< 3, 'i', 'n', 'f', 'i', 'n', 'i', 't', 'y' > >( "aistring< 3, \"infinity\" >", v );
+      }
+   }
+
    void behavior()
    {
       table1();
@@ -185,6 +200,7 @@ namespace TAO_PEGTL_NAMESPACE::example
       table3();
       table4();
       table5();
+      table6();
    }
 
 }  // namespace TAO_PEGTL_NAMESPACE::example

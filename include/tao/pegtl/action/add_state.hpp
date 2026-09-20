@@ -15,6 +15,7 @@
 
 #include "../internal/dependent_false.hpp"
 #include "../internal/has_success.hpp"
+#include "../internal/ignore_arguments.hpp"
 
 namespace TAO_PEGTL_NAMESPACE
 {
@@ -31,6 +32,8 @@ namespace TAO_PEGTL_NAMESPACE
                 typename... States >
       [[nodiscard]] static bool match( ParseInput& in, States&&... st )
       {
+         TAO_PEGTL_MSVC_IGNORE( in, st... );
+
          if constexpr( std::is_default_constructible_v< AddState > ) {
             AddState s;
             if( TAO_PEGTL_NAMESPACE::match< Rule, A, M, Action, Control >( in, s, st... ) ) {
@@ -60,6 +63,8 @@ namespace TAO_PEGTL_NAMESPACE
                 typename... States >
       static void success( const ParseInput& in, AddState& s, States&&... st )
       {
+         TAO_PEGTL_MSVC_IGNORE( in, st... );
+
          if constexpr( internal::has_success< AddState, void, const ParseInput&, States... > ) {
             s.success( in, st... );
          }

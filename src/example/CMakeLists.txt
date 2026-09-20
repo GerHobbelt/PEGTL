@@ -7,8 +7,9 @@ set(example_sources
   behavior.cpp
   calculator.cpp
   chomsky_hierarchy.cpp
-  csv_1.cpp
-  csv_2.cpp
+  csv_builder.cpp
+  csv_manual.cpp
+  csv_static.cpp
   dispatch.cpp
   dynamic_match.cpp
   expression.cpp
@@ -16,11 +17,12 @@ set(example_sources
   indent_aware.cpp
   iri_struct.cpp
   json_analyze.cpp
-  json_ast.cpp
-  json_build.cpp
+  json_builder.cpp
+  json_classes.cpp
   json_count.cpp
   json_coverage.cpp
   json_parse.cpp
+  json_parse_tree.cpp
   json_print_debug.cpp
   json_print_names.cpp
   json_record.cpp
@@ -30,6 +32,7 @@ set(example_sources
   lua53_analyze.cpp
   lua53_parse.cpp
   modulus_match.cpp
+  open_metrics.cpp
   parse_tree.cpp
   parse_tree_user_state.cpp
   proto3_analyze.cpp

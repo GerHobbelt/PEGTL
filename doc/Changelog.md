@@ -2,6 +2,35 @@
 
 All noteworthy changes since the first public [release](https://github.com/taocpp/PEGTL/releases).
 
+## Version 5.0.0
+
+Not Yet Released
+
+* Updated required C++ standard to C++20.
+* Fixed the [floating point](Example-Reference.md#fphpp) example [grammar](Rules-and-Grammars.md) to accept underscores in the `NAN` payload.
+* Added new convenience [rule](Rules-and-Gramamrs.md) [`list_opt`](Rule-Reference.md#list_opt-r-s-).
+* Added new ASCII [rules](Rules-and-Grammrs.md) [`astring`](Rule-Reference.md#astring-p-c-) and [`aistring`](Rule-Reference.md#aistring-p-c-).
+* Added new extra [rule](Rules-and-Grammars.md) [`partial_apply1`](Extra-Reference.md#partial_apply1hpp).
+* Added new *builder* actions. -- TODO: Documentation!
+  * Added new primitives `build_to` and `build_for`.
+  * Added new builder-style `create_to` and `create_for`.
+  * Added new builder-style `const_to` and `const_for`.
+  * Added new builder-style `value_to` and `value_for`.
+  * Added new builder-style `multi_to` and `multi_for`.
+  * Added new builder-style `optional_to` and `optional_for`.
+  * Added new builder-style `repeat_to` and `repeat_for`.
+  * Added new builder-style `variant_to` and `variant_for`.
+  * Added new builder-style `cases`, `cases_to` and `cases_for`.
+  * Added new builder-style `from_chars_to` and `from_chars_for`.
+  * Added new builder-style `unescape_to` and `unescape_for`.
+  * Added and updated examples that demonstrate builder actions.
+
+## Version 4.0.1
+
+Released TBD
+
+* Fixed [`rematch`](Rule-Reference.md#rematch-r-s-) not doing the right thing with some inputs.
+
 ## Version 4.0.0
 
 Released 2026-06-07
@@ -144,9 +173,9 @@ Released 2026-06-07
   * Renamed `apply_mode::nothing` to `apply_mode::disabled`.
   * Removed `random_order` example, moved to core library as [`unordered`](Rule-Reference.md#unordered-r-) and [`unordered_partial`](Rule-Reference.md#unordered_partial-r-).
   * Added new charconv rules and actions in [`extra/charconv.hpp`](Extra-Reference.md#charconvhpp).
-  * Renamed "limit_depth" functionality to "check_depth".
-  * Renamed "check_bytes" functionality to "check_consume".
-  * Renamed "limit_bytes" functionality to "limit_consume".
+  * Renamed `limit_depth` functionality to `check_depth`.
+  * Renamed `check_bytes` functionality to `check_consume`.
+  * Renamed `limit_bytes` functionality to `limit_consume`.
   * Moved depth counter to adapter class [`input_with_depth`](Input-Reference.md#input-with-depth).
   * Changed default top-level `rewind_mode` to `optional`.
   * Merged `rewind_mode` values `dontcare` and `active` into new value `optional`.
