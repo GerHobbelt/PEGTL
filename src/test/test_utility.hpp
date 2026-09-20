@@ -5,9 +5,11 @@
 #ifndef TAO_PEGTL_SRC_TEST_PEGTL_TEST_UTILITY_HPP
 #define TAO_PEGTL_SRC_TEST_PEGTL_TEST_UTILITY_HPP
 
+#include <cassert>
 #include <cstddef>
 #include <iostream>
 #include <string>
+#include <type_traits>
 
 #include <tao/pegtl/inputs.hpp>
 
@@ -43,7 +45,7 @@ namespace TAO_PEGTL_NAMESPACE::test
       return false;
    }
 
-   [[nodiscard]] std::string endless( const std::string& data, const std::size_t offset, const std::size_t count )
+   [[nodiscard]] inline std::string endless( const std::string& data, const std::size_t offset, const std::size_t count )
    {
       std::string t;
 

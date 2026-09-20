@@ -27,8 +27,8 @@
 #if defined( __cpp_exceptions )
 #include <tao/pegtl/parse_error.hpp>
 #include <tao/pegtl/parse_error_base.hpp>
-#endif
 #include <tao/pegtl/parse_nested.hpp>
+#endif
 #include <tao/pegtl/pegtl_string.hpp>
 #include <tao/pegtl/pointer_position.hpp>
 #include <tao/pegtl/position_with_source.hpp>
@@ -54,6 +54,7 @@
 #include <tao/pegtl/action/change_action_and_state.hpp>
 #include <tao/pegtl/action/change_action_and_states.hpp>
 #include <tao/pegtl/action/change_control.hpp>
+#include <tao/pegtl/action/change_rule.hpp>
 #include <tao/pegtl/action/change_state.hpp>
 #include <tao/pegtl/action/change_states.hpp>
 #include <tao/pegtl/action/control_action.hpp>

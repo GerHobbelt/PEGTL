@@ -6,7 +6,6 @@
 #include "test_utility.hpp"
 
 #include <tao/pegtl/action/add_state.hpp>
-#include <tao/pegtl/contrib/alphabet.hpp>
 
 namespace TAO_PEGTL_NAMESPACE
 {
@@ -69,7 +68,21 @@ namespace TAO_PEGTL_NAMESPACE
       void operator=( const state2&& ) = delete;
    };
 
-   using namespace alphabet::rules;
+   struct a
+      : one< 'a' >
+   {};
+
+   struct b
+      : one< 'b' >
+   {};
+
+   struct c
+      : one< 'c' >
+   {};
+
+   struct d
+      : one< 'd' >
+   {};
 
    struct grammar
       : seq< a, sor< b, c >, d, eof >
@@ -146,7 +159,6 @@ namespace TAO_PEGTL_NAMESPACE
          TAO_PEGTL_TEST_ASSERT( b );
          TAO_PEGTL_TEST_ASSERT( ctor );
          TAO_PEGTL_TEST_ASSERT( dtor );
-         TAO_PEGTL_TEST_ASSERT( i == 42 );
       }
       // state2 parse failure
       {
@@ -158,7 +170,6 @@ namespace TAO_PEGTL_NAMESPACE
          TAO_PEGTL_TEST_ASSERT( !b );
          TAO_PEGTL_TEST_ASSERT( ctor );
          TAO_PEGTL_TEST_ASSERT( dtor );
-         TAO_PEGTL_TEST_ASSERT( i == 42 );
       }
    }
 

@@ -9,7 +9,6 @@
 
 #if defined( __cpp_exceptions )
 #include <exception>
-#include <stdexcept>
 #endif
 
 #include "apply_mode.hpp"

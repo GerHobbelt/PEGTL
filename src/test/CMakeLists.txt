@@ -9,6 +9,7 @@ set(test_sources
   action_change_action_and_state.cpp
   action_change_action_and_states.cpp
   action_change_control.cpp
+  action_change_rule.cpp
   action_change_state.cpp
   action_change_states.cpp
   action_control_action.cpp
@@ -34,28 +35,10 @@ set(test_sources
   ascii_string.cpp
   ascii_three.cpp
   ascii_two.cpp
-  contrib_alphabet.cpp
-  contrib_charconv.cpp
-  contrib_check_consume.cpp
-  contrib_check_depth.cpp
-  contrib_dispatch.cpp
-  contrib_if_then.cpp
-  contrib_input_with_depth.cpp
-  contrib_input_with_offset.cpp
-  contrib_integer.cpp
-  contrib_integer_convert.cpp
-  contrib_integer_match.cpp
-  contrib_integer_maximum.cpp
-  contrib_limit_consume.cpp
-  contrib_nested_exceptions.cpp
-  contrib_parse_tree.cpp
-  contrib_parse_tree_to_dot.cpp
-  contrib_raw_string.cpp
-  contrib_record.cpp
-  contrib_rep_one_min_max.cpp
-  contrib_rep_string.cpp
-  contrib_type_to_string.cpp
-  contrib_unescape.cpp
+  base_empty.cpp
+  base_exceptions.cpp
+  base_result.cpp
+  base_setup.cpp
   control_apply_typed_state.cpp
   control_input_control.cpp
   control_remove_first_state.cpp
@@ -78,6 +61,10 @@ set(test_sources
   debug_trace_3.cpp
   debug_visit.cpp
   demangle.cpp
+  deprecated_alphabet.cpp
+  deprecated_if_then.cpp
+  deprecated_rep_one_min_max.cpp
+  deprecated_rep_string.cpp
   enable_control.cpp
   error_message_1.cpp
   error_message_2.cpp
@@ -86,6 +73,24 @@ set(test_sources
   example_iri.cpp
   example_json.cpp
   example_uri.cpp
+  extra_charconv.cpp
+  extra_check_consume.cpp
+  extra_check_depth.cpp
+  extra_dispatch.cpp
+  extra_input_with_depth.cpp
+  extra_integer.cpp
+  extra_integer_convert.cpp
+  extra_integer_match.cpp
+  extra_integer_maximum.cpp
+  extra_limit_consume.cpp
+  extra_nested_exceptions.cpp
+  extra_parse_tree.cpp
+  extra_parse_tree_to_dot.cpp
+  extra_raw_string.cpp
+  extra_record.cpp
+  extra_type_to_string.cpp
+  extra_unescape.cpp
+  extra_unordered.cpp
   icu_utf16_base.cpp
   icu_utf32_base.cpp
   icu_utf8_base.cpp
@@ -95,6 +100,7 @@ set(test_sources
   input_file_input.cpp
   input_mmap_input.cpp
   input_read_input.cpp
+  input_with_offset.cpp
   internal_any.cpp
   internal_argv_input.cpp
   internal_ascii_utility.cpp
@@ -218,9 +224,6 @@ set(test_sources
   stream_rule_require.cpp
   stream_stream_input_base.cpp
   stream_text_stream_input.cpp
-  test_empty.cpp
-  test_result.cpp
-  test_setup.cpp
   text_position.cpp
   type_list.cpp
   uint16_general.cpp
