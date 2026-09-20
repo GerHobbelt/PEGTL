@@ -13,6 +13,7 @@ set(test_sources
   action_change_state.cpp
   action_change_states.cpp
   action_check_consume.cpp
+  action_check_depth.cpp
   action_control_action.cpp
   action_enable_disable.cpp
   action_limit_consume.cpp
@@ -65,6 +66,10 @@ set(test_sources
   demangle.cpp
   deprecated_alphabet.cpp
   deprecated_if_then.cpp
+  deprecated_integer.cpp
+  deprecated_integer_convert.cpp
+  deprecated_integer_match.cpp
+  deprecated_integer_maximum.cpp
   deprecated_rep_one_min_max.cpp
   deprecated_rep_string.cpp
   deprecated_unescape.cpp
@@ -77,13 +82,7 @@ set(test_sources
   example_json.cpp
   example_uri.cpp
   extra_charconv.cpp
-  extra_check_depth.cpp
   extra_dispatch.cpp
-  extra_input_with_depth.cpp
-  extra_integer.cpp
-  extra_integer_convert.cpp
-  extra_integer_match.cpp
-  extra_integer_maximum.cpp
   extra_nested_exceptions.cpp
   extra_parse_tree.cpp
   extra_parse_tree_to_dot.cpp
@@ -100,6 +99,7 @@ set(test_sources
   input_file_input.cpp
   input_mmap_input.cpp
   input_read_input.cpp
+  input_with_depth.cpp
   input_with_offset.cpp
   internal_any.cpp
   internal_argv_input.cpp

@@ -3,6 +3,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -10,28 +11,29 @@
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/example/fp.hpp>
 
-using namespace TAO_PEGTL_NAMESPACE;
+namespace pegtl = TAO_PEGTL_NAMESPACE;
 
-namespace sum
+namespace example
 {
    struct padded_double
-      : pad< fp::value, space >
+      : pegtl::pad< pegtl::fp::value, pegtl::space >
    {};
 
    struct double_list
-      : list< padded_double, one< ',' > >
+      : pegtl::list< padded_double, pegtl::one< ',' > >
    {};
 
    struct grammar
-      : seq< double_list, eof >
+      : pegtl::seq< double_list, pegtl::eof >
    {};
 
    template< typename Rule >
    struct action
+      : pegtl::nothing< Rule >
    {};
 
    template<>
-   struct action< fp::value >
+   struct action< pegtl::fp::value >
    {
       template< typename ActionInput >
       static void apply( const ActionInput& in, double& sum )
@@ -44,7 +46,7 @@ namespace sum
       }
    };
 
-}  // namespace sum
+}  // namespace example
 
 int main()
 {
@@ -59,9 +61,9 @@ int main()
          break;
       }
       double d = 0.0;
-      view_input< void, char, std::string > in( "std::cin", str );
-      if( parse< sum::grammar, sum::action >( in, d ) ) {
-         std::cout << "parsing OK; sum = " << d << std::endl;
+      pegtl::view_input< void, char, std::string > in( "std::cin", str );
+      if( pegtl::parse< example::grammar, example::action >( in, d ) ) {
+         std::cout << "parsing OK; sum = " << std::setprecision( 12 ) << d << std::endl;
       }
       else {
          std::cout << "parsing failed" << std::endl;

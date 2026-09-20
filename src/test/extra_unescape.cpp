@@ -5,13 +5,13 @@
 #include "test.hpp"
 #include "test_utility.hpp"
 
-#include <tao/pegtl/extra/escape.hpp>
+#include <tao/pegtl/extra/unescape.hpp>
 
 namespace TAO_PEGTL_NAMESPACE
 {
    // clang-format off
    struct json_esc : list< seq< one< 'j' >, rep< 4, xdigit > >, one< '\\' > > {};
-   struct escaped : sor< c_escaped_char, short_escaped_unicode, long_escaped_unicode, hex_escaped_char, json_esc > {};
+   struct escaped : sor< c_escaped_char, short_escaped_unicode, long_escaped_unicode, hex_escaped_byte, json_esc > {};
    struct character : if_then_else< one< '\\' >, escaped, utf8::any > {};
    struct unstring : until< eof, character > {};
 

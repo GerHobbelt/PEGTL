@@ -17,17 +17,17 @@ int main()
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/debug/analyze.hpp>
 
-namespace sexpr
-{
-   namespace pegtl = TAO_PEGTL_NAMESPACE;
+namespace pegtl = TAO_PEGTL_NAMESPACE;
 
+namespace example
+{
    // clang-format off
    struct hash_comment : pegtl::until< pegtl::eolf > {};
 
    struct list;
    struct list_comment : pegtl::if_must< pegtl::at< pegtl::one< '(' > >, pegtl::disable< list > > {};
 
-   struct read_include : pegtl::seq< pegtl::one< ' ' >, pegtl::one< '"' >, pegtl::plus< pegtl::not_one7< '"' > >, pegtl::one< '"' > > {};
+   struct read_include : pegtl::seq< pegtl::one< ' ' >, pegtl::one< '"' >, pegtl::star< pegtl::not_one7< '"' > >, pegtl::one< '"' > > {};
    struct hash_include : pegtl::if_must< pegtl::string< 'i', 'n', 'c', 'l', 'u', 'd', 'e' >, read_include > {};
 
    struct hashed : pegtl::if_must< pegtl::one< '#' >, pegtl::sor< hash_include, list_comment, hash_comment > > {};
@@ -45,7 +45,7 @@ namespace sexpr
 
    struct anything : pegtl::sor< pegtl::space, hashed, normal > {};
 
-   struct main : pegtl::until< pegtl::eof, pegtl::must< anything > > {};
+   struct grammar : pegtl::until< pegtl::eof, pegtl::must< anything > > {};
    // clang-format on
 
    template< typename Rule >
@@ -53,7 +53,7 @@ namespace sexpr
    {};
 
    template<>
-   struct action< pegtl::plus< pegtl::not_one7< '"' > > >
+   struct action< pegtl::star< pegtl::not_one7< '"' > > >
    {
       template< typename ActionInput >
       static void apply( const ActionInput& in, std::string& fn )
@@ -76,25 +76,25 @@ namespace sexpr
          // the input is passed on for chained error messages (as
          // in "error in line x file foo included from file bar...)
          pegtl::text_file_input< pegtl::scan::lf_crlf > i2( fn );
-         pegtl::parse_nested< main, sexpr::action >( in, i2, f2 );
+         pegtl::parse_nested< grammar, example::action >( in, i2, f2 );
       }
    };
 
-}  // namespace sexpr
+}  // namespace example
 
 int main( int argc, char** argv )  // NOLINT(bugprone-exception-escape)
 {
-   if( TAO_PEGTL_NAMESPACE::analyze< sexpr::main >() != 0 ) {
+   if( pegtl::analyze< example::grammar >() != 0 ) {
       return 1;
    }
-   using input_t = TAO_PEGTL_NAMESPACE::argv_input< TAO_PEGTL_NAMESPACE::scan::lf_crlf >;
+   using input_t = pegtl::argv_input< pegtl::scan::lf_crlf >;
    for( int i = 1; i < argc; ++i ) {
       std::string fn;
       input_t in( argv, i );
       try {
-         TAO_PEGTL_NAMESPACE::parse< sexpr::main, sexpr::action >( in, fn );
+         pegtl::parse< example::grammar, example::action >( in, fn );
       }
-      catch( const TAO_PEGTL_NAMESPACE::parse_error_base& e ) {
+      catch( const pegtl::parse_error_base& e ) {
          std::cerr << e.what() << std::endl;
       }
    }
