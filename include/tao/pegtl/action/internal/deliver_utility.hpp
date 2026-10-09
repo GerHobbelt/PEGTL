@@ -81,10 +81,10 @@ namespace TAO_PEGTL_NAMESPACE::internal
    using delivery_traits_t = delivery_traits< decltype( S ) >;
 
    template< auto S >
-   using delivery_target_t = typename delivery_traits_t< S >::target_t;
+   using delivery_target_t = delivery_traits_t< S >::target_t;
 
    template< auto S >
-   using delivery_result_t = typename delivery_traits_t< S >::result_t;
+   using delivery_result_t = delivery_traits_t< S >::result_t;
 
    template< auto S, typename Result >
    void deliver( delivery_target_t< S >& target, Result&& result )
@@ -99,7 +99,6 @@ namespace TAO_PEGTL_NAMESPACE::internal
          std::apply( [ &target ]( auto&&... values ) { std::invoke( S, target, std::forward< decltype( values ) >( values )... ); }, std::forward< Result >( result ) );
       }
    }
-
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 
