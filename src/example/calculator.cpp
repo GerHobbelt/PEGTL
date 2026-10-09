@@ -303,7 +303,7 @@ namespace example
       static void apply( const ActionInput& in, const operators& /*unused*/, stacks& s )
       {
          std::stringstream ss( in.string() );
-         long v;
+         long v{};
          ss >> v;
          s.push( v );
       }
@@ -332,7 +332,7 @@ namespace example
 
 }  // namespace example
 
-int main( int argc, char** argv )  // NOLINT(bugprone-exception-escape)
+int main( int argc, char** argv )
 {
    // Check the grammar for some possible issues.
 

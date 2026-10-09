@@ -770,7 +770,7 @@ namespace TAO_PEGTL_NAMESPACE
 
 }  // namespace TAO_PEGTL_NAMESPACE
 
-int main( int argc, char** argv )  // NOLINT(bugprone-exception-escape)
+int main( int argc, char** argv )
 {
    using namespace TAO_PEGTL_NAMESPACE;
 
@@ -796,7 +796,7 @@ int main( int argc, char** argv )  // NOLINT(bugprone-exception-escape)
       const auto& p = e.position_object();
       std::cerr << e.what() << '\n'
                 << in.line_view_at( p ) << '\n'
-                << std::setw( int( p.column ) ) << '^' << '\n';
+                << std::setw( static_cast< int >( p.column ) ) << '^' << '\n';
    }
 #else
    if( const auto root = parse_tree::parse< abnf::grammar::rulelist, abnf::selector, nothing, abnf::control >( in ) ) {

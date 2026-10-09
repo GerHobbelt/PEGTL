@@ -59,7 +59,7 @@ namespace example
       template< typename... S >
       static void init( std::tuple< S... >& t, std::vector< std::string >& v )
       {
-         std::get< I >( t ) = std::move( v[ I ] );
+         std::get< I >( t ) = std::move( v.at( I ) );
          tuple_init< I - 1 >::init( t, v );
       }
    };
@@ -70,7 +70,7 @@ namespace example
       template< typename... S >
       static void init( std::tuple< S... >& t, std::vector< std::string >& v )
       {
-         std::get< 0 >( t ) = std::move( v[ 0 ] );
+         std::get< 0 >( t ) = std::move( v.at( 0 ) );
       }
    };
 
@@ -172,7 +172,7 @@ namespace example
 
 }  // namespace example
 
-int main( int argc, char** argv )  // NOLINT(bugprone-exception-escape)
+int main( int argc, char** argv )
 {
    for( int i = 1; i < argc; ++i ) {
       pegtl::text_file_input< pegtl::lazy::lf_crlf > in( argv[ i ] );

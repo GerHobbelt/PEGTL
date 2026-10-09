@@ -37,12 +37,14 @@ jobs:
         clang-tidy-22 -dump-config
 
     - name: Generate Compilation Database
-      run: cmake -S . -B build \
-             -DCMAKE_CXX_COMPILER=clang++-22 \
-             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-             -DPEGTL_BUILD_TESTS=OFF \
-             -DPEGTL_BUILD_EXAMPLES=ON \
-             -DPEGTL_BUILD_LINT=ON
+      run: |
+        cmake -S . -B build \
+          -DCMAKE_CXX_COMPILER=clang++-22 \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+          -DPEGTL_BUILD_TESTS=OFF \
+          -DPEGTL_BUILD_EXAMPLES=ON \
+          -DPEGTL_BUILD_LINT=ON
+        test -s build/compile_commands.json
 
     - name: Run clang-tidy on stand-alone headers
       id: headers
@@ -58,7 +60,8 @@ jobs:
     - name: Run clang-tidy on examples
       id: examples
       continue-on-error: true
-      run: run-clang-tidy-22 -p build -quiet -j "$(nproc)" -header-filter='^$' '.*/src/example/.*\.cpp$'
+      # The Lua examples take disproportionately long to analyze.
+      run: run-clang-tidy-22 -p build -quiet -j "$(nproc)" -header-filter='^$' '.*/src/example/(?!lua53).*\.cpp$'
 
     - name: Run clang-tidy on template instantiations
       id: instantiations

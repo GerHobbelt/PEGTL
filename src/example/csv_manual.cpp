@@ -87,7 +87,7 @@ namespace example
 
 }  // namespace example
 
-int main( int argc, char** argv )  // NOLINT(bugprone-exception-escape)
+int main( int argc, char** argv )
 {
    for( int i = 1; i < argc; ++i ) {
       pegtl::text_file_input< pegtl::lazy::lf_crlf > in( argv[ i ] );
@@ -100,7 +100,7 @@ int main( int argc, char** argv )  // NOLINT(bugprone-exception-escape)
          assert( !line.empty() );  // The grammar doesn't allow empty lines.
          std::cout << line.front();
          for( std::size_t j = 1; j < line.size(); ++j ) {
-            std::cout << ", " << line[ j ];
+            std::cout << ", " << line.at( j );
          }
          std::cout << std::endl;
       }

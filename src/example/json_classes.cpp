@@ -162,7 +162,7 @@ namespace example
 
 }  // namespace example
 
-int main( int argc, char** argv )  // NOLINT(bugprone-exception-escape)
+int main( int argc, char** argv )
 {
    if( argc != 2 ) {
       std::cerr << "usage: " << argv[ 0 ] << " <filename.json>\n";
@@ -180,7 +180,7 @@ int main( int argc, char** argv )  // NOLINT(bugprone-exception-escape)
       const auto& p = e.position_object();
       std::cerr << e.what() << '\n'
                 << in.line_view_at( p ) << '\n'
-                << std::setw( int( p.column ) ) << '^' << std::endl;
+                << std::setw( static_cast< int >( p.column ) ) << '^' << std::endl;
       return 1;
    }
 #else
