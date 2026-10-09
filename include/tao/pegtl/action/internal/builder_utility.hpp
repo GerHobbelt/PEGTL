@@ -82,7 +82,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
    }
 
    template< template< typename... > class Traits, typename T, typename... Args >
-   [[nodiscard]] T make_multi_impl( long /*unused*/, Args&&... args )
+   [[nodiscard]] T make_multi_impl( long /*unused*/, Args&&... args )  // NOLINT(google-runtime-int)
+
    {
       return T( std::forward< Args >( args )... );
    }
@@ -319,7 +320,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
    struct binding_index< Rule, Binding, Bindings... >
    {
       static constexpr std::size_t next = binding_index< Rule, Bindings... >::value;
-      static constexpr std::size_t value = binding_match< Rule, Binding > ? 0 : ( next == no_index ? next : next + 1 );
+      static constexpr std::size_t value = binding_match< Rule, Binding > ? 0 : ( next == no_index ? next : next + 1 );  // NOLINT(readability-avoid-nested-conditional-operator)
    };
 
    template< typename... Bindings >
